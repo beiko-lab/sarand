@@ -35,12 +35,10 @@ def show_images(image_list, main_title, output, cols = 1, title_list = None):
 		the same length as titles
 	"""
 	assert((title_list is None)or (len(image_list) == len(title_list)))
-	#import pdb; pdb.set_trace()
 	n_images = len(image_list)
 	if title_list is None: title_list = ['Image (%d)' % i for i in range(1,n_images + 1)]
 	fig = plt.figure()
 	for n, (image, title) in enumerate(zip(image_list, title_list)):
-		# a = fig.add_subplot(np.ceil(n_images/float(cols)), cols, n + 1)
 		a = fig.add_subplot(math.ceil(n_images/float(cols)), cols, n + 1)
 		plt.imshow(image)
 		ax = plt.gca()
@@ -67,8 +65,6 @@ def extract_annotation_from_csv(input_csv_file):
 		myreader = DictReader(myfile)
 		old_seq = ''
 		has_row = False
-		#temp
-		#old_len = 0
 		for row in myreader:
 			has_row = True
 			if row['coverage']!='':
@@ -81,18 +77,12 @@ def extract_annotation_from_csv(input_csv_file):
 			if cur_seq!=old_seq:
 				if (seq_info):
 					seq_info_list.append(seq_info)
-					#temp
-					#seq_length_list.append(old_len)
 				seq_info = []
 				old_seq = cur_seq
 				title_list.append(cur_seq)
 				seq_length_list.append(int(row['seq_length']))
-			#temp
-			#old_len = int(row['end_pos'])
 			seq_info.append(gene_info)
 		seq_info_list.append(seq_info)
-		#temp
-		#seq_length_list.append(old_len)
 	if not has_row:
 		logging.error("there is no sequence to visualize!")
 		return [], [], []

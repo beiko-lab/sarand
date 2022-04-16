@@ -214,62 +214,10 @@ def validate_print_parameters_tools(params):
 		logging.error('Not able to run Bandage successfully!')
 		sys.exit()
 	logging.info("Bandage was found!")
-		# if Pipeline_tasks.read_simulation.value in task_num_list:
-		# 	if not isinstance(params.read_length, int) or (params.read_length!=150 and params.read_length!=250):
-		# 		logging.error('read_length should be equal to either 150 or 250: '+ params.read_length)
-		# 		sys.exit()
-		# 	logging.info("read_length: "+str(params.read_length))
-		# 	#validate ART
-		# 	logging.info("Looking for ART ...")
-		# 	try:
-		# 		p = subprocess.Popen([params.ART_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-		# 	except:
-		# 		logging.error('Not able to run ART successfully!')
-		# 		sys.exit()
-		# 	logging.info("ART was found!")
-		# elif Pipeline_tasks.assembly.value in task_num_list:
-		# 	for read in params.reads:
-		# 		if not os.path.exists(read) and\
-		# 			os.path.exists(os.path.join(params.main_dir, read)):
-		# 			read = os.path.join(params.main_dir, read)
-		# 	logging.info("reads: "+params.reads)
-		# if Pipeline_tasks.assembly.value in task_num_list:
-		# 	#create the absolute path for assembler_output_dir
-		# 	if not params.main_dir in params.assembler_output_dir:
-		# 		params.assembler_output_dir = os.path.join(params.main_dir, params.assembler_output_dir)
-		# 	logging.info('assembler_output_dir: '+ params.assembler_output_dir)
-		# 	if not isinstance(params.spades_thread_num, int) or params.spades_thread_num<=0:
-		# 		logging.error('spades_thread_num should have a positive integer value: '+ params.spades_thread_num)
-		# 		sys.exit()
-		# 	logging.info("spades_thread_num: "+str(params.spades_thread_num))
-		# 	logging.info("assembler: "+params.assembler.name)
-		# 	if not isinstance(params.spades_error_correction, bool):
-		# 		logging.error('spades_error_correction should have a boolean value: '+ params.spades_error_correction)
-		# 		sys.exit()
-		# 	logging.info("spades_error_correction: "+str(params.spades_error_correction))
-		# 	#validate MetaSpades
-		# 	logging.info("Looking for MetaSPAdes ...")
-		# 	try:
-		# 		output = subprocess.check_output([params.SPADES_PATH, '-v'])
-		# 	except:
-		# 		logging.error('Not able to run metaSPAdes successfully!')
-		# 		sys.exit()
-		# 	logging.info("MetaSPAdes was found!")
-		# else:
 	if not os.path.exists(params.gfa_file) and\
 		os.path.exists(os.path.join(params.main_dir, params.gfa_file)):
 			params.gfa_file = os.path.join(params.main_dir, params.gfa_file)
 	logging.info("gfa_file: "+params.gfa_file)
-	# if func=="find_contig_amrs":
-	# 	if not os.path.exists(params.contig_file) and\
-	# 		os.path.exists(os.path.join(params.main_dir, params.contig_file)):
-	# 		params.contig_file = os.path.join(params.main_dir, params.contig_file)
-	# 	logging.info("contig_file: "+params.contig_file)
-	# if func=="find_ref_amrs":
-	# 	if not os.path.exists(params.ref_genome_files) and\
-	# 		os.path.exists(os.path.join(params.main_dir, params.ref_genome_files)):
-	# 		params.ref_genome_files = os.path.join(params.main_dir, params.ref_genome_files)
-	# 	logging.info("ref_genome_file(s): "+params.ref_genome_files)
 	return params
 
 def str2bool(v):
@@ -288,12 +236,6 @@ def str2bool(v):
 		return False
 	else:
 		raise argparse.ArgumentTypeError('Boolean value expected.')
-
-def print_params(params):
-	"""
-	"""
-	mylog = '\n'.join(param for param in params)
-	logging.info(mylog)
 
 def verify_file_existence(param_file, message):
 	"""
@@ -415,112 +357,6 @@ def extract_files(gfiles, message):
 		logging.error(message)
 		sys.exit()
 
-def extract_amr_names_from_alignment_files(align_files):
-	"""
-	"""
-	amr_names = [os.path.basename(e).split('_align')[0] for e in align_files]
-	return amr_names
-
-def read_ref_neighborhoods_from_file(ref_ng_file):
-	"""
-	"""
-	ng_lists = []
-	amr_list = []
-	with open(ref_ng_file) as myref:
-		for line in myref:
-			if line.startswith('>'):
-				items = line.split('::')
-				amr_name = items[0]
-				contig_name = items[1][:-1]
-			else:
-				ng_item ={'contig':contig_name, 'seq':line[:-1]}
-				if amr_name not in amr_list:
-					amr_list.append(amr_name)
-					ng_lists.append([ng_item])
-				else:
-					amr_index = amr_list.index(amr_name)
-					ng_lists[amr_index].append(ng_item)
-
-	return zip(amr_lists, ng_lists)
-
-def read_ref_annotations_from_db(amr_groups_db, amr_name):
-	"""
-	"""
-	headers = ['seq_name', 'seq_value','seq_length', 'gene', 'prokka_gene_name',
-				'length','start_pos', 'end_pos', 'RGI_prediction_type']
-	amr_group = amr_groups_db.get_group(amr_name)
-	loc_groups = amr_group.groupby('gene_location')
-	location_groups_name = list(loc_groups.groups)
-	#extract up_stream info
-	ref_up_info_list = []
-	if 'up_stream' in location_groups_name:
-		up_loc_group = loc_groups.get_group('up_stream')
-		up_info_list = up_loc_group.groupby(['seq_name'])[headers].apply(lambda g: g.values.tolist())
-		for item in up_info_list:
-			seq_info = []
-			for info in item:
-				gene_info = dict(zip(headers, info))
-				seq_info.append(gene_info)
-			ref_up_info_list.append(seq_info)
-	#extract down_stream info
-	ref_down_info_list = []
-	if 'down_stream' in location_groups_name:
-		down_loc_group = loc_groups.get_group('down_stream')
-		down_info_list = down_loc_group.groupby(['seq_name'])[headers].apply(lambda g: g.values.tolist())
-		for item in down_info_list:
-			seq_info = []
-			for info in item:
-				gene_info = dict(zip(headers, info))
-				seq_info.append(gene_info)
-			ref_down_info_list.append(seq_info)
-	#extract amr info
-	ref_amr_info_list = []
-	if 'target_amr' in location_groups_name:
-		amr_group = loc_groups.get_group('target_amr')
-		amr_info_list = amr_group.groupby(['seq_name'])[headers].apply(lambda g: g.values.tolist())
-		for item in amr_info_list:
-			seq_info = []
-			if len(item)<1:
-				logging.error("there should be one AMR info per seq!")
-				import pdb; pdb.set_trace()
-			elif len(item)==1:
-				seq_info = dict(zip(headers, item[0]))
-			else:
-				for info in item:
-					gene_info = dict(zip(headers, info))
-					seq_info.append(gene_info)
-			ref_amr_info_list.append(seq_info)
-
-	return ref_up_info_list, ref_amr_info_list, ref_down_info_list
-
-
-#>>> x[0]
-#[['bla', 'bla', 267, 35, 301], ['tnpR', 'tnpR', 252, 567, 818]]
-#>>> x[0][0]
-#['bla', 'bla', 267, 35, 301]
-#>>> x[1]
-#[['tnpR', 'tnpR', 354, 465, 818]]
-#>>> x[1][0]
-#['tnpR', 'tnpR', 354, 465, 818]
-
-	# ref_up_info_lists = []
-	# ref_down_info_lists = []
-	# ref_amr_info_lists = []
-	# ref_up_info_list = []
-	# ref_down_info_list= []
-	# ref_amr_info_list = []
-	# with open(annotation_file) as fd:
-	# 	myreader = DictReader(myfile)
-	# 	old_amr = ''
-	# 	for row in myreader:
-	# 		cur_amr = row['target_amr']
-	# 		gene_info = {'seq_name':row['seq_name'], 'seq_value':row['seq_value'],
-	# 			'seq_length':int(row['seq_length']), 'gene':row['gene'],
-	# 			'length':int(row['length']), 'start_pos':int(row['start_pos']),
-	# 			'end_pos':int(row['end_pos'])}
-	# 		if row['gene_location']=='up_stream':
-
-
 def run_RGI(input_file, output_dir, seq_description, include_loose = False, delete_rgi_files = False):
 	"""
 	To run RGI and annotate AMRs in the sequence
@@ -552,12 +388,6 @@ def run_RGI(input_file, output_dir, seq_description, include_loose = False, dele
 		carg_list.append("--include_loose")
 	rgi_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check= True)
 	logging.info(rgi_command.stdout.decode('utf-8'))
-	# command = "rgi main --input_sequence " + input_file + " --output_file " +\
-	# 	output_file_name +" --input_type protein --clean --exclude_nudge"
-	# if include_loose:
-	# 	command+=" --include_loose"
-	# #rgi main --input_sequence  <seq_file_name> --output_file <output_file_name> --clean --include_loose --exclude_nudge --low_quality
-	# os.system(command)
 	seq_info_list = []
 	if os.path.isfile(output_file_name + '.txt'):
 		with open(output_file_name + '.txt', newline = '') as rgi_file:
@@ -598,14 +428,6 @@ def annotate_sequence(seq, seq_description, output_dir, prokka_prefix, use_RGI =
 	pid = os.getpid()
 	prokka_dir = 'prokka_dir_'+seq_description+'_'+str(pid)+'_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')
 	prefix_name = 'mygenome_'+seq_description
-	# if os.path.exists(prokka_dir):
-	# 	try:
-	# 		shutil.rmtree(prokka_dir)
-	# 	except OSError as e:
-	# 		logging.error("Error: %s - %s." % (e.filename, e.strerror))
-	# command = prokka_prefix + 'prokka --metagenome --outdir '+\
-	# 	prokka_dir+' --prefix '+ prefix_name+' --fast --notrna '+seq_file_name
-	# os.system(command)
 	arg_list = ["prokka", "--metagenome", "--outdir", prokka_dir, "--prefix",
 				prefix_name, "--fast", "--notrna", seq_file_name]
 	if prokka_prefix!="":
@@ -668,24 +490,6 @@ def annotate_sequence(seq, seq_description, output_dir, prokka_prefix, use_RGI =
 			logging.error("Error: %s - %s." % (e.filename, e.strerror))
 
 	return seq_info
-
-def split_up_down_seq(sequence):
-	"""
-	"""
-	up_found = False
-	down_found = False
-	up_seq = ''
-	down_seq = ''
-	for ch in sequence:
-		if ch.isupper() and not up_found:
-			up_seq+=ch
-		elif ch.islower():
-			up_found = True
-			continue
-		elif ch.isupper() and not down_found:
-			down_seq+=ch
-
-	return up_seq, down_seq
 
 def split_up_down_info(sequence, seq_info):
 	"""
@@ -759,9 +563,6 @@ def compare_two_sequences(subject, query, output_dir, threshold = 90, switch_all
 						"10 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore qcovhsp"],
 						stdout=blast_file, check= True)
 	blast_file.close()
-	# command = 'blastn -query '+query_file_name+' -subject '+subject_file_name+\
-	# 	' -task blastn-short -outfmt 10  > '+ blast_file_name
-	# os.system(command)
 
 	if return_file:
 		return blast_file_name
@@ -788,35 +589,6 @@ def unnamed_genes_are_siginificantly_similar(gene_info1, gene_info2, output_dir,
 	start2, end2 = min(gene_info2['start_pos'], gene_info2['end_pos']), max(gene_info2['start_pos'], gene_info2['end_pos'])
 	seq2 = gene_info2['seq_value'][start2-1:end2-1]
 	return compare_two_sequences(seq1, seq2, output_dir, threshold)
-
-def first_fully_covered_by_second(first_seq, second_seq, out_dir,
-					in_reversed_order = False, threshold = 90):
-	"""
-	first_seq: gene1--gene2 and second_seq: gene1--gene2   		True
-	first_seq: gene1--gene2 and second_seq: gene1--gene3   		False
-	first_seq: gene1        and second_seq: gene1--gene3   		True
-	"""
-	if len(first_seq) <= len(second_seq):
-		identical_rows = 0
-		if not in_reversed_order:
-			for i, gene_info1 in enumerate(first_seq):
-				gene_info2 = second_seq[i]
-				if (gene_info1['gene']==gene_info2['gene'] and gene_info1['gene']!='') or\
-					(gene_info1['gene']==gene_info2['gene'] and\
-					unnamed_genes_are_siginificantly_similar(gene_info1, gene_info2, out_dir, threshold) ):
-					identical_rows+=1
-			if identical_rows == len(first_seq):
-				return True
-		else:
-			for i, gene_info1 in enumerate(reversed(first_seq)):
-				gene_info2 = list(reversed(second_seq))[i]
-				if (gene_info1['gene']==gene_info2['gene'] and gene_info1['gene']!='') or\
-					(gene_info1['gene']==gene_info2['gene'] and\
-					unnamed_genes_are_siginificantly_similar(gene_info1, gene_info2, out_dir, threshold) ):
-					identical_rows+=1
-			if identical_rows == len(first_seq):
-				return True
-	return False
 
 def seqs_annotation_are_identical(seq_info1, seq_info2, out_dir, threshold = 90):
 	"""
@@ -848,43 +620,10 @@ def similar_seq_annotation_already_exist(seq_info_list, all_seq_info_lists, out_
 	found = False
 	for seq_list in all_seq_info_lists:
 		if seqs_annotation_are_identical(seq_info_list, seq_list, out_dir, threshold):
-		# if len(seq_list)==len(seq_info_list):
-		# 	similar_rows = 0
-		# 	for i, seq_info in enumerate(seq_info_list):
-		# 		if (seq_info['gene']==seq_list[i]['gene'] and seq_info['gene']!='') or\
-		# 			(seq_info['gene']==seq_list[i]['gene'] and\
-		# 			unnamed_genes_are_siginificantly_similar(seq_info, seq_list[i], threshold = 90)):
-		# 			#(seq_info['gene']==seq_list[i]['gene'] and seq_info['length']==seq_list[i]['length']):
-		# 		# if (seq_info['gene']==seq_list[i]['gene'] or\
-		# 		# 	(seq_info['gene']=='' and (seq_list[i]['gene']=='UNKNOWN' or\
-		# 		# 								seq_list[i]['gene']==''))):
-		# 		# 	if seq_info['length']==seq_list[i]['length'] or\
-		# 		#  	(seq_info['start_pos']==seq_list[i]['start_pos'] and\
-		# 		# 	seq_info['end_pos']==seq_list[i]['end_pos']):
-		# 			similar_rows+=1
-		# 	if similar_rows == len(seq_list):
 			found = True
 			break
 
 	return found
-
-def extract_up_down_from_csv_file(seq_info):
-	"""
-	"""
-	up_info = []
-	down_info = []
-	amr_info = []
-	amr_found = False
-	for gene_info in seq_info:
-		if gene_info['target_amr']=='yes':
-			amr_info = gene_info
-			amr_found = True
-		elif not amr_found:
-			up_info.append(gene_info)
-		else:
-			down_info.append(gene_info)
-
-	return amr_found, up_info, down_info, amr_info
 
 def extract_info_from_overlap_file(overlap_file_name):
 	"""
@@ -903,25 +642,6 @@ def extract_info_from_overlap_file(overlap_file_name):
 				else:
 					unique_amr_list.append(items[0])
 	return heads, member_lists, unique_amr_list
-
-def read_info_from_overlap_ref_files(overlap_file_name, ref_amr_files):
-	"""
-	"""
-	unique_amr_files = []
-	not_found_amr_names = []
-	heads, member_lists, unique_amr_list = extract_info_from_overlap_file(overlap_file_name)
-	unique_restricted_amr_names = [restricted_amr_name_from_modified_name(e) for e in heads + unique_amr_list]
-	all_found_amr_names = heads + unique_amr_list + [e for list in member_lists for e in list]
-	restricted_amr_names = [restricted_amr_name_from_modified_name(e) for e in all_found_amr_names]
-	for ref_file in ref_amr_files:
-		ref_name = extract_name_from_file_name(ref_file)
-		if not ref_name in restricted_amr_names:
-			_, amr_name = retrieve_AMR(ref_file)
-			not_found_amr_names.append(amr_name)
-		elif ref_name in unique_restricted_amr_names:
-			unique_amr_files.append(ref_file)
-
-	return unique_amr_files, not_found_amr_names, len(all_found_amr_names)
 
 def extract_unique_align_files(all_align_files, unique_amr_files):
 	"""
@@ -1047,56 +767,6 @@ def extract_path_info_for_amrs(all_align_files, unique_amr_files,amr_count, thre
 				import pdb; pdb.set_trace()
 	return unique_amr_path_list
 
-
-def concatenate_files(ref_files, final_file = 'metagenome.fasta'):
-	"""
-	To concatenate some files into a single file OR more specifically
-	to create a metagenome sample from some genomes
-	Parameters:
-		ref_files:	the list of reference genomes in which AMR gene is supposed to be inserted
-		final_file: the address of the metagenome file
-	Return:
-		The address of final_file
-	"""
-	final = open(final_file, 'a')
-	for myfile in ref_files:
-		cat_command = subprocess.run(["cat", myfile], stdout=final, check=True)
-		# command = 'cat '+myfile+' >> ' + final_file
-		# os.system(command)
-	final.close()
-	return final_file
-
-def extract_family_of_amrs(info_file = '/media/Data/PostDoc/Dalhousie/Work/Test2/aro_index.tsv'):
-	"""
-	"""
-	amr_family = collections.defaultdict(lambda: '')
-	with open(info_file, 'r') as myfile:
-		myreader = DictReader(myfile, delimiter='\t')
-		for row in myreader:
-			gene_name = row['Model Name'].strip()
-			family_name =row['AMR Gene Family'].strip()
-			amr_family[gene_name]=family_name
-	return amr_family
-def extract_amr_family_info(file_name = AMR_FAMILY_INFO):
-	"""
-	To extract the list of AMR families and their corresponding AMR genes from a
-	CARD excel sheet
-	"""
-	family_list = []
-	family_info = []
-	with open(file_name, 'r') as myfile:
-		myreader = DictReader(myfile, delimiter='\t')
-		for row in myreader:
-			gene_name = amr_name_from_title(row['Model Name'])
-			if row['AMR Gene Family'] not in family_list:
-				family_list.append(row['AMR Gene Family'])
-				family_info.append([gene_name.lower()])
-			else:
-				myindex = family_list.index(row['AMR Gene Family'])
-				family_info[myindex].append(gene_name.lower())
-
-	return {'family':family_list, 'gene_list':family_info}
-
 def delete_lines_started_with(ch, filename):
 	"""
 	To delete all the lines in a text file that starts with a given character
@@ -1123,9 +793,6 @@ def delete_a_string_from_file(ch, filename):
 		ch: the character or string to be deleted
 		filename: the text file
 	"""
-	# command = "sed -i 's/*//g' " + input_file
-	# os.system(command)
-	#with open(filename, 'r') as infile, open('temp.txt', 'w') as outfile:
 	with open(filename, 'r') as infile, open('temp_'+os.path.basename(filename), 'w') as outfile:
 		data = infile.read()
 		data = data.replace(ch,'')

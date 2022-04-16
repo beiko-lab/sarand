@@ -40,10 +40,7 @@ from sarand.params import Assembler_name
 
 BANDAGE_PATH = '/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage'
 OUT_DIR = 'output'
-BOTH_DIR_RECURSIVE = True
-#MAX_K_MER_SIZE = 55
 TEMP_DIR = 'temp'
-#TIME_OUT_COUNTER = 600
 
 def retrieve_AMR(file_path):
 	"""
@@ -384,42 +381,6 @@ def append_path_sequence(sequence, path, sequence_list, path_list, output_dir,
 
 	return sequence_list, path_list, path_length_list
 
-def find_longest_post_neighbor(node, node_orient, node_list, both_dir):
-	"""
-	"""
-	longest_edge = None
-	max_length = 0
-	for edge in (node.dovetails_L + node.dovetails_R):
-		if len(edge.to_segment.sequence)>max_length and\
-				edge.from_segment.name == node.name and edge.to_segment.name != node.name and\
-				edge.to_segment.name not in node_list and edge.from_orient == node_orient:
-			longest_edge = edge
-			max_length = len(edge.to_segment.sequence)
-		elif both_dir and len(edge.from_segment.sequence)>max_length and\
-				edge.to_segment.name == node.name and edge.from_segment.name != node.name and\
-				edge.from_segment.name not in node_list and edge.to_orient == reverse_sign(node_orient):
-			longest_edge = edge
-			max_length = len(edge.from_segment.sequence)
-	return longest_edge
-
-def find_longest_pre_neighbor(node, node_orient, node_list, both_dir):
-	"""
-	"""
-	longest_edge = None
-	max_length = 0
-	for edge in (node.dovetails_L + node.dovetails_R):
-		if len(edge.from_segment.sequence)>max_length and\
-				edge.to_segment.name == node.name and edge.from_segment.name != node.name and\
-				edge.from_segment.name not in node_list and edge.to_orient == node_orient:
-			longest_edge = edge
-			max_length = len(edge.from_segment.sequence)
-		elif both_dir and len(edge.to_segment.sequence)>max_length and\
-				edge.from_segment.name == node.name and edge.to_segment.name != node.name and\
-				edge.to_segment.name not in node_list and edge.from_orient == reverse_sign(node_orient):
-			longest_edge = edge
-			max_length = len(edge.to_segment.sequence)
-	return longest_edge
-
 def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, current_path,
 												length, sequence_list, path_list, node_list,
 												compare_dir, path_thr,
@@ -502,75 +463,9 @@ def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, c
 							current_path_length, path_length_list, out_file)
 	return sequence_list, path_list, path_length_list
 
-def extract_post_sequence_recursively(node, node_orient, current_seq, current_path,
-										length, sequence_list, path_list, node_list,
-										compare_dir, path_thr,
-										current_path_length, path_length_list, out_file):
-	"""
-	To extract recursively the sequences following the AMR gene sequence and their paths
-	Parameters:
-		node:		the staring node in next paths
-		node_orient:the orientation of the node in the edge this function instance was called from
-		current_seq:the seq found so far
-		current_path: the path found so far
-		length: the remained length of the sequences around the AMR gene to be extracted
-		sequence_list: the list of sequences following the AMR gene sequence
-		path_list:	the list of nodes (and their orientation) following the nodes presenting the AMR gene
-		node_list:	the list of nodes presenting the AMR gene
-		path_thr: the threshold used for recursive pre_path and post_path
-			search as long as the length of the path is less that this threshold
-	Return:
-		modified sequence_list and path_list
-
-	"""
-	seq = ""
-	found_any_edge = False
-	if length > 0 and len(current_path)<path_thr:
-		for edge in (node.dovetails_L + node.dovetails_R):
-			#the second part of condition ensures that we are finding only nodes that are not presenting the AMR gene itself
-			#Logically that shouldn't be the case unless there is a loop in the network:
-			# path A -> B -> C represents the AMR; however we have an edge C -> A
-			#so when we are looking for the nodes following AMR , A is selected too!!!!!
-			if edge.from_segment.name == node.name and edge.to_segment.name != node.name and\
-					edge.to_segment.name not in node_list and edge.from_orient == node_orient:
-				#taking care of loops in the path
-				index = exist_in_path(current_path, edge.to_segment.name+edge.to_orient)
-				if index == -1:
-					found_any_edge = True
-					new_seq = sequence_on_orientation(edge.to_segment.sequence, edge.to_orient)
-					#Remove the overlap between nodes' sequences
-					overlap_size = find_overlap(node, edge.to_segment, node_orient, edge.to_orient)
-					new_seq = new_seq[overlap_size:]
-					seq = current_seq + new_seq
-					path=list.copy(current_path)
-					path.append(str(edge.to_segment.name)+str(edge.to_orient))
-					path_length = list.copy(current_path_length)
-					path_length.append(min(len(new_seq), length))
-					if len(new_seq) >= length:
-						sequence_list, path_list, path_length_list =\
-								append_path_sequence(seq[:len(current_seq)+length],
-								path, sequence_list, path_list, compare_dir,
-								path_length, path_length_list, out_file)
-					else:
-						sequence_list, path_list, path_length_list =\
-								extract_post_sequence_recursively(
-								edge.to_segment, edge.to_orient, seq, path,
-								length - len(new_seq), sequence_list, path_list,
-								node_list, compare_dir, path_thr,
-								path_length, path_length_list, out_file)
-				# graph loops are specified in { }
-				elif index > -1:
-					current_path[index] = '{'+current_path[index]
-					current_path[-1]+='}'
-	if not found_any_edge:
-		sequence_list, path_list, path_length_list = append_path_sequence(current_seq, current_path,
-										sequence_list, path_list, compare_dir,
-										current_path_length, path_length_list, out_file)
-	return sequence_list, path_list, path_length_list
-
 def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_dir,
 						output_name, path_thr,
-						time_out_counter, both_dir = BOTH_DIR_RECURSIVE):
+						time_out_counter):
 	"""
 	The initial function to extract the post_sequence of AMR.
 	it adds the sequence following the AMR sequence (if there is any) in the last
@@ -583,8 +478,6 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 		end_pos: 	the position of AMR in the last node in which the AMR gene ended
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
-		both_dir:	if True we check node's orientation as well as their direction to find
-		 	valid nodes in post_path/post_sequence
 	Return:
 		the lists of sequences and paths following AMR
 	"""
@@ -623,48 +516,26 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 		if len(post_sequence)>0:
 			path_length.append(len(post_sequence))
 		p = ''
-		if not both_dir:
-			if time_out_counter<=0:
-				extract_post_sequence_recursively(
-							node = node, node_orient = node_orient,
-							current_seq = post_sequence, current_path = [],
-							length = postfix_length, sequence_list = [],
-							path_list = [], node_list = node_list,
-							comapre_dir = compare_dir,
-							path_thr = path_thr,
-							current_path_length = path_length,
-							path_length_list = path_length_list,
-							out_file = temp_result)
-			else:
-				p = multiprocessing.Process(target=extract_post_sequence_recursively,
-									args = (node, node_orient, post_sequence, [],
-									postfix_length, [], [], node_list,
-									compare_dir, path_thr,
-									path_length, path_length_list, temp_result))
-				p.start()
-				# Wait for time_out_counter seconds or until process finishes
-				p.join(time_out_counter)
+		if time_out_counter<=0:
+			extract_post_sequence_recursively_both_dir(
+						node = node, node_orient = node_orient,
+						current_seq = post_sequence, current_path = [],
+						length = postfix_length, sequence_list = [],
+						path_list = [], node_list = node_list,
+						compare_dir = compare_dir,
+						path_thr = path_thr,
+						current_path_length = path_length,
+						path_length_list = path_length_list,
+						out_file = temp_result)
 		else:
-			if time_out_counter<=0:
-				extract_post_sequence_recursively_both_dir(
-							node = node, node_orient = node_orient,
-							current_seq = post_sequence, current_path = [],
-							length = postfix_length, sequence_list = [],
-							path_list = [], node_list = node_list,
-							compare_dir = compare_dir,
-							path_thr = path_thr,
-							current_path_length = path_length,
-							path_length_list = path_length_list,
-							out_file = temp_result)
-			else:
-				p = multiprocessing.Process(target=extract_post_sequence_recursively_both_dir,
-									args = (node, node_orient, post_sequence, [],
-									postfix_length, [], [], node_list,
-									compare_dir, path_thr,
-									path_length, path_length_list, temp_result))
-				p.start()
-				# Wait for time_out_counter seconds or until process finishes
-				p.join(time_out_counter)
+			p = multiprocessing.Process(target=extract_post_sequence_recursively_both_dir,
+								args = (node, node_orient, post_sequence, [],
+								postfix_length, [], [], node_list,
+								compare_dir, path_thr,
+								path_length, path_length_list, temp_result))
+			p.start()
+			# Wait for time_out_counter seconds or until process finishes
+			p.join(time_out_counter)
 
 		if p!='' and p.is_alive():
 			logging.info("extract_post_sequence is still running... let's kill it...")
@@ -780,76 +651,8 @@ def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, cu
 										current_path_length, path_length_list, out_file)
 	return sequence_list, path_list, path_length_list
 
-def extract_pre_sequence_recursively(node, node_orient, current_seq, current_path,
-										length, sequence_list, path_list, node_list,
-										compare_dir, path_thr,
-										current_path_length, path_length_list,
-										out_file):
-	"""
-	To extract recursively the sequences preceding the AMR gene sequence and their paths
-	Parameters:
-		node:		the staring node in next paths
-		node_orient:the orientation of the node in the edge this function instance was called from
-		current_seq:the seq found so far
-		current_path: the path found so far
-		length: the remained length of the sequences around the AMR gene to be extracted
-		sequence_list: the list of sequences preceding the AMR gene sequence
-		path_list:	the list od nodes (and their orientation) preceding the nodes presenting the AMR gene
-		node_list:	the list of nodes presenting the AMR gene
-		path_thr: the threshold used for recursive pre_path and post_path
-			search as long as the length of the path is less that this threshold
-	Return:
-		modified sequence_list and path_list
-	"""
-	seq = ""
-	found_any_edge = False
-	if length > 0 and len(current_path)<path_thr:
-		for edge in (node.dovetails_R + node.dovetails_L):
-			#the second part ofcondition ensures that we are finding only nodes that are not presenting the AMR gene itself
-			#Logically that shouldn't be the case unless there is a loop in the network:
-			# path A -> B -> C represents the AMR; however we have an edge C -> A
-			#so when we are looking for the nodes preceding AMR , C is selected too!!!!!
-			if edge.to_segment.name == node.name and edge.from_segment.name != node.name and\
-					edge.from_segment.name not in node_list and edge.to_orient == node_orient:
-				#taking care of loops in the path
-				index = exist_in_path(current_path, edge.from_segment.name+edge.from_orient)
-				if index == -1:
-					found_any_edge = True
-					new_seq = sequence_on_orientation(edge.from_segment.sequence, edge.from_orient)
-					#Remove the overlap between nodes' sequences
-					overlap_size = find_overlap(edge.from_segment, node, edge.from_orient, node_orient)
-					new_seq = new_seq[:len(new_seq)-overlap_size]
-					seq =  new_seq + current_seq
-					path=list.copy(current_path)
-					path.insert(0, str(edge.from_segment.name) + str(edge.from_orient))
-					path_length = list.copy(current_path_length)
-					path_length.insert(0, min(len(new_seq), length))
-					if len(new_seq) >= length:
-						sequence_list, path_list, path_length_list =\
-									append_path_sequence(seq[len(new_seq)-length:],
-									path, sequence_list, path_list, compare_dir,
-									path_length, path_length_list, out_file)
-					else:
-						sequence_list, path_list, path_length_list =\
-						 			extract_pre_sequence_recursively(
-									edge.from_segment, edge.from_orient, seq, path,
-									length - len(new_seq), sequence_list, path_list,
-									node_list, compare_dir, path_thr,
-									path_length, path_length_list, out_file)
-				# graph loops are specified in { }
-				elif index>-1:
-					current_path[index] = current_path[index] + '}'
-					current_path[0]='{' + current_path[0]
-	if not found_any_edge:
-		sequence_list, path_list, path_length_list = append_path_sequence(current_seq,
-									current_path, sequence_list, path_list,
-									compare_dir, current_path_length, path_length_list,
-									out_file)
-	return sequence_list, path_list, path_length_list
-
 def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output_dir,
-						output_name, path_thr, time_out_counter,
-						both_dir = BOTH_DIR_RECURSIVE):
+						output_name, path_thr, time_out_counter):
 	"""
 	The initial function to extract the pre_sequence of AMR.
 	it adds the sequence preceding the AMR sequence (if there is any) in the first
@@ -862,8 +665,6 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 		end_pos: 	the position of AMR in the last node in which the AMR gene ended
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
-		both_dir:	if True we check node's orientation as well as their direction to find
-		 	valid nodes in pre_path/pre_sequence
 	Return:
 		the lists of sequences and paths preceding AMR
 
@@ -903,48 +704,26 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 		if len(pre_sequence)>0:
 			path_length.append(len(pre_sequence))
 		p=''
-		if not both_dir:
-			if time_out_counter<=0:
-				extract_pre_sequence_recursively(
-							node = node, node_orient = node_orient,
-							current_seq = pre_sequence, current_path = [],
-							length = prefix_length, sequence_list = [],
-							path_list = [], node_list = node_list,
-							compare_dir = compare_dir,
-							path_thr = path_thr,
-							current_path_length = path_length,
-							path_length_list = path_length_list,
-							out_file = temp_result)
-			else:
-				p = multiprocessing.Process(target=extract_pre_sequence_recursively,
-								args = (node, node_orient, pre_sequence,
-								[], prefix_length, [], [], node_list,
-								compare_dir, path_thr,
-								path_length, path_length_list, temp_result))
-				p.start()
-				# Wait for time_out_counter seconds or until process finishes
-				p.join(time_out_counter)
+		if time_out_counter<=0:
+			extract_pre_sequence_recursively_both_dir(
+						node = node, node_orient = node_orient,
+						current_seq = pre_sequence, current_path = [],
+						length = prefix_length, sequence_list = [],
+						path_list = [], node_list = node_list,
+						compare_dir = compare_dir,
+						path_thr = path_thr,
+						current_path_length = path_length,
+						path_length_list = path_length_list,
+						out_file = temp_result)
 		else:
-			if time_out_counter<=0:
-				extract_pre_sequence_recursively_both_dir(
-							node = node, node_orient = node_orient,
-							current_seq = pre_sequence, current_path = [],
-							length = prefix_length, sequence_list = [],
-							path_list = [], node_list = node_list,
-							compare_dir = compare_dir,
-							path_thr = path_thr,
-							current_path_length = path_length,
-							path_length_list = path_length_list,
-							out_file = temp_result)
-			else:
-				p = multiprocessing.Process(target=extract_pre_sequence_recursively_both_dir,
-								args=(node, node_orient, pre_sequence,[],
-								prefix_length, [], [], node_list, compare_dir,
-								path_thr, path_length,
-								path_length_list, temp_result))
-				p.start()
-				# Wait for time_out_counter seconds or until process finishes
-				p.join(time_out_counter)
+			p = multiprocessing.Process(target=extract_pre_sequence_recursively_both_dir,
+							args=(node, node_orient, pre_sequence,[],
+							prefix_length, [], [], node_list, compare_dir,
+							path_thr, path_length,
+							path_length_list, temp_result))
+			p.start()
+			# Wait for time_out_counter seconds or until process finishes
+			p.join(time_out_counter)
 		if p!='' and p.is_alive():
 			logging.info("extract_pre_sequence is still running... let's kill it...")
 			# Terminate - may not work if process is stuck for good
@@ -975,43 +754,6 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 				logging.error("Error: %s - %s." % (e.filename, e.strerror))
 
 	return pre_sequence_list, pre_path_list, path_length_list
-
-def find_reverse_blast_path(myGraph, node_list, orientation_list, start_pos, end_pos):
-	"""
-	To reverse the AMR path returned by blast and also adjust start_pos and end_pos
-	e.g., [A+, B-, C-] --> [C+, B+, A-]
-							new_node_list = [C, B, A]
-							new_orientation_list = [+, +, -]
-							new_start_pos = len(C) - end_pos + 1
-							new_end_pos = len(A) -  start_pos +1
-	Parameters:
-		myGraph: The assembly graph
-		node_list:	the list of nodes containing the AMR gene (i.e., path)
-		orientation_list: list of orientation of nodes in the AMR path
-		start_pos:	the position of AMR in the first node from which the AMR gene has started
-		end_pos: the position of AMR in the last node in which the AMR gene ended
-	Return:
-	"""
-	node_list_reverse = list.copy(node_list)
-	orientation_list_reverse = list.copy(orientation_list)
-	#single node in AMR path
-	if len(node_list)==1:
-		node = myGraph.segment(node_list[0])
-		orientation_list_reverse[0] = reverse_sign(orientation_list[0])
-		start_pos_reverse = len(node.sequence)-end_pos+1
-		end_pos_reverse = len(node.sequence)-start_pos+1
-	#multiple nodes in AMR path
-	elif len(node_list)>1:
-		node_list_reverse.reverse()
-		orientation_list_reverse.reverse()
-		for i in range(len(orientation_list_reverse)):
-			orientation_list_reverse[i]=reverse_sign(orientation_list_reverse[i])
-		node1 = myGraph.segment(node_list_reverse[0])
-		node2 = myGraph.segment(node_list_reverse[-1])
-		start_pos_reverse = len(node1.sequence)-end_pos+1
-		end_pos_reverse = len(node2.sequence)-start_pos+1
-
-	return node_list_reverse, orientation_list_reverse, start_pos_reverse, end_pos_reverse
 
 def write_paths_info_to_file(paths_info_list, paths_info_file, seq_counter):
 	"""
@@ -1272,33 +1014,6 @@ def extract_neighborhood_sequence(gfa_file, length, amr_path_info,
 										post_path_list, path_length_list,
 										output_name, 'same')
 
-
-	if not BOTH_DIR_RECURSIVE:
-		#Find the sequences and paths for the reverse of the path provided by bandage+blast for AMR gene
-		node_list_reverse, orientation_list_reverse, start_pos_reverse, end_pos_reverse =\
-			find_reverse_blast_path(myGraph, node_list, orientation_list, start_pos, end_pos)
-		#Find the sequence before the AMR gene
-		pre_sequence_list, pre_path_list, pre_path_length_list =\
-								extract_pre_sequence(myGraph.segment(node_list_reverse[0]),
-								orientation_list_reverse[0], node_list_reverse, length,
-								start_pos_reverse, output_dir, output_name,
-								path_thr, time_out_counter)
-		#Find the sequence after the AMR gene
-		post_sequence_list, post_path_list, post_path_length_list =\
-								extract_post_sequence(myGraph.segment(node_list_reverse[-1]),
-								orientation_list_reverse[-1], node_list_reverse, length,
-								end_pos_reverse, output_dir, output_name,
-								path_thr, time_out_counter)
-		#Combine pre_ and post_ sequences and paths
-		sequence_list_reverse, path_list_reverse = generate_sequence_path(myGraph,node_list_reverse,
-											orientation_list_reverse, start_pos_reverse,
-											end_pos_reverse, pre_sequence_list,
-											post_sequence_list, pre_path_list, post_path_list,
-											output_name, 'reverse')
-
-		sequence_list, path_list = remove_identical_sub_sequences(sequence_list+sequence_list_reverse,
-																	path_list+path_list_reverse)
-
 	return sequence_list, path_list, path_info_list, seq_info
 
 def find_amr_related_nodes(amr_file, gfa_file, output_dir, bandage_path = BANDAGE_PATH,
@@ -1501,149 +1216,6 @@ def extract_amr_align_from_file(gfa_file):
 			path_nodes.append(segment)
 	return path_nodes
 
-def combine_nodes_orientations_metacherchant(node_list, orientations):
-	"""
-	"""
-	#add direction to nodes representing AMR gene
-	node_orient_list = [node + orient +'?' for node, orient in zip(node_list, orientations)]
-	#annotate the path representing AMR gene
-	node_orient_list[0]='['+node_orient_list[0]
-	node_orient_list[-1]=node_orient_list[-1]+']'
-	return node_orient_list
-
-def combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequence_list,
-									post_path_list, seq_file, amr_seq, node_orient_list,
-									output_dir, output_name):
-	"""
-	To merge pre-seq and post-seq extracted from Metacherchant results
-	"""
-	#create a temporaty directory
-	compare_dir = os.path.join(output_dir,'temp_comparison_'+output_name)
-	if not os.path.exists(compare_dir):
-		try:
-			os.makedirs(compare_dir)
-		except OSError as exc:
-			if exc.errno != errno.EEXIST:
-				raise
-			pass
-	sequence_list = []
-	path_list = []
-	counter = 0
-	for pre_seq, pre_path in zip(pre_sequence_list, pre_path_list):
-		for post_seq, post_path in zip(post_sequence_list, post_path_list):
-			sequence = pre_seq.upper()+ amr_seq[:-1].lower() +post_seq.upper()
-			path = pre_path +node_orient_list + post_path
-			index, found = similar_sequence_exits(sequence_list, sequence, compare_dir)
-			if not found:
-				sequence_list.append(sequence)
-				path_list.append(path)
-			elif index>=0:
-				sequence_list[index] = sequence
-				path_list[index] = path
-			counter+=1
-	write_sequences_to_file(sequence_list, path_list, seq_file)
-	# delete the temp folder
-	if os.path.exists(compare_dir):
-		try:
-			shutil.rmtree(compare_dir)
-		except OSError as e:
-			logging.error("Error: %s - %s." % (e.filename, e.strerror))
-
-	return
-
-def ng_seq_extraction_metacherchant(gfa_file, length, output_dir,path_thr,
-									output_name,max_kmer_size,
-									seq_file, time_out_counter,
-									assembler = Assembler_name.metacherchant,
-									threshold = 90, amr_file = ''):
-	"""
-	The core function to extract the neighborhood of AMRs for metacherchant
-	Parameters:
-		gfa_file:	the GFA file containing the assembly graph
-		length:		the length of all sequences around the AMR gene to be extracted
-		output_dir: the output directory to store files
-		path_thr: the threshold used for recursive pre_path and post_path
-			search as long as the length of the path is less that this threshold
-		output_name: used for naming output file
-		max_kmer_size: the maximum kmer sized used by the assembler
-		seq_file: the output file to store the extracted sequence
-		assembler: the assembler used to generate the assembly graph
-		threshold: 	threshold for identity and coverage
-		amr_file:	the FASTA file containing the AMR sequence
-	Return:
-		the name of file containing the list of extracted sequences/paths
-	"""
-	with open(os.path.join(output_dir, "metacherchant_no_path.txt"), 'a') as no_path_file:
-		no_path_file.write(amr_file+'\n')
-	try:
-		myGraph = gfapy.Gfa.from_file(gfa_file)
-	except Exception as e:
-		logging.error(e)
-		return ''
-	#find nodes ending at _start as the nodes that create amr_path
-	path_nodes = extract_amr_align_from_file(gfa_file)
-	#find the order of these nodes in the amr path
-	ordered_path_nodes, orientations = order_path_nodes(path_nodes, amr_file,
-									os.path.join(output_dir,'alignment_files'), threshold)
-	node_list = [e.name for e in ordered_path_nodes]
-
-	last_segment = ordered_path_nodes[-1]
-	start_pos = 1
-	end_pos = len(str(last_segment.sequence))
-
-	logging.debug('last_segment = '+last_segment.name+' start_pos = '+str(start_pos)+' end_pos= '+str(end_pos))
-	amr_seq = retrieve_AMR(amr_file)
-
-	#Process with the orientation found based on the alignment and ordering
-	node_orient_list = combine_nodes_orientations_metacherchant(node_list, orientations)
-	#Find the sequences and paths for the path for AMR gene
-	#Find the sequence before the AMR gene
-	logging.debug('Running extract_pre_sequence '+output_name+' ...')
-	pre_sequence_list, pre_path_list, pre_path_length_list =\
-	 							extract_pre_sequence(ordered_path_nodes[0],
-								orientations[0], node_list, length, start_pos,
-								output_dir, output_name,
-								path_thr, time_out_counter)
-	#Find the sequence after the AMR gene
-	logging.debug('Running extract_post_sequence '+output_name+' ...')
-	post_sequence_list, post_path_list, post_path_length_list =\
-								extract_post_sequence(last_segment,
-								orientations[-1], node_list, length, end_pos,
-								output_dir, output_name,
-								path_thr, time_out_counter)
-	combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequence_list,
-										post_path_list, seq_file, amr_seq, node_orient_list,
-										output_dir, output_name)
-
-	#Process with the reverse of the orientation found based on the alignment and ordering
-	orientations[0]=reverse_sign(orientations[0])
-	if len(orientations)>1:
-		orientations[-1]=reverse_sign(orientations[-1])
-	#add direction to nodes representing AMR gene
-	node_orient_list = combine_nodes_orientations_metacherchant(node_list, orientations)
-	#Find the sequences and paths for the path for AMR gene
-	#Find the sequence before the AMR gene
-	logging.debug('Running extract_pre_sequence '+output_name+' ...')
-	pre_sequence_list, pre_path_list, pre_path_length_list =\
-	 							extract_pre_sequence(ordered_path_nodes[0],
-								orientations[0], node_list, length, start_pos,
-								output_dir, output_name,
-								path_thr, time_out_counter)
-	#Find the sequence after the AMR gene
-	logging.debug('Running extract_post_sequence '+output_name+' ...')
-	post_sequence_list, post_path_list, post_path_length_list =\
-								extract_post_sequence(last_segment,
-								orientations[-1], node_list, length, end_pos,
-								output_dir, output_name,
-								path_thr, time_out_counter)
-	combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequence_list,
-									post_path_list, seq_file, amr_seq, node_orient_list,
-									output_dir, output_name)
-	logging.info("NOTE: The list of neighborhood sequences (extracted from assembly graph)\
-	 		has been stroed in " + seq_file)
-
-	return seq_file
-
 def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 									bandage = BANDAGE_PATH, threshold = 95,
 									seq_name_prefix = 'ng_sequences_',
@@ -1699,17 +1271,9 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 												os.path.join(output_dir, 'alignment_files'),
 												bandage, threshold, output_name, '')
 		if not found:
-			if assembler.name == Assembler_name.metacherchant.name:
-				logging.error("no alignment was found for "+amr_file)
-				return ng_seq_extraction_metacherchant(gfa_file, length, output_dir,
-												path_node_threshold,
-												output_name,max_kmer_size, seq_file,
-												time_out_counter, assembler,
-												threshold, amr_file), ''
-			else:
-				logging.error("no alignment was found for "+amr_file)
-				#import pdb; pdb.set_trace()
-				return '', ''
+			logging.error("no alignment was found for "+amr_file)
+			#import pdb; pdb.set_trace()
+			return '', ''
 
 	#csv file for path_info
 	if not os.path.exists(os.path.join(output_dir, 'paths_info')):
