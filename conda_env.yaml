@@ -7,15 +7,13 @@ dependencies:
   - pip
   - rgi
   - prokka
-  - art
-  - bandage
   - blast
   - biopython
   - numpy
   - pandas
   - matplotlib
   - gfapy
+  - bandage
   - pillow
   - dna_features_viewer
-  - spades
   - pyyaml

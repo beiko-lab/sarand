@@ -39,10 +39,6 @@ setup(
     entry_points={
         'console_scripts': [
             'sarand = sarand.sarand_main:main'
-            #What happens to loading parameters from param.py????????????????
-            # ,'full_pipeline = sarand.full_pipeline:main',
-            # 'find_ref_amrs = sarand.find_amrs_in_sample:main',
-            # 'find_contig_amrs = sarand.amr_neighborhood_in_contigs:main'
             ],
         },
     classifiers=[

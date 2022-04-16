@@ -92,14 +92,9 @@ def validate_task_values(tasks):
 	task_error_message = "For the entire pipeline choose "+str(Pipeline_tasks.all.value)+"; otherwise\
 	either provide a number representing one of the following tasks or two numbers\
 	to denote the start and end tasks (and of course all tasks in the middle will be run).\n \
-	Here is the list:\nmetagenome_creation = "+str(Pipeline_tasks.metagenome_creation.value)+\
-	"\nread_simulation = "+str(Pipeline_tasks.read_simulation.value)+\
-	"\nassembly = "+str(Pipeline_tasks.assembly.value)+\
-	"\ngraph_neighborhood = "+str(Pipeline_tasks.graph_neighborhood.value)+\
-	"\nsequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
-	"\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value)+\
-	"\nneighborhood_evaluation = "+str(Pipeline_tasks.neighborhood_evaluation.value)
-	#"\ncontig_matching = "+str(Pipeline_tasks.contig_matching.value)+\
+	Here is the list:\nsequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
+	"\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value)
+
 	task_list = []
 	if len(tasks) > 2:
 		logging.error("ERROR: There are more than two numbers in the task list!\n" + task_error_message)
@@ -150,7 +145,7 @@ def initialize_logger(output_dir, file_name = 'logfile.log'):
 	console_handler.setFormatter(log_formatter)
 	root_logger.addHandler(console_handler)
 
-def validate_print_parameters_tools(params, func):
+def validate_print_parameters_tools(params):
 	"""
 	"""
 	if not os.path.isdir(params.main_dir):
@@ -184,10 +179,6 @@ def validate_print_parameters_tools(params, func):
 		logging.error('RGI_include_loose should have a boolean value: '+ params.RGI_include_loose)
 		sys.exit()
 	logging.info("RGI_include_loose: "+str(params.RGI_include_loose))
-	if not isinstance(params.ref_genomes_available, bool):
-		logging.error('ref_genomes_available should have a boolean value: '+ params.ref_genomes_available)
-		sys.exit()
-	logging.info("ref_genomes_available: "+str(params.ref_genomes_available))
 	#Validate prokka
 	logging.info("Looking for Prokka ...")
 	arg_list = ["prokka", "-v"]
@@ -200,103 +191,86 @@ def validate_print_parameters_tools(params, func):
 		logging.error('Not able to run Prokka successfully!')
 		sys.exit()
 	logging.info("Prokka was found!")
-	if func=="full_pipeline":
-		task_num_list = validate_task_values(params.task)
-		task_list = [Pipeline_tasks(task).name for task in task_num_list]
-		logging.info("tasks: "+str(task_list))
-		if not isinstance(params.coverage_thr, int) or params.coverage_thr<-1:
-			logging.error('coverage_thr should have an integer value >= -1'+ params.read_length)
-			sys.exit()
-		logging.info("coverage_thr: "+str(params.coverage_thr))
-		if not isinstance(params.ng_extraction_time_out, int) or params.ng_extraction_time_out==0:
-			logging.error('time_out_counter should have an integer value in seconds or a negative value in case of no time-out')
-			sys.exit()
-		if params.ng_extraction_time_out<0:
-			logging.info('No time-out has been set for extracting neighborhood sequences')
-		else:
-			logging.info("time_out_counter: "+str(params.ng_extraction_time_out))
-		if not os.path.exists(params.ref_genome_files) and\
-			os.path.exists(os.path.join(params.main_dir, params.ref_genome_files)):
-			params.ref_genome_files = os.path.join(params.main_dir, params.ref_genome_files)
-		logging.info("ref_genome_file(s): "+params.ref_genome_files)
-		#validate bandage
-		logging.info("Looking for Bandage ...")
-		try:
-			output = subprocess.check_output([params.BANDAGE_PATH, '-v'])
-		except:
-			logging.error('Not able to run Bandage successfully!')
-			sys.exit()
-		logging.info("Bandage was found!")
-		if Pipeline_tasks.read_simulation.value in task_num_list:
-			if not isinstance(params.read_length, int) or (params.read_length!=150 and params.read_length!=250):
-				logging.error('read_length should be equal to either 150 or 250: '+ params.read_length)
-				sys.exit()
-			logging.info("read_length: "+str(params.read_length))
-			#validate ART
-			logging.info("Looking for ART ...")
-			try:
-				p = subprocess.Popen([params.ART_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-			except:
-				logging.error('Not able to run ART successfully!')
-				sys.exit()
-			logging.info("ART was found!")
-		elif Pipeline_tasks.assembly.value in task_num_list:
-			for read in params.reads:
-				if not os.path.exists(read) and\
-					os.path.exists(os.path.join(params.main_dir, read)):
-					read = os.path.join(params.main_dir, read)
-			logging.info("reads: "+params.reads)
-		if Pipeline_tasks.assembly.value in task_num_list:
-			#create the absolute path for assembler_output_dir
-			if not params.main_dir in params.assembler_output_dir:
-				params.assembler_output_dir = os.path.join(params.main_dir, params.assembler_output_dir)
-			logging.info('assembler_output_dir: '+ params.assembler_output_dir)
-			if not isinstance(params.spades_thread_num, int) or params.spades_thread_num<=0:
-				logging.error('spades_thread_num should have a positive integer value: '+ params.spades_thread_num)
-				sys.exit()
-			logging.info("spades_thread_num: "+str(params.spades_thread_num))
-			logging.info("assembler: "+params.assembler.name)
-			if not isinstance(params.spades_error_correction, bool):
-				logging.error('spades_error_correction should have a boolean value: '+ params.spades_error_correction)
-				sys.exit()
-			logging.info("spades_error_correction: "+str(params.spades_error_correction))
-			#validate MetaSpades
-			logging.info("Looking for MetaSPAdes ...")
-			try:
-				output = subprocess.check_output([params.SPADES_PATH, '-v'])
-			except:
-				logging.error('Not able to run metaSPAdes successfully!')
-				sys.exit()
-			logging.info("MetaSPAdes was found!")
-		else:
-			if not os.path.exists(params.gfa_file) and\
-				os.path.exists(os.path.join(params.main_dir, params.gfa_file)):
-					params.gfa_file = os.path.join(params.main_dir, params.gfa_file)
-			logging.info("gfa_file: "+params.gfa_file)
-	if func=="find_contig_amrs":
-		if not os.path.exists(params.contig_file) and\
-			os.path.exists(os.path.join(params.main_dir, params.contig_file)):
-			params.contig_file = os.path.join(params.main_dir, params.contig_file)
-		logging.info("contig_file: "+params.contig_file)
-	if func=="find_ref_amrs":
-		if not os.path.exists(params.ref_genome_files) and\
-			os.path.exists(os.path.join(params.main_dir, params.ref_genome_files)):
-			params.ref_genome_files = os.path.join(params.main_dir, params.ref_genome_files)
-		logging.info("ref_genome_file(s): "+params.ref_genome_files)
-	return params
 
-def check_reads(v):
-	if isinstance(v, str):
-		return v
-	elif isinstance(v, list):
-		if len(v)!=2:
-			return -1
-		for item in v:
-			if not isinstance(v, str):
-				return -1
-		return v
+	task_num_list = validate_task_values(params.task)
+	task_list = [Pipeline_tasks(task).name for task in task_num_list]
+	logging.info("tasks: "+str(task_list))
+	if not isinstance(params.coverage_thr, int) or params.coverage_thr<-1:
+		logging.error('coverage_thr should have an integer value >= -1: '+ params.coverage_thr)
+		sys.exit()
+	logging.info("coverage_thr: "+str(params.coverage_thr))
+	if not isinstance(params.ng_extraction_time_out, int) or params.ng_extraction_time_out==0:
+		logging.error('time_out_counter should have an integer value in seconds or a negative value in case of no time-out')
+		sys.exit()
+	if params.ng_extraction_time_out<0:
+		logging.info('No time-out has been set for extracting neighborhood sequences')
 	else:
-		return -1
+		logging.info("time_out_counter: "+str(params.ng_extraction_time_out))
+	#validate bandage
+	logging.info("Looking for Bandage ...")
+	try:
+		output = subprocess.check_output([params.BANDAGE_PATH, '-v'])
+	except:
+		logging.error('Not able to run Bandage successfully!')
+		sys.exit()
+	logging.info("Bandage was found!")
+		# if Pipeline_tasks.read_simulation.value in task_num_list:
+		# 	if not isinstance(params.read_length, int) or (params.read_length!=150 and params.read_length!=250):
+		# 		logging.error('read_length should be equal to either 150 or 250: '+ params.read_length)
+		# 		sys.exit()
+		# 	logging.info("read_length: "+str(params.read_length))
+		# 	#validate ART
+		# 	logging.info("Looking for ART ...")
+		# 	try:
+		# 		p = subprocess.Popen([params.ART_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		# 	except:
+		# 		logging.error('Not able to run ART successfully!')
+		# 		sys.exit()
+		# 	logging.info("ART was found!")
+		# elif Pipeline_tasks.assembly.value in task_num_list:
+		# 	for read in params.reads:
+		# 		if not os.path.exists(read) and\
+		# 			os.path.exists(os.path.join(params.main_dir, read)):
+		# 			read = os.path.join(params.main_dir, read)
+		# 	logging.info("reads: "+params.reads)
+		# if Pipeline_tasks.assembly.value in task_num_list:
+		# 	#create the absolute path for assembler_output_dir
+		# 	if not params.main_dir in params.assembler_output_dir:
+		# 		params.assembler_output_dir = os.path.join(params.main_dir, params.assembler_output_dir)
+		# 	logging.info('assembler_output_dir: '+ params.assembler_output_dir)
+		# 	if not isinstance(params.spades_thread_num, int) or params.spades_thread_num<=0:
+		# 		logging.error('spades_thread_num should have a positive integer value: '+ params.spades_thread_num)
+		# 		sys.exit()
+		# 	logging.info("spades_thread_num: "+str(params.spades_thread_num))
+		# 	logging.info("assembler: "+params.assembler.name)
+		# 	if not isinstance(params.spades_error_correction, bool):
+		# 		logging.error('spades_error_correction should have a boolean value: '+ params.spades_error_correction)
+		# 		sys.exit()
+		# 	logging.info("spades_error_correction: "+str(params.spades_error_correction))
+		# 	#validate MetaSpades
+		# 	logging.info("Looking for MetaSPAdes ...")
+		# 	try:
+		# 		output = subprocess.check_output([params.SPADES_PATH, '-v'])
+		# 	except:
+		# 		logging.error('Not able to run metaSPAdes successfully!')
+		# 		sys.exit()
+		# 	logging.info("MetaSPAdes was found!")
+		# else:
+	if not os.path.exists(params.gfa_file) and\
+		os.path.exists(os.path.join(params.main_dir, params.gfa_file)):
+			params.gfa_file = os.path.join(params.main_dir, params.gfa_file)
+	logging.info("gfa_file: "+params.gfa_file)
+	# if func=="find_contig_amrs":
+	# 	if not os.path.exists(params.contig_file) and\
+	# 		os.path.exists(os.path.join(params.main_dir, params.contig_file)):
+	# 		params.contig_file = os.path.join(params.main_dir, params.contig_file)
+	# 	logging.info("contig_file: "+params.contig_file)
+	# if func=="find_ref_amrs":
+	# 	if not os.path.exists(params.ref_genome_files) and\
+	# 		os.path.exists(os.path.join(params.main_dir, params.ref_genome_files)):
+	# 		params.ref_genome_files = os.path.join(params.main_dir, params.ref_genome_files)
+	# 	logging.info("ref_genome_file(s): "+params.ref_genome_files)
+	return params
 
 def str2bool(v):
 	"""
@@ -321,20 +295,16 @@ def print_params(params):
 	mylog = '\n'.join(param for param in params)
 	logging.info(mylog)
 
-def verify_file_existence(myfile, param_file, message):
+def verify_file_existence(param_file, message):
 	"""
-	This code is used to check if the required file exits either through running
-	previous steps of the pipeline or passed by user (or in the param list)
+	This code is used to check if the required file exits
 	Parameters:
-		myfile:	the file was supposed to be generated via previous steps of the pipeline
 		param_file:	the file set by the user
 		message:	error message in case no instance of the required file exists
 	Return:
 		the valid instance of the parameter to work with
 	"""
-	if myfile!="":
-		return myfile
-	elif param_file !="":
+	if param_file !="":
 		if isinstance(param_file, str) and os.path.isfile(param_file):
 			return param_file
 		elif isinstance(param_file, list):

@@ -7,7 +7,7 @@ Purpose:	To extract the neighborhood of an AMR gene from an assembly graph
 To run:
 - The Bandage+BLAST implementation:
 	python extract_neighborhood.py --amr/-A <AMR gene file path in FASTA format>
-	--gfa/-G <GFA assembly graph> --distance/-D <max distance from AMR gene (default=1)>
+	--gfa/-G <GFA assembly graph>
 	--length/-L <length of the linear sequence around AMR gene to be extracted (default = 1000)>
 
 """
@@ -37,16 +37,11 @@ from sarand.utils import reverse_sign, find_node_orient, find_node_name, find_no
 					exist_in_path, compare_two_sequences, read_path_info_from_align_file,\
 					create_fasta_file
 from sarand.params import Assembler_name
-#from find_seq_in_contigs import find_sequence_match
 
 BANDAGE_PATH = '/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage'
 OUT_DIR = 'output'
 BOTH_DIR_RECURSIVE = True
 #MAX_K_MER_SIZE = 55
-#if this feature is true after that the extracted length reaches a threshold, we don't go
-#over all edges in the neighbourhood (in pre_sequence and post_sequence extraction)
-#and only extract the sequence from the longest one to reduce the processing time!!!
-ONLY_LONGEST_EDGE = False
 TEMP_DIR = 'temp'
 #TIME_OUT_COUNTER = 600
 
@@ -86,242 +81,6 @@ def similar_sequence_exits(seq_list, query_seq, output_dir):
 			else:
 				return -1, True
 	return -1, False
-
-def find_sequence_match(query, contig_file, out_dir = TEMP_DIR, blast_ext = '',
-						threshold =95, max_target_seqs = 100):
-	"""
-	To check if the sequence (query) can be found in the list of contigs
-	# contig_file is considered our database and we run blast over it
-	Parameters:
-		query: the sequence we look for in the contigs
-		contig_file: the file containing contigs
-		out_dir: the output directory to store all created files there
-		blast_ext: an extension used for naming blast file
-	Return:
-		the list of matched contigs and some further information including identity,
-		matched_length, the start and end of matched part of the query, and the start
-		and end of matched part of the contig
-	"""
-	# #Create DB from contig file
-	# command = 'makeblastdb -in '+contig_file +' -parse_seqids -dbtype nucl'
-	# os.system(command)
-	#write the sequence into a fasta file
-	query_file = os.path.join(out_dir, 'query.fasta')
-	file = open(query_file, 'w')
-	file.write(query)
-	file.close()
-	#run blast query for alignement
-	blast_file_name = os.path.join(out_dir, 'blast'+blast_ext+'.csv')
-	blast_file = open(blast_file_name, 'w')
-	blast_command = subprocess.run(["blastn", "-query", query_file, "-db", contig_file,
-						"-outfmt", "10", "-max_target_seqs", str(max_target_seqs),
-						"-evalue", "0.5", "-perc_identity", str(threshold-1)],
-						stdout=blast_file, check= True)
-	blast_file.close()
-	# command = 'blastn -query '+query_file+' -db '+contig_file+\
-	# 	' -outfmt 10 -max_target_seqs '+str(max_target_seqs)+' -evalue 0.5 -perc_identity '+str(threshold-1)+' > '+ blast_file_name
-	# # command = 'blastn -query '+query_file+' -db '+contig_file+\
-	# # 	' -task blastn -outfmt 10 -max_target_seqs '+str(max_target_seqs)+' -evalue 0.5 -perc_identity '+str(threshold-1)+' > '+ blast_file_name
-	# # command = 'blastn -query '+query_file+' -db '+contig_file+\
-	# # 	' -task blastn -outfmt 10 -max_target_seqs 5 -evalue 0.5 -perc_identity 95 > '+ blast_file_name
-	# os.system(command)
-	contig_list = []
-	contig = collections.namedtuple('contig', 'name identity matched_length q_start q_end c_start c_end')
-	with open(blast_file_name, 'r') as file1:
-		myfile = csv.reader(file1)
-		for row in myfile:
-			mycontig = contig(name=row[1], identity=row[2], matched_length=row[3], q_start=row[6],
-		 					q_end=row[7], c_start=row[8], c_end=row[9])
-			contig_list.append(mycontig)
-
-	return contig_list
-
-def extract_amr_neighborhood_in_ref_genome(amr_seq, ref_path, neighborhood_len, threshold = 95):
-	"""
-	To find the neighborhood of amr_seq in the genome (ref_path)
-	Parameters:
-		amr_seq:	the sequence of the AMR gene
-		ref_path:	the address of the reference genome
-		neighborhood_len: 	the length of neighborhood from each side to be extracted
-		threshold: used for identity and coverage
-	Return:
-		the neighborhood(s) of amr_seq with maximum length = 2*len + length(amr_seq)
-			and the start position of the AMR in the extracted sequence(s)
-	# In case AMR exists in multiple locations of the genome this function returns
-		multiple neighborhood sequences
-	"""
-	# copy ref_path in a new temp location and folder that can be deleted at the end
-	temp_dir = 'tmp_ref_path'
-	if not os.path.exists(temp_dir):
-		try:
-			os.makedirs(temp_dir)
-		except OSError as exc:
-			if exc.errno != errno.EEXIST:
-				raise
-			pass
-	# tmp_path = temp_dir + '/'+os.path.basename(ref_path)
-	# shutil.copyfile(ref_path, tmp_path)
-
-	# check if the sequence can be found in the genome
-	#record_list = find_sequence_match(amr_seq, tmp_path, temp_dir, threshold = threshold)
-	record_list = find_sequence_match(amr_seq, ref_path, temp_dir, threshold = threshold)
-
-	# to get ride of \n
-	len_amr_seq = len(amr_seq)-1
-
-	# read record_list and store cases with identity and coverage above the threshold
-	# and extract the beginning and end of AMR in the ref_file
-	found = False
-	amr_start_list = []
-	amr_end_list = []
-	record_name_list = []
-	# find the start and end of AMR for all found cases above the threshold
-	for record in record_list:
-		if int(float(record.identity))>=threshold and int(float(record.matched_length)/len_amr_seq*100)>=threshold:
-			found = True
-			amr_start_list.append(int(record.c_start))
-			amr_end_list.append(int(record.c_end))
-			record_name_list.append(record.name)
-
-	# extract neighborhood sequence(s)
-	seq_list = []
-	contig_name_list = []
-	if found:
-		for i, amr_start in enumerate(amr_start_list):
-			amr_end = amr_end_list[i]
-			record_name = record_name_list[i]
-			seq = ''
-			reverse_complement = False
-			# extract sequence from both sides
-			if amr_start > amr_end:
-				amr_start, amr_end = amr_end, amr_start
-				reverse_complement = True
-			for record in SeqIO.parse(open(ref_path,'r'),'fasta'):
-				#if record.id == record_name:
-				if record_name == record.id:
-					amr_start = amr_start -1
-					if amr_start-neighborhood_len >= 0:
-						#seq = str(record.seq[amr_start-neighborhood_len:amr_end])
-						seq = str(record.seq[amr_start-neighborhood_len:amr_start]).upper()+str(record.seq[amr_start:amr_end]).lower()
-						amr_start = neighborhood_len
-					else:
-						#seq = str(record.seq[:amr_end])
-						seq = str(record.seq[:amr_start]).upper()+str(record.seq[amr_start:amr_end]).lower()
-					if (amr_end-1+neighborhood_len)<=len(record):
-						seq+=str(record.seq[amr_end:amr_end+neighborhood_len])
-					else:
-						seq+=str(record.seq[amr_end:])
-					if reverse_complement:
-						seq = rc(seq)
-					seq_list.append(seq)
-					contig_name_list.append(record_name)
-					break
-
-	# delete the temp folder
-	if os.path.exists(temp_dir):
-		try:
-			shutil.rmtree(temp_dir)
-		except OSError as e:
-			logging.error("Error: %s - %s." % (e.filename, e.strerror))
-	#added by 1 because the index starts from 0 in the string
-	return seq_list, contig_name_list
-
-def extract_neighbourhood(segment, segment_list, edge_list, distance):
-	"""
-	To extract the neighbourghood of a node
-	Parameters:
-		segment: the node we are looking for its neighborhood
-		segment_list: the list of segments in the neighbourhood so far
-		edge_list: the list of edges in the neighbourhood so far
-		distance: the maximum distance of neighbourhood we are going to extract from AMR gene
-	Return:
-		updated edge_list and segment_list
-	"""
-	if distance <= 0:
-		return segment_list, edge_list
-	for link in reversed(segment.dovetails_L):
-		if link.from_segment.name != segment.name:
-			other_side = link.from_segment
-		elif link.to_segment.name != segment.name:
-			other_side = link.to_segment
-		else:
-			logging.info("WARNING: the link is a loop for node#"+segment.name)
-			other_side = segment
-		if link not in edge_list:
-			edge_list.append(link)
-		segment_list.add(other_side.name)
-		segment_list, edge_list =\
-			extract_neighbourhood(other_side, segment_list, edge_list, distance - 1)
-	for link in reversed(segment.dovetails_R):
-		if link.from_segment.name != segment.name:
-			other_side = link.from_segment
-		elif link.to_segment.name != segment.name:
-			other_side = link.to_segment
-		else:
-			logging.info("WARNING: the link is a loop for node#"+segment.name)
-			other_side = segment
-		if link not in edge_list:
-			edge_list.append(link)
-		segment_list.add(other_side.name)
-		segment_list, edge_list =\
-			extract_neighbourhood(other_side, segment_list, edge_list, distance - 1)
-	return segment_list, edge_list
-
-def create_graph(myGraph, segment_list, edge_list):
-	"""
-	To create a graph from the list of segments and edges
-	Parameters:
-		myGraph: The original graph (the new graph is a subgraph of this graph)
-		segment_list: the list of segments of the new graph
-		edge_list: the list of edges of the new graph
-	Return:
-		the created graph which is a subgraph of myGraph
-	"""
-	subGraph = gfapy.Gfa(version='gfa1')
-	for segment_name in segment_list:
-		seg = myGraph.segment(segment_name)
-		seg.disconnect()
-		subGraph.append(seg)
-	for edge in edge_list:
-		if edge.is_connected():
-			edge.disconnect()
-		subGraph.append(edge)
-	return subGraph
-
-def extract_subgraph(nodes, distance, file_path):
-	"""
-	To extract the neighborhood.
-	This function calls the recursive function "extract_neighbourhood"
-	for the first and last nodes in the path to do the job
-	Parameters:
-		nodes: the list of nodes we are interested in their neighbourhood
-		distance: the maximum distance of neighbourhood we are going to extract from AMR gene
-		file_path: the address of the original assembly graph in GFA format
-	Return:
-		the subgraph representing the neighbourhood of the node_lists in a given max distance
-	"""
-	myGraph = gfapy.Gfa.from_file(file_path)
-	segment_list=set()
-	edge_list = []
-	#for now we just find the neighborhood of the first and last nodes in the path
-	#Add first node in AMR path and find its neighborhood
-	s = myGraph.segment(re.sub('[+-]', '', nodes[0]))
-	segment_list.add(s.name)
-	segment_list, edge_list = extract_neighbourhood(s, segment_list, edge_list, distance)
-	#Add last node in AMR path and find its neighborhood
-	if (len(nodes) > 1):
-		segment_list_last = set()
-		edge_list_last = []
-		s = myGraph.segment(re.sub('[+-]', '', nodes[-1]))
-		segment_list.add(s.name)
-		segment_list_last, edge_list_last = extract_neighbourhood(s, segment_list_last, edge_list_last, distance)
-		#merge the lists
-		segment_list = segment_list.union(segment_list_last)
-		for edge in edge_list_last:
-			if edge not in edge_list:
-				edge_list.append(edge)
-
-	return myGraph, segment_list, edge_list
 
 def write_sequences_to_file(sequence_list, path_list, file_name):
 	"""
@@ -553,10 +312,6 @@ def generate_sequence_path(myGraph, node_list, orientation_list, start_pos, end_
 		pre_path_list = [[]]
 	if not post_path_list:
 		post_path_list = [[]]
-	# if not pre_sequence_list:
-	# 	pre_sequence_list = [['']]
-	# if not post_sequence_list:
-	# 	post_sequence_list = [['']]
 	if not pre_sequence_list:
 		pre_sequence_list = ['']
 	if not post_sequence_list:
@@ -667,7 +422,7 @@ def find_longest_pre_neighbor(node, node_orient, node_list, both_dir):
 
 def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, current_path,
 												length, sequence_list, path_list, node_list,
-												compare_dir,length_thr, path_thr,
+												compare_dir, path_thr,
 												current_path_length, path_length_list,
 												out_file):
 	"""
@@ -688,9 +443,6 @@ def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, c
 		sequence_list: the list of sequences following the AMR gene sequence
 		path_list:	the list of nodes (and their orientation) following the nodes presenting the AMR gene
 		node_list:	the list of nodes presenting the AMR gene
-		length_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 	Return:
@@ -700,12 +452,6 @@ def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, c
 	found_any_edge = False
 	if length > 0 and len(current_path)<path_thr:
 		for edge in (node.dovetails_L + node.dovetails_R):
-			#if remained length is shorter than the threshold
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				import pdb; pdb.set_trace()
-				longest_edge = find_longest_post_neighbor(node, node_orient, node_list, True)
-				if longest_edge:
-					edge = longest_edge
 			#the second part of condition ensures that we are finding only nodes that are not presenting the AMR gene itself
 			#Logically that shouldn't be the case unless there is a loop in the network:
 			# path A -> B -> C represents the AMR; however we have an edge C -> A
@@ -744,15 +490,12 @@ def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, c
 									extract_post_sequence_recursively_both_dir(
 									to_segment, to_orient, seq, path, length - len(new_seq),
 									sequence_list, path_list, node_list, compare_dir,
-									length_thr, path_thr,
+									path_thr,
 									path_length, path_length_list, out_file)
 				# graph loops are specified in { }
 				elif index > -1:
 					current_path[index] = '{'+current_path[index]
 					current_path[-1]+='}'
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				#we only traverse the longest edge (already did) and not all edges
-				break
 	if not found_any_edge:
 		sequence_list, path_list, path_length_list = append_path_sequence(current_seq,
 							current_path, sequence_list, path_list, compare_dir,
@@ -761,7 +504,7 @@ def extract_post_sequence_recursively_both_dir(node, node_orient, current_seq, c
 
 def extract_post_sequence_recursively(node, node_orient, current_seq, current_path,
 										length, sequence_list, path_list, node_list,
-										compare_dir, length_thr, path_thr,
+										compare_dir, path_thr,
 										current_path_length, path_length_list, out_file):
 	"""
 	To extract recursively the sequences following the AMR gene sequence and their paths
@@ -774,9 +517,6 @@ def extract_post_sequence_recursively(node, node_orient, current_seq, current_pa
 		sequence_list: the list of sequences following the AMR gene sequence
 		path_list:	the list of nodes (and their orientation) following the nodes presenting the AMR gene
 		node_list:	the list of nodes presenting the AMR gene
-		length_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 	Return:
@@ -787,11 +527,6 @@ def extract_post_sequence_recursively(node, node_orient, current_seq, current_pa
 	found_any_edge = False
 	if length > 0 and len(current_path)<path_thr:
 		for edge in (node.dovetails_L + node.dovetails_R):
-			#if remained length is shorter than the threshold
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				longest_edge = find_longest_post_neighbor(node, node_orient, node_list, False)
-				if longest_edge:
-					edge = longest_edge
 			#the second part of condition ensures that we are finding only nodes that are not presenting the AMR gene itself
 			#Logically that shouldn't be the case unless there is a loop in the network:
 			# path A -> B -> C represents the AMR; however we have an edge C -> A
@@ -821,15 +556,12 @@ def extract_post_sequence_recursively(node, node_orient, current_seq, current_pa
 								extract_post_sequence_recursively(
 								edge.to_segment, edge.to_orient, seq, path,
 								length - len(new_seq), sequence_list, path_list,
-								node_list, compare_dir, length_thr, path_thr,
+								node_list, compare_dir, path_thr,
 								path_length, path_length_list, out_file)
 				# graph loops are specified in { }
 				elif index > -1:
 					current_path[index] = '{'+current_path[index]
 					current_path[-1]+='}'
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				#we only traverse the longest edge (already did) and not all edges
-				break
 	if not found_any_edge:
 		sequence_list, path_list, path_length_list = append_path_sequence(current_seq, current_path,
 										sequence_list, path_list, compare_dir,
@@ -837,7 +569,7 @@ def extract_post_sequence_recursively(node, node_orient, current_seq, current_pa
 	return sequence_list, path_list, path_length_list
 
 def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_dir,
-						output_name, remained_len_thr, path_thr,
+						output_name, path_thr,
 						time_out_counter, both_dir = BOTH_DIR_RECURSIVE):
 	"""
 	The initial function to extract the post_sequence of AMR.
@@ -849,9 +581,6 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 		node_list:	the list of nodes presenting the AMR gene
 		length: 	the length of the sequences around the AMR gene to be extracted
 		end_pos: 	the position of AMR in the last node in which the AMR gene ended
-		remained_len_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 		both_dir:	if True we check node's orientation as well as their direction to find
@@ -902,7 +631,7 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 							length = postfix_length, sequence_list = [],
 							path_list = [], node_list = node_list,
 							comapre_dir = compare_dir,
-							length_thr = remained_len_thr, path_thr = path_thr,
+							path_thr = path_thr,
 							current_path_length = path_length,
 							path_length_list = path_length_list,
 							out_file = temp_result)
@@ -910,7 +639,7 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 				p = multiprocessing.Process(target=extract_post_sequence_recursively,
 									args = (node, node_orient, post_sequence, [],
 									postfix_length, [], [], node_list,
-									compare_dir, remained_len_thr, path_thr,
+									compare_dir, path_thr,
 									path_length, path_length_list, temp_result))
 				p.start()
 				# Wait for time_out_counter seconds or until process finishes
@@ -923,7 +652,7 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 							length = postfix_length, sequence_list = [],
 							path_list = [], node_list = node_list,
 							compare_dir = compare_dir,
-							length_thr = remained_len_thr, path_thr = path_thr,
+							path_thr = path_thr,
 							current_path_length = path_length,
 							path_length_list = path_length_list,
 							out_file = temp_result)
@@ -931,7 +660,7 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 				p = multiprocessing.Process(target=extract_post_sequence_recursively_both_dir,
 									args = (node, node_orient, post_sequence, [],
 									postfix_length, [], [], node_list,
-									compare_dir, remained_len_thr, path_thr,
+									compare_dir, path_thr,
 									path_length, path_length_list, temp_result))
 				p.start()
 				# Wait for time_out_counter seconds or until process finishes
@@ -970,7 +699,7 @@ def extract_post_sequence(node, node_orient, node_list, length, end_pos, output_
 
 def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, current_path,
 												length, sequence_list, path_list, node_list,
-												compare_dir, length_thr, path_thr,
+												compare_dir, path_thr,
 												current_path_length, path_length_list,
 												out_file):
 	"""
@@ -991,9 +720,6 @@ def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, cu
 		sequence_list: the list of sequences preceding the AMR gene sequence
 		path_list:	the list of nodes (and their orientation) preceding the nodes presenting the AMR gene
 		node_list:	the list of nodes presenting the AMR gene
-		length_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 	Return:
@@ -1003,11 +729,6 @@ def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, cu
 	found_any_edge = False
 	if length > 0 and len(current_path)<path_thr:
 		for edge in (node.dovetails_R + node.dovetails_L):
-			#if remained length is shorter than the threshold
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				longest_edge = find_longest_pre_neighbor(node, node_orient, node_list, True)
-				if longest_edge:
-					edge = longest_edge
 			#the second part ofcondition ensures that we are finding only nodes that are not presenting the AMR gene itself
 			#Logically that shouldn't be the case unless there is a loop in the network:
 			# path A -> B -> C represents the AMR; however we have an edge C -> A
@@ -1047,15 +768,12 @@ def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, cu
 									from_segment, from_orient, seq, path,
 									length - len(new_seq), sequence_list,
 									path_list, node_list, compare_dir,
-									length_thr, path_thr, path_length,
+									path_thr, path_length,
 									path_length_list, out_file)
 				# graph loops are specified in { }
 				elif index>-1:
 					current_path[index] = current_path[index] + '}'
 					current_path[0]='{' + current_path[0]
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				#we only traverse the longest edge (already did) and not all edges
-				break
 	if not found_any_edge:
 		sequence_list, path_list, path_length_list = append_path_sequence(current_seq,
 										current_path,sequence_list, path_list, compare_dir,
@@ -1064,7 +782,7 @@ def extract_pre_sequence_recursively_both_dir(node, node_orient, current_seq, cu
 
 def extract_pre_sequence_recursively(node, node_orient, current_seq, current_path,
 										length, sequence_list, path_list, node_list,
-										compare_dir, length_thr, path_thr,
+										compare_dir, path_thr,
 										current_path_length, path_length_list,
 										out_file):
 	"""
@@ -1078,9 +796,6 @@ def extract_pre_sequence_recursively(node, node_orient, current_seq, current_pat
 		sequence_list: the list of sequences preceding the AMR gene sequence
 		path_list:	the list od nodes (and their orientation) preceding the nodes presenting the AMR gene
 		node_list:	the list of nodes presenting the AMR gene
-		length_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 	Return:
@@ -1090,11 +805,6 @@ def extract_pre_sequence_recursively(node, node_orient, current_seq, current_pat
 	found_any_edge = False
 	if length > 0 and len(current_path)<path_thr:
 		for edge in (node.dovetails_R + node.dovetails_L):
-			#if remained length is shorter than the threshold
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				longest_edge = find_longest_pre_neighbor(node, node_orient, node_list, False)
-				if longest_edge:
-					edge = longest_edge
 			#the second part ofcondition ensures that we are finding only nodes that are not presenting the AMR gene itself
 			#Logically that shouldn't be the case unless there is a loop in the network:
 			# path A -> B -> C represents the AMR; however we have an edge C -> A
@@ -1124,15 +834,12 @@ def extract_pre_sequence_recursively(node, node_orient, current_seq, current_pat
 						 			extract_pre_sequence_recursively(
 									edge.from_segment, edge.from_orient, seq, path,
 									length - len(new_seq), sequence_list, path_list,
-									node_list, compare_dir, length_thr, path_thr,
+									node_list, compare_dir, path_thr,
 									path_length, path_length_list, out_file)
 				# graph loops are specified in { }
 				elif index>-1:
 					current_path[index] = current_path[index] + '}'
 					current_path[0]='{' + current_path[0]
-			if ONLY_LONGEST_EDGE and length<=length_thr:
-				#we only traverse the longest edge (already did) and not all edges
-				break
 	if not found_any_edge:
 		sequence_list, path_list, path_length_list = append_path_sequence(current_seq,
 									current_path, sequence_list, path_list,
@@ -1141,7 +848,7 @@ def extract_pre_sequence_recursively(node, node_orient, current_seq, current_pat
 	return sequence_list, path_list, path_length_list
 
 def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output_dir,
-						output_name, remained_len_thr, path_thr, time_out_counter,
+						output_name, path_thr, time_out_counter,
 						both_dir = BOTH_DIR_RECURSIVE):
 	"""
 	The initial function to extract the pre_sequence of AMR.
@@ -1153,9 +860,6 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 		node_list:	the list of nodes presenting the AMR gene
 		length: 	the length of the sequences around the AMR gene to be extracted
 		end_pos: 	the position of AMR in the last node in which the AMR gene ended
-		remained_len_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 		both_dir:	if True we check node's orientation as well as their direction to find
@@ -1207,7 +911,7 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 							length = prefix_length, sequence_list = [],
 							path_list = [], node_list = node_list,
 							compare_dir = compare_dir,
-							length_thr = remained_len_thr,path_thr = path_thr,
+							path_thr = path_thr,
 							current_path_length = path_length,
 							path_length_list = path_length_list,
 							out_file = temp_result)
@@ -1215,7 +919,7 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 				p = multiprocessing.Process(target=extract_pre_sequence_recursively,
 								args = (node, node_orient, pre_sequence,
 								[], prefix_length, [], [], node_list,
-								compare_dir, remained_len_thr, path_thr,
+								compare_dir, path_thr,
 								path_length, path_length_list, temp_result))
 				p.start()
 				# Wait for time_out_counter seconds or until process finishes
@@ -1228,7 +932,7 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 							length = prefix_length, sequence_list = [],
 							path_list = [], node_list = node_list,
 							compare_dir = compare_dir,
-							length_thr = remained_len_thr, path_thr = path_thr,
+							path_thr = path_thr,
 							current_path_length = path_length,
 							path_length_list = path_length_list,
 							out_file = temp_result)
@@ -1236,7 +940,7 @@ def extract_pre_sequence(node, node_orient, node_list, length, start_pos, output
 				p = multiprocessing.Process(target=extract_pre_sequence_recursively_both_dir,
 								args=(node, node_orient, pre_sequence,[],
 								prefix_length, [], [], node_list, compare_dir,
-								remained_len_thr, path_thr, path_length,
+								path_thr, path_length,
 								path_length_list, temp_result))
 				p.start()
 				# Wait for time_out_counter seconds or until process finishes
@@ -1473,7 +1177,7 @@ def generate_node_range_coverage(myGraph, node_list, orientation_list, start_pos
 
 	return paths_info
 
-def extract_neighborhood_sequence(gfa_file, length, amr_path_info, remained_len_thr,
+def extract_neighborhood_sequence(gfa_file, length, amr_path_info,
 									path_thr,output_name, max_kmer_size, seq_info,
 									output_dir, time_out_counter, assembler = Assembler_name.metaspades):
 	"""
@@ -1486,9 +1190,6 @@ def extract_neighborhood_sequence(gfa_file, length, amr_path_info, remained_len_
 			their orientation, start_pos (the position of AMR in the first node from which
 			the AMR gene has started) and end_pos (the position of AMR in the last node
 			in which the AMR gene ended)
-		remained_len_thr: the threshold used for recursive pre_seq and
-			post_seq until this percentage of the required length remained
-			after which we just extract from the longest neighbor.
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
 		output_name: used for naming files
@@ -1529,7 +1230,7 @@ def extract_neighborhood_sequence(gfa_file, length, amr_path_info, remained_len_
 		pre_sequence_list, pre_path_list, pre_path_length_list =\
 		 							extract_pre_sequence(myGraph.segment(node_list[0]),
 									orientation_list[0], node_list, length, start_pos,
-									output_dir, output_name, remained_len_thr,
+									output_dir, output_name,
 									path_thr, time_out_counter)
 		seq_info['pre_seq'] = pre_sequence_list
 		seq_info['pre_path'] = pre_path_list
@@ -1546,7 +1247,7 @@ def extract_neighborhood_sequence(gfa_file, length, amr_path_info, remained_len_
 		post_sequence_list, post_path_list, post_path_length_list =\
 									extract_post_sequence(last_segment,
 									orientation_list[-1], node_list, length, end_pos,
-									output_dir, output_name, remained_len_thr,
+									output_dir, output_name,
 									path_thr, time_out_counter)
 		seq_info['post_seq'] = post_sequence_list
 		seq_info['post_path'] = post_path_list
@@ -1581,13 +1282,13 @@ def extract_neighborhood_sequence(gfa_file, length, amr_path_info, remained_len_
 								extract_pre_sequence(myGraph.segment(node_list_reverse[0]),
 								orientation_list_reverse[0], node_list_reverse, length,
 								start_pos_reverse, output_dir, output_name,
-								remained_len_thr, path_thr, time_out_counter)
+								path_thr, time_out_counter)
 		#Find the sequence after the AMR gene
 		post_sequence_list, post_path_list, post_path_length_list =\
 								extract_post_sequence(myGraph.segment(node_list_reverse[-1]),
 								orientation_list_reverse[-1], node_list_reverse, length,
 								end_pos_reverse, output_dir, output_name,
-								remained_len_thr, path_thr, time_out_counter)
+								path_thr, time_out_counter)
 		#Combine pre_ and post_ sequences and paths
 		sequence_list_reverse, path_list_reverse = generate_sequence_path(myGraph,node_list_reverse,
 											orientation_list_reverse, start_pos_reverse,
@@ -1641,59 +1342,6 @@ def find_amr_related_nodes(amr_file, gfa_file, output_dir, bandage_path = BANDAG
 	found, paths_info = read_path_info_from_align_file(output_name+".tsv", threshold)
 
 	return found, paths_info
-
-# def check_if_similar_ng_extractions_exist(amr_path_info, amr_paths_info):
-# 	"""
-# 	To check the new AMR path found by alignment with the ones already processed!
-# 	If there is a similar AMR pathin amr_paths_info, we don't need to process
-# 	amr_path_info!
-# 	Parameters:
-# 		amr_path_info: the new AMR path
-# 		amr_paths_info: the list of AMR paths processed so far
-# 	Results:
-# 		a dictionary containing the index of an entry from amr_paths_info with similar
-# 		start node-position or end node-position
-# 	"""
-# 	found_up_stream = False
-# 	found_down_stream = False
-# 	similar_path = {'up_stream':-1, 'down_stream':-1}
-# 	new_first_node = amr_path_info['nodes'][0]+amr_path_info['orientations'][0]
-# 	new_last_node = amr_path_info['nodes'][-1]+amr_path_info['orientations'][-1]
-# 	new_start_pos = amr_path_info['start_pos']
-# 	new_end_pos = amr_path_info['end_pos']
-# 	for i, path_info in enumerate(amr_paths_info):
-# 		start_pos = path_info['start_pos']
-# 		end_pos = path_info['end_pos']
-# 		# if len(amr_path_info['nodes'])!=len(path_info) or (start_pos!=new_start_pos and end_pos!=new_end_pos):
-# 		# 	continue
-# 		if start_pos!=new_start_pos and end_pos!=new_end_pos:
-# 			continue
-# 		first_node = path_info['nodes'][0]+path_info['orientations'][0]
-# 		last_node = path_info['nodes'][-1]+path_info['orientations'][-1]
-# 		if len(path_info)==1 and len(amr_path_info)==1 and new_first_node==first_node:
-# 			logging.error('there shouldnt be two separate amr paths with the same single node!')
-# 			import pdb; pdb.set_trace()
-# 		if new_first_node==first_node and new_start_pos==start_pos and\
-# 			new_last_node==last_node and new_end_pos==end_pos:
-# 			return {'up_stream':i, 'down_stream':i}
-#
-# 	for i, path_info in enumerate(amr_paths_info):
-# 		start_pos = path_info['start_pos']
-# 		end_pos = path_info['end_pos']
-# 		if start_pos!=new_start_pos and end_pos!=new_end_pos:
-# 			continue
-# 		first_node = path_info['nodes'][0]+path_info['orientations'][0]
-# 		last_node = path_info['nodes'][-1]+path_info['orientations'][-1]
-# 		if not found_up_stream and new_first_node==first_node and new_start_pos==start_pos:
-# 			similar_path['up_stream']=i
-# 			found_up_stream = True
-# 		elif not found_down_stream and new_last_node==last_node and new_end_pos==end_pos:
-# 			similar_path['down_stream']=i
-# 			found_dwon_stream = True
-# 		if found_up_stream and found_down_stream:
-# 			return similar_path
-#
-# 	return similar_path
 
 def check_if_similar_ng_extractions_exist(amr_path_info, amr_paths_info, assembler= Assembler_name.metaspades):
 	"""
@@ -1904,7 +1552,7 @@ def combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequen
 	return
 
 def ng_seq_extraction_metacherchant(gfa_file, length, output_dir,path_thr,
-									remained_len_thr, output_name,max_kmer_size,
+									output_name,max_kmer_size,
 									seq_file, time_out_counter,
 									assembler = Assembler_name.metacherchant,
 									threshold = 90, amr_file = ''):
@@ -1916,8 +1564,6 @@ def ng_seq_extraction_metacherchant(gfa_file, length, output_dir,path_thr,
 		output_dir: the output directory to store files
 		path_thr: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
-		remained_len_thr: the threshold used for recursive pre_seq and
-			post_seq until we have this length extracted
 		output_name: used for naming output file
 		max_kmer_size: the maximum kmer sized used by the assembler
 		seq_file: the output file to store the extracted sequence
@@ -1956,14 +1602,14 @@ def ng_seq_extraction_metacherchant(gfa_file, length, output_dir,path_thr,
 	pre_sequence_list, pre_path_list, pre_path_length_list =\
 	 							extract_pre_sequence(ordered_path_nodes[0],
 								orientations[0], node_list, length, start_pos,
-								output_dir, output_name, remained_len_thr,
+								output_dir, output_name,
 								path_thr, time_out_counter)
 	#Find the sequence after the AMR gene
 	logging.debug('Running extract_post_sequence '+output_name+' ...')
 	post_sequence_list, post_path_list, post_path_length_list =\
 								extract_post_sequence(last_segment,
 								orientations[-1], node_list, length, end_pos,
-								output_dir, output_name, remained_len_thr,
+								output_dir, output_name,
 								path_thr, time_out_counter)
 	combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequence_list,
 										post_path_list, seq_file, amr_seq, node_orient_list,
@@ -1981,14 +1627,14 @@ def ng_seq_extraction_metacherchant(gfa_file, length, output_dir,path_thr,
 	pre_sequence_list, pre_path_list, pre_path_length_list =\
 	 							extract_pre_sequence(ordered_path_nodes[0],
 								orientations[0], node_list, length, start_pos,
-								output_dir, output_name, remained_len_thr,
+								output_dir, output_name,
 								path_thr, time_out_counter)
 	#Find the sequence after the AMR gene
 	logging.debug('Running extract_post_sequence '+output_name+' ...')
 	post_sequence_list, post_path_list, post_path_length_list =\
 								extract_post_sequence(last_segment,
 								orientations[-1], node_list, length, end_pos,
-								output_dir, output_name, remained_len_thr,
+								output_dir, output_name,
 								path_thr, time_out_counter)
 	combine_pre_post_metacherchant(pre_sequence_list, pre_path_list, post_sequence_list,
 									post_path_list, seq_file, amr_seq, node_orient_list,
@@ -2003,7 +1649,6 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 									seq_name_prefix = 'ng_sequences_',
 									#output_name = 'ng_sequences',
 									path_node_threshold = 10 ,
-									path_seq_len_percent_threshod = 90,
 									max_kmer_size = 55, time_out_counter = -1,
 									assembler = Assembler_name.metaspades,
 									amr_seq_align_info = ''):
@@ -2019,9 +1664,6 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 		seq_name_prefix: used for naming output file
 		path_node_threshold: the threshold used for recursive pre_path and post_path
 			search as long as the length of the path is less that this threshold
-		path_seq_len_percent_threshod: the threshold used for recursive pre_seq and
-			post_seq until we have this percentage of the required length
-			after which we just extract from the longest neighbor.
 		max_kmer_size: the maximum kmer used by the assembler
 		assembler: the assembler used to generate the assembly graph
 		amr_seq_align_info: a tuple containing the name of file containing amr sequence
@@ -2032,7 +1674,6 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 	amr_file, amr_paths_info = amr_seq_align_info
 	logging.debug('amr_file = '+amr_file)
 	output_name = seq_name_prefix +os.path.splitext(os.path.basename(amr_file))[0]
-	remained_len_thr = length - (length*path_seq_len_percent_threshod/100.0)
 	seq_output_dir = os.path.join(output_dir, 'sequences')
 	if not os.path.exists(seq_output_dir):
 		try:
@@ -2061,7 +1702,7 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 			if assembler.name == Assembler_name.metacherchant.name:
 				logging.error("no alignment was found for "+amr_file)
 				return ng_seq_extraction_metacherchant(gfa_file, length, output_dir,
-												path_node_threshold,remained_len_thr,
+												path_node_threshold,
 												output_name,max_kmer_size, seq_file,
 												time_out_counter, assembler,
 												threshold, amr_file), ''
@@ -2102,7 +1743,7 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 		elif similar_path['up_stream']==-1 and similar_path['down_stream']==-1:
 			sequence_list, path_list, path_info_list, seq_info =\
 								extract_neighborhood_sequence(gfa_file, length,
-								amr_path_info, remained_len_thr, path_node_threshold,
+								amr_path_info, path_node_threshold,
 								output_name, max_kmer_size, seq_info, output_dir,
 								time_out_counter, assembler)
 		elif similar_path['up_stream']>-1 and similar_path['down_stream']>-1:
@@ -2117,7 +1758,7 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 						'post_len':seq_info_list[d_id]['post_len']}
 			sequence_list, path_list, path_info_list, seq_info =\
 								extract_neighborhood_sequence(gfa_file, length,
-								amr_path_info, remained_len_thr, path_node_threshold,
+								amr_path_info, path_node_threshold,
 								output_name, max_kmer_size, seq_info, output_dir,
 								time_out_counter, assembler)
 		elif similar_path['up_stream']>-1:
@@ -2128,7 +1769,7 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 			seq_info['pre_len'] = seq_info_list[u_id]['pre_len']
 			sequence_list, path_list, path_info_list, seq_info =\
 								extract_neighborhood_sequence(gfa_file, length,
-								amr_path_info, remained_len_thr, path_node_threshold,
+								amr_path_info, path_node_threshold,
 								output_name, max_kmer_size, seq_info, output_dir,
 								time_out_counter, assembler)
 
@@ -2140,7 +1781,7 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 			seq_info['post_len'] = seq_info_list[d_id]['post_len']
 			sequence_list, path_list, path_info_list, seq_info =\
 								extract_neighborhood_sequence(gfa_file, length,
-								amr_path_info, remained_len_thr, path_node_threshold,
+								amr_path_info, path_node_threshold,
 								output_name, max_kmer_size, seq_info, output_dir,
 								time_out_counter, assembler)
 		if not sequence_list:
@@ -2158,44 +1799,6 @@ def neighborhood_sequence_extraction(gfa_file, length, output_dir,
 		seq_counter = write_paths_info_to_file(path_info_list, paths_info_file, seq_counter)
 	return seq_file, paths_info_file
 
-def neighborhood_graph_extraction(gfa_file, distance, output_dir,
-								bandage = BANDAGE_PATH, threshold = 95,
-								seq_name_prefix = 'ng_subgraph',
-								amr_seq_align_info = ''):
-	"""
-	"""
-	amr_file, paths_info = amr_seq_align_info
-	logging.debug('amr_file = '+amr_file)
-	output_name = seq_name_prefix +os.path.splitext(os.path.basename(amr_file))[0]
-	if not paths_info:
-		if not os.path.exists(os.path.join(output_dir, 'alignment_files')):
-			try:
-				os.makedirs(os.path.join(output_dir, 'alignment_files'))
-			except OSError as exc:
-				if exc.errno != errno.EEXIST:
-					raise
-				pass
-		_, paths_info = find_amr_related_nodes(amr_file, gfa_file,
-												os.path.join(output_dir, 'alignment_files'),
-												bandage, threshold, output_name, '')
-
-	#Find neighbourhood of found nodes AND create a new graph contating the target subgraph
-	subgraph_file_list =[]
-	for i, path_info in enumerate(paths_info):
-		node_list = path_info['nodes']
-		#Find the list of segments and edges
-		myGraph, segment_list, edge_list =extract_subgraph(node_list, distance, gfa_file)
-		#Generate a graph with the lists of segments and edges
-		subGraph = create_graph(myGraph, segment_list, edge_list)
-		#write the subgraph in a GFA file
-		subgraph_file = os.path.join(output_dir, output_name+'_'+str(distance)+'_'+str(i+1)+'_'+\
-			datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')+'.gfa')
-		subGraph.to_file(subgraph_file)
-		logging.info("NOTE: The extracted subgraph has been stored in " + subgraph_file)
-		subgraph_file_list.append(subgraph_file)
-
-	return subgraph_file_list
-
 if __name__=="__main__":
 
 	text = 'This code is used to find the context of a given AMR gene'
@@ -2204,8 +1807,6 @@ if __name__=="__main__":
 		help = 'the path of the file containing the AMR gene sequence')
 	parser.add_argument('--gfa', '-G', type=str, default='',
 		help = 'the GFA file containing the graph')
-	parser.add_argument('--distance', '-D', type = int, default=1,
-		help = 'the maximum distance of neighborhood nodes to be extracted from the AMR gene')
 	parser.add_argument('--length', '-L', type = int, default=1000,
 		help = 'the length of AMR gene\'s neighbourhood to be extracted')
 	parser.add_argument('--output_dir','-O', type=str, default = OUT_DIR,
@@ -2225,7 +1826,5 @@ if __name__=="__main__":
 		import pdb; pdb.set_trace()
 		sys.exit()
 
-	neighborhood_graph_extraction(args.amr,args.gfa, args.distance, args.output_dir,
-								amr_seq_align_info = (arg.amr,''))
 	neighborhood_sequence_extraction(args.gfa, args.length, args.output_dir,
 								amr_seq_align_info = (arg.amr,''))

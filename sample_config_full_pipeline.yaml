@@ -1,9 +1,5 @@
 ---
 BANDAGE_PATH: 'Bandage'
-# needed only if task 2 (read_simulation) is included
-ART_PATH: 'art_illumina'
-# needed only if task 3 (assembly) is included
-SPADES_PATH: 'spades.py'
 #This is an empty string unless prokka is run through docker
 PROKKA_COMMAND_PREFIX: ''
 
@@ -23,62 +19,30 @@ coverage_thr: 30
 # representing one of the following tasks or two numbers
 # to denote the start and end tasks (and of course all
 # tasks in the middle will be run). Here is the list:
-# metagenome_creation = 1 read_simulation = 2 assembly = 3
-# graph_neighborhood = 4 sequence_neighborhood = 5
-# neighborhood_annotation = 6 neighborhood_evaluation =7
+# sequence_neighborhood = 1
+# neighborhood_annotation = 2
 task:
   - 0
 # Whether to assume the AMR genes (in metagenome) are known or to look for them in the assembly graph
-find_amr_genes: false
+find_amr_genes: true
 # the path of the fasta file containing all AMR sequences;
 #If empty the one installed with Sarand (from CARD DB) will be used
 amr_db: ''
 # the threshold used for amr alignment: a hit is returned if identity/coverage >= threshold
 amr_identity_threshold:  95
-#To Do the pure sequence evaluation rather than annotation evaluation
-seq_evaluation: false
-#Whether we have access to reference genome(s)
-ref_genomes_available: true
-# the ddress of reference genomes that AMR genome will be inserted in them
-# not needed if no ref genomes are available
-# Provide either the absolute path or the path from main_dir
-ref_genome_files: 'metagenome_data/'
-#ref_genome_files: main_dir + 'H_S001__insert_180_gsa_anonymous.fasta'
-
-# the length of simulated reads can be either 150 or 250;
-# needed only if task 2 (read_simulation) is included
-read_length:  150
-# the address of the files containing paired-end reads;
-# needed only if task 2 (read_simulation) is included ;
-#Provide either the absolute path or the path from main_dir
-reads:
-  - 'NW016_1._R1_val_1_trim_galore.fq.gz'
-  - 'NW016_1._R2_val_2_trim_galore.fq.gz'
-# the number of threads used for MetaSPAdes
-# needed only if task 3 (assembly) is included
-spades_thread_num: 16
-# Whether the parameter for error-correction is turned off or not
-# needed only if task 3 (assembly) is included
-spades_error_correction: true
 #Setting for the assembler
-#Provide either the absolute path or the path from main_dir
-assembler_output_dir: 'spade_output'
 # the address of the file for assembly graph
 #Provide either the absolute path or the path from main_dir
 gfa_file: 'spade_output/assembly_graph_with_scaffolds.gfa'
 # The maximum K-mer size used by the assembler
 max_kmer_size: 55
-# How much is the neighborhood length (in terms of the number of nodes) extracted
-# around the AMR to construct the neighborhood graph
-graph_distance: 3
 # the length of AMR gene's neighbourhood to be extracted
 seq_length: 1000
 
 # to be used in sequence extraction and after having path_node_threshold number of
 #nodes in our path or already extracting path_seq_len_percent_threshold percent of
 #neighborhood sequence, we stop or only traverse the path from the longest neighbor of the current node
-path_node_threshold: 10
-path_seq_len_percent_threshold: 90
+path_node_threshold: 1000
 # Whether to contribute RGI annotation in Prokka result
 use_RGI: true
 # Whether to include loose cases in RGI result
