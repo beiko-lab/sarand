@@ -1,0 +1,5 @@
+locus_tag	ftype	length_bp	gene	EC_number	COG	product
+FBNJAKFI_00001	CDS	456				hypothetical protein
+FBNJAKFI_00002	CDS	378				hypothetical protein
+FBNJAKFI_00003	CDS	783	ant1	2.7.7.47		Streptomycin 3''-adenylyltransferase
+FBNJAKFI_00004	CDS	732	ermA1	2.1.1.184		rRNA adenine N-6-methyltransferase

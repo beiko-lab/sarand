@@ -33,6 +33,7 @@ class Assembler_name(enum.Enum):
     spacegraphcats = 5
 
 BANDAGE_PATH = 'Bandage'
+#BANDAGE_PATH = '/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage'
 #cwd = os.getcwd()
 #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
 PROKKA_COMMAND_PREFIX = ''

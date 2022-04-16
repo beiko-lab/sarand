@@ -48,7 +48,7 @@ import math
 import yaml
 
 from sarand.params import Pipeline_tasks, Assembler_name
-from sarand.extract_neighborhood import neighborhood_graph_extraction, neighborhood_sequence_extraction
+from sarand.extract_neighborhood import neighborhood_sequence_extraction
 from sarand.annotation_visualization import visualize_annotation
 from sarand.utils import initialize_logger, str2bool, print_params, verify_file_existence,\
 			retrieve_AMR, extract_files, create_fasta_file, extract_amr_names_from_alignment_files,\

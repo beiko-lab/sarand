@@ -1,0 +1,3 @@
+locus_tag	ftype	length_bp	gene	EC_number	COG	product
+ODDCGJJD_00001	CDS	447				hypothetical protein
+ODDCGJJD_00002	CDS	1440	aacA-aphD			Bifunctional AAC/APH
