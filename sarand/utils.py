@@ -101,7 +101,7 @@ def validate_task_values(task):
 			logging.error("ERROR: invalid task number!\n" + task_error_message)
 			import pdb; pdb.set_trace()
 			sys.exit()
-		elif taks == Pipeline_tasks.all.value:
+		elif task == Pipeline_tasks.all.value:
 			return valid_task_values
 		else:
 			return [task]
