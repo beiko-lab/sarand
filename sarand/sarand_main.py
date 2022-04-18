@@ -42,21 +42,25 @@ def main():
                                         "target Antimicrobial Resistance (AMR) "
                                         "genes from the assembly graph.",
                                         prog='sarand',
-                                        usage='sarand <tool> <options>')
+                                        usage='sarand <options>')
     parser.add_argument('-v', '--version', action='version',
                         version=f"%(prog)s {__version__}")
-    # add tool specific parsers
-    subparser = parser.add_subparsers(title="Available tools under sarand",help='')
-    # add subparser for full_pipeline.py
-    full_parser = subparser.add_parser('full_pipeline', description="Complete pipeline "
-                                        "to extract AMR neighborhood from assembly graph "
-                                        "and annotate it",
-                                       usage="sarand full_pipeline <options>",
-                                       help='')
     #full_parser = create_arguments(params, full_parser)
-    full_parser.add_argument('--config_file', '-C', type = str, default='',
+    parser.add_argument('--config_file', '-C', type = str, default='',
 		help = 'the config file to set parameters for full_pipeline()')
-    full_parser.set_defaults(func = full_pipeline_init)
+
+    # # add tool specific parsers
+    # subparser = parser.add_subparsers(title="Available tools under sarand",help='')
+    # # add subparser for full_pipeline.py
+    # full_parser = subparser.add_parser('full_pipeline', description="Complete pipeline "
+    #                                     "to extract AMR neighborhood from assembly graph "
+    #                                     "and annotate it",
+    #                                    usage="sarand full_pipeline <options>",
+    #                                    help='')
+    # #full_parser = create_arguments(params, full_parser)
+    # full_parser.add_argument('--config_file', '-C', type = str, default='',
+	# 	help = 'the config file to set parameters for full_pipeline()')
+    # full_parser.set_defaults(func = full_pipeline_init)
 
     args = parser.parse_args()
     #If no argument has been passed
@@ -73,7 +77,8 @@ def main():
     with open(args.config_file, 'r') as yamlfile:
         data = yaml.load(yamlfile, Loader=yaml.FullLoader)
 
-    args.func(data, params)
+    full_pipeline_init(data, params)
+    #args.func(data, params)
 
 
 if __name__ == '__main__':
