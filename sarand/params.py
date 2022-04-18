@@ -17,8 +17,7 @@ import pkg_resources
 # The list of valid tasks
 # to use them set task in params.py:
 # for a single task: insert its value as the single item in task list
-# for a range of tasks: insert the value of start and end as the first and the second (last) item in the list
-# for all tasks: task = [0]
+# for all tasks: task = 0
 """
 class Pipeline_tasks(enum.Enum):
 	all = 0
@@ -46,7 +45,7 @@ multi_processor = True
 core_num = 4
 #-1 when no gene-coverage threshold is used
 coverage_thr = 30
-task = [0]
+task = 0
 
 amr_files = os.path.join(output_dir ,'AMR_info/sequences/')
 find_amr_genes = True

@@ -78,48 +78,38 @@ def create_fasta_file(seq, output_dir, comment = "> sequence:\n", file_name = 't
 	myfile.close()
 	return  myfile_name
 
-def validate_task_values(tasks):
+def validate_task_values(task):
 	"""
-	To check if the task(s) entered by the user are valid
+	To check if the task entered by the user is valid
 	Parameter:
-		tasks: it's either a number representing the task number valid in Pipeline_tasks
-			or two numbers denoting the start and end task which are valid values in Pipeline_tasks
+		task: it's a number representing either the task number valid in Pipeline_tasks
+			or zero to run the entire pipeline
 	Return:
 		the list of tasks to be done
-		For example if tasks =[1, 4] return [1, 2, 3, 4]
-		special case: tasks = [0] return [1, 2, 3, 4, 5, 6]
+		For example if task = 1 return [1]
+		special case: task = 0 return [1, 2]
 	"""
 	task_error_message = "For the entire pipeline choose "+str(Pipeline_tasks.all.value)+"; otherwise\
-	either provide a number representing one of the following tasks or two numbers\
-	to denote the start and end tasks (and of course all tasks in the middle will be run).\n \
-	Here is the list:\nsequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
+	provide a number representing one of the following tasks:\
+	\nsequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
 	"\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value)
 
 	task_list = []
-	if len(tasks) > 2:
-		logging.error("ERROR: There are more than two numbers in the task list!\n" + task_error_message)
-		import pdb; pdb.set_trace()
-		sys.exit()
-
 	valid_task_values = [item.value for item in Pipeline_tasks]
-	for task in tasks:
-		if int(task) not in valid_task_values:
-			logging.error("ERROR: invalid task number(s)!\n" + task_error_message)
+	if isinstance(task, int):
+		if task not in valid_task_values:
+			logging.error("ERROR: invalid task number!\n" + task_error_message)
 			import pdb; pdb.set_trace()
 			sys.exit()
-
-	if len(tasks)==2 and int(tasks[0])>int(tasks[1]):
-		logging.error("ERROR: The first task number should be smaller than the second task\
-		 in the list!\n" + task_error_message)
+		elif taks == Pipeline_tasks.all.value:
+			return valid_task_values
+		else:
+			return [task]
+	else:
+		logging.error("ERROR: Invalid type for task!")
 		import pdb; pdb.set_trace()
 		sys.exit()
 
-	if len(tasks)==1 and int(tasks[0])==Pipeline_tasks.all.value:
-		return valid_task_values
-	if len(tasks)==1:
-		return [int(tasks[0])]
-	for task in list(range(int(tasks[0]), int(tasks[1])+1)):
-		task_list.append(task)
 	return task_list
 
 def initialize_logger(output_dir, file_name = 'logfile.log'):

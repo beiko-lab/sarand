@@ -1285,6 +1285,91 @@ def update_full_pipeline_params(params, config):
 
 	return params
 
+def create_arguments(params, parser):
+    """
+    To create all required qrguments
+    """
+    parser.add_argument('--task', type=int, default=params.task,
+            help="which task would you like to do?\
+            For the entire pipeline choose "+str(Pipeline_tasks.all.value)+"; otherwise\
+            provide a number representing one of the following tasks:\n \
+            sequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
+            "\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value))
+    parser.add_argument('--ref_genome_files', nargs="+", default=params.ref_genome_files,
+            help = 'the ddress of reference genomes that AMR genome will be inserted in them')
+    parser.add_argument('--main_dir', '-m', type = str, default=params.main_dir,
+            help = 'the main dir to retrieve required files')
+    parser.add_argument('--read_length',type=int, default=params.read_length,
+            help = 'the length of simulated reads can be either 150 or 250')
+    parser.add_argument('--spades_thread_num',type=int, default=params.spades_thread_num,
+            help = 'the number of threads used for MetaSPAdes')
+    parser.add_argument('--seq_length', '-L', type = int, default=params.seq_length,
+            help = 'the length of AMR gene\'s neighbourhood to be extracted')
+    parser.add_argument('--gfa_file', type = str, default = params.gfa_file,
+            help = 'the address of the file for assembly graph')
+    parser.add_argument('--contig_file', type = str, default = params.contig_file,
+            help = 'the address of the file containing contigs after assembly')
+    parser.add_argument('--reads', type = check_reads, default = params.reads,
+            help = 'the address of the files containing paired-end reads')
+    parser.add_argument('--find_amr_genes', type = str2bool, default = params.find_amr_genes,
+            help = 'Whether to assume the AMR genes (in metagenome) are known or to look for them in assembly graph')
+    parser.add_argument('--amr_identity_threshold', type = int, default = params.amr_identity_threshold,
+            help = 'the threshold used for amr alignment: a hit is returned if identity/coverage >= threshold')
+    parser.add_argument('--ref_genomes_available', type = str2bool, default = params.ref_genomes_available,
+            help = 'Whether we have access to reference genome(s)')
+    parser.add_argument('--multi_processor', type = str2bool, default = params.multi_processor,
+            help = 'Whether to use multi processors for parallel programming')
+    parser.add_argument('--core_num', type = int, default = params.core_num,
+            help = 'the number of cores used in case of parallel programming')
+    parser.add_argument('--coverage_thr', nargs="+", default = params.coverage_thr,
+            help = 'coverage threshold to check if an annotated gene is truly AMR neighbor or just a false positive')
+    # parser.add_argument('--ref_ng_annotations_file', type = str, default = params.ref_ng_annotations_file,
+   # parser.add_argument('--ref_ng_annotations_file', type = str, default = params.ref_ng_annotations_file,
+    #       help = 'the file containing the annotation of all neighborhoods extracted from ref genomes.')
+    # parser.add_argument('--prokka_prefix', type = str, default = params.PROKKA_COMMAND_PREFIX,
+    #       help = 'Set only if prokka is run through docker')
+    # parser.add_argument('--amr_files','-A', type=str, default = params.amr_files,
+    #       help = 'the path of the file(s) containing the AMR gene sequence(s)')
+    # parser.add_argument('--output_dir', '-O', type = str, default=params.output_dir,
+    #       help = 'the output dir to store the results')
+    # parser.add_argument('--metagenome_file', type = str, default= params.metagenome_file,
+    #       help = 'the address of metagenome file')
+    # parser.add_argument('--assembler_output_dir',type=str, default=params.assembler_output_dir,
+    #       help = 'the output dir to store MetaSPAdes results')
+    # parser.add_argument('--graph_distance', '-D', type = int, default=params.graph_distance,
+    #       help = 'the maximum distance of neighborhood nodes to be extracted from the AMR gene')
+    # parser.add_argument('--ng_seq_files', nargs="+", default = params.ng_seq_files,
+    #       help = 'the address of the files containing all extracted neighborhood sequences in assembly graph')
+    # parser.add_argument('--ng_path_info_files', nargs="+", default = params.ng_path_info_files,
+    #       help = 'the address of the files containing all path information for extracted neighborhood sequences in assembly graph')
+    # parser.add_argument('--spades_error_correction', type = str2bool, default = params.spades_error_correction,
+    #       help = 'Whether to turn on or off error correction in MetaSPAdes')
+    # parser.add_argument('--use_RGI', type = str2bool, default = params.use_RGI,
+    #       help = 'Whether to contribute RGI annotation in Prokka result')
+    # parser.add_argument('--RGI_include_loose', type = str2bool, default = params.RGI_include_loose,
+    #       help = 'Whether to include loose cases in RGI result')
+    # parser.add_argument('--path_node_threshold', type = int, default = params.path_node_threshold,
+    #       help = 'the threshold used for recursive pre_path and post_path search as long as the length of the path is less that this threshold')
+    # parser.add_argument('--path_seq_len_percent_threshold', type = int, default = params.path_seq_len_percent_threshold,
+    #       help = 'the threshold used for recursive pre_seq and post_seq until we have this percentage of the required length\
+    #        after which we just extract from the longest neighbor')
+    # parser.add_argument('--number_of_insertions', type = int, default=params.number_of_insertions,
+    #       help = 'the number of genomes generated by inserting AMR in different locations of reference genome')
+    # parser.add_argument('--insertion_type', type =Insertion_type , default=params.insertion_type,
+    #       help = 'Should insertion locations be selected randomly (1) or using some defined values (2)')
+    # parser.add_argument('--insertion_locations', nargs="+", default = params.insertion_locations,
+    #       help = 'list of predefined insertion locations to insert AMR in reference genome\
+    #               if you chose multiple reference genomes first type the list of insertion locations\
+    #               for the first genome followed by the list for the second and ...\
+    #               please make sure the number of locations for each genome matches the\
+    #               corresponding one specified in --num_insertion argument')
+    # parser.add_argument('--artificial_amr_insertion', type = str2bool, default = params.artificial_amr_insertion,
+    #       help = 'Whether to insert the AMR gene in genomes artificially')
+    # parser.add_argument('--genome_amr_files', nargs="+", default = params.genome_amr_files,
+    #       help = 'the address of the files containing genome after AMR insertion')
+
+    return parser
+
 if __name__=="__main__":
 	import params
 	text = 'This code is used to find the context of a given AMR gene'
