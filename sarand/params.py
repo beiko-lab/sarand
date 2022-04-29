@@ -75,9 +75,8 @@ elif assembler == Assembler_name.spacegraphcats:
 
 seq_length = 1000
 
-# to be used in sequence extraction and after having path_node_threshold number of
-#nodes in our path or already extracting path_seq_len_percent_threshold percent of
-#neighborhood sequence, we stop or only traverse the path from the longest neighbor of the current node
+# to be used in sequence extraction: after having path_node_threshold number of
+#nodes in our path, we stop 
 path_node_threshold =  1000
 #time-out in seconds to stop pre_seq or post_seq extraction
 #default is -1, meaning that there is no time out

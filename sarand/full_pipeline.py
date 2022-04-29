@@ -59,7 +59,8 @@ from sarand.utils import initialize_logger, str2bool, verify_file_existence,\
 			restricted_amr_name_from_modified_name, extract_info_from_overlap_file,\
 			read_path_info_from_align_file, read_path_info_from_align_file_with_multiple_amrs,\
 			extract_path_info_for_amrs, compare_two_sequences,\
-			delete_lines_started_with, validate_task_values, validate_print_parameters_tools
+			delete_lines_started_with, validate_task_values, validate_print_parameters_tools,\
+			update_full_pipeline_params, haveContent
 
 ASSEMBLY_FILE = 'assembly_graph_with_scaffolds.gfa'
 #ALL_AMR_SEQUENCES ='nucleotide_fasta_protein_homolog_model_without_efflux_without_space.fasta'
@@ -74,9 +75,6 @@ ANNOTATION_DIR = 'annotations'
 EVAL_DIR = 'evaluation'
 NOT_FOUND_FILE = 'not_found_amrs_in_graph.txt'
 
-#To run the code for a list of sequence neighborhood length rather than just one length
-#the default seq length is 1000
-MULTIPLE_SEQ_LENGTH = False
 seq_eval_ref_subject = False
 
 def write_info_in_annotation_file(annotation_writer, visual_annotation_writer,
@@ -1187,14 +1185,8 @@ def full_pipeline_main(params):
 		amr_seq_align_info.append((amr_file, unique_amr_path_list[i]))
 
 	if Pipeline_tasks.sequence_neighborhood.value in task_list:
-		if MULTIPLE_SEQ_LENGTH:
-			for seq_len in [500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000]:
-				params.seq_length = seq_len
-				seq_files, path_info_files = sequence_neighborhood_main(params,
-						gfa_file, amr_seq_align_info)
-		else:
-			seq_files, path_info_files = sequence_neighborhood_main(params,
-					gfa_file, amr_seq_align_info)
+		seq_files, path_info_files = sequence_neighborhood_main(params,
+				gfa_file, amr_seq_align_info)
 
 	coverage_annotation_list = []
 	if Pipeline_tasks.neighborhood_annotation.value in task_list:
@@ -1234,154 +1226,131 @@ def full_pipeline_main(params):
 
 	logging.info("All Done!")
 
-def update_full_pipeline_params(params, config):
-	"""
-	"""
-	config_params = config.keys()
-	main_dir_changed = False
-	if 'main_dir' in config_params and os.path.realpath(config['main_dir'])!=os.path.realpath(params.main_dir):
-		main_dir_changed = True
-		#changes params variables dependant on main_dir only accessible through params.py
-		params.output_dir = params.output_dir.replace(params.main_dir.rstrip(' /'), config['main_dir'].rstrip(' /'))
-		params.amr_files = params.amr_files.replace(params.main_dir.rstrip(' /'), config['main_dir'].rstrip(' /'))
-		params.ng_seq_files = params.ng_seq_files.replace(params.main_dir.rstrip(' /'), config['main_dir'].rstrip(' /'))
-		params.ng_path_info_files = params.ng_path_info_files.replace(params.main_dir.rstrip(' /'), config['main_dir'].rstrip(' /'))
-	if 'task' in config_params:
-		params.task = config['task']
-	if 'seq_length' in config_params:
-		params.seq_length = config['seq_length']
-	if 'gfa_file' in config_params:
-		params.gfa_file = config['gfa_file']
-	elif main_dir_changed:
-		params.gfa_file = params.gfa_file.replace(params.main_dir.rstrip(' /'), config['main_dir'].rstrip(' /'))
-	if 'find_amr_genes' in config_params:
-		params.find_amr_genes = config['find_amr_genes']
-	if 'amr_identity_threshold' in config_params:
-		params.amr_identity_threshold = config['amr_identity_threshold']
-	if 'coverage_thr' in config_params:
-		params.coverage_thr = config['coverage_thr']
-	if 'multi_processor' in config_params:
-		params.multi_processor = config['multi_processor']
-	if 'core_num' in config_params:
-		params.core_num = config['core_num']
-	if 'BANDAGE_PATH' in config_params:
-		params.BANDAGE_PATH = config['BANDAGE_PATH']
-	if 'PROKKA_COMMAND_PREFIX' in config_params:
-		params.PROKKA_COMMAND_PREFIX = config['PROKKA_COMMAND_PREFIX']
-	if 'amr_db' in config_params and config['amr_db']!='':
-		params.amr_db = config['amr_db']
-	if 'max_kmer_size' in config_params:
-		params.max_kmer_size = config['max_kmer_size']
-	if 'path_node_threshold' in config_params:
-		params.path_node_threshold = config['path_node_threshold']
-	if 'ng_extraction_time_out' in config_params:
-		params.ng_extraction_time_out = config['ng_extraction_time_out']
-	if 'use_RGI' in config_params:
-		params.use_RGI = config['use_RGI']
-	if 'RGI_include_loose' in config_params:
-		params.RGI_include_loose = config['RGI_include_loose']
-	if main_dir_changed:
-		params.main_dir = config['main_dir']
 
-	return params
-
-def create_arguments(params, parser):
+def create_arguments(parser):
     """
     To create all required qrguments
     """
-    parser.add_argument('--task', type=int, default=params.task,
+    parser.add_argument('-V', '--version', action='version',
+                        version=f"%(prog)s {__version__}")
+    parser.add_argument('--config_file', '-C', type = str,
+		help = 'the config file to set parameters for full_pipeline()')
+    parser.add_argument('--bandage_path', type = str,
+            help = 'The path for bandage')
+    parser.add_argument('--prokka_prefix', type = str,
+          help = 'Set only if prokka is run through docker')
+    parser.add_argument('--main_dir', '-M', type = str,
+            help = 'The main dir to retrieve required files')
+    parser.add_argument('--multi_processor', type = str2bool,
+            help = 'Whether to use multi processors for parallel programming')
+    parser.add_argument('--core_num', type = int,
+            help = 'The number of cores used in case of parallel programming')
+    parser.add_argument('--coverage_thr', nargs="+",
+            help = 'Coverage threshold to check if an annotated gene is truly AMR neighbor or just a false positive')
+    parser.add_argument('--task', type=int,
             help="which task would you like to do?\
             For the entire pipeline choose "+str(Pipeline_tasks.all.value)+"; otherwise\
             provide a number representing one of the following tasks:\n \
             sequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
             "\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value))
-    parser.add_argument('--ref_genome_files', nargs="+", default=params.ref_genome_files,
-            help = 'the ddress of reference genomes that AMR genome will be inserted in them')
-    parser.add_argument('--main_dir', '-m', type = str, default=params.main_dir,
-            help = 'the main dir to retrieve required files')
-    parser.add_argument('--read_length',type=int, default=params.read_length,
-            help = 'the length of simulated reads can be either 150 or 250')
-    parser.add_argument('--spades_thread_num',type=int, default=params.spades_thread_num,
-            help = 'the number of threads used for MetaSPAdes')
-    parser.add_argument('--seq_length', '-L', type = int, default=params.seq_length,
-            help = 'the length of AMR gene\'s neighbourhood to be extracted')
-    parser.add_argument('--gfa_file', type = str, default = params.gfa_file,
-            help = 'the address of the file for assembly graph')
-    parser.add_argument('--contig_file', type = str, default = params.contig_file,
-            help = 'the address of the file containing contigs after assembly')
-    parser.add_argument('--reads', type = check_reads, default = params.reads,
-            help = 'the address of the files containing paired-end reads')
-    parser.add_argument('--find_amr_genes', type = str2bool, default = params.find_amr_genes,
+    parser.add_argument('--amr_db','-A', type=str,
+          help = 'The path of the fasta file containing all AMR sequences to be searched in the graph. If not provided, the one installed with Sarand (from CARD DB) will be used')
+    parser.add_argument('--find_amr_genes', type = str2bool,
             help = 'Whether to assume the AMR genes (in metagenome) are known or to look for them in assembly graph')
-    parser.add_argument('--amr_identity_threshold', type = int, default = params.amr_identity_threshold,
-            help = 'the threshold used for amr alignment: a hit is returned if identity/coverage >= threshold')
-    parser.add_argument('--ref_genomes_available', type = str2bool, default = params.ref_genomes_available,
-            help = 'Whether we have access to reference genome(s)')
-    parser.add_argument('--multi_processor', type = str2bool, default = params.multi_processor,
-            help = 'Whether to use multi processors for parallel programming')
-    parser.add_argument('--core_num', type = int, default = params.core_num,
-            help = 'the number of cores used in case of parallel programming')
-    parser.add_argument('--coverage_thr', nargs="+", default = params.coverage_thr,
-            help = 'coverage threshold to check if an annotated gene is truly AMR neighbor or just a false positive')
-    # parser.add_argument('--ref_ng_annotations_file', type = str, default = params.ref_ng_annotations_file,
-   # parser.add_argument('--ref_ng_annotations_file', type = str, default = params.ref_ng_annotations_file,
-    #       help = 'the file containing the annotation of all neighborhoods extracted from ref genomes.')
-    # parser.add_argument('--prokka_prefix', type = str, default = params.PROKKA_COMMAND_PREFIX,
-    #       help = 'Set only if prokka is run through docker')
-    # parser.add_argument('--amr_files','-A', type=str, default = params.amr_files,
-    #       help = 'the path of the file(s) containing the AMR gene sequence(s)')
-    # parser.add_argument('--output_dir', '-O', type = str, default=params.output_dir,
-    #       help = 'the output dir to store the results')
-    # parser.add_argument('--metagenome_file', type = str, default= params.metagenome_file,
-    #       help = 'the address of metagenome file')
-    # parser.add_argument('--assembler_output_dir',type=str, default=params.assembler_output_dir,
-    #       help = 'the output dir to store MetaSPAdes results')
-    # parser.add_argument('--graph_distance', '-D', type = int, default=params.graph_distance,
-    #       help = 'the maximum distance of neighborhood nodes to be extracted from the AMR gene')
-    # parser.add_argument('--ng_seq_files', nargs="+", default = params.ng_seq_files,
-    #       help = 'the address of the files containing all extracted neighborhood sequences in assembly graph')
-    # parser.add_argument('--ng_path_info_files', nargs="+", default = params.ng_path_info_files,
-    #       help = 'the address of the files containing all path information for extracted neighborhood sequences in assembly graph')
-    # parser.add_argument('--spades_error_correction', type = str2bool, default = params.spades_error_correction,
-    #       help = 'Whether to turn on or off error correction in MetaSPAdes')
-    # parser.add_argument('--use_RGI', type = str2bool, default = params.use_RGI,
-    #       help = 'Whether to contribute RGI annotation in Prokka result')
-    # parser.add_argument('--RGI_include_loose', type = str2bool, default = params.RGI_include_loose,
-    #       help = 'Whether to include loose cases in RGI result')
-    # parser.add_argument('--path_node_threshold', type = int, default = params.path_node_threshold,
-    #       help = 'the threshold used for recursive pre_path and post_path search as long as the length of the path is less that this threshold')
-    # parser.add_argument('--path_seq_len_percent_threshold', type = int, default = params.path_seq_len_percent_threshold,
-    #       help = 'the threshold used for recursive pre_seq and post_seq until we have this percentage of the required length\
-    #        after which we just extract from the longest neighbor')
-    # parser.add_argument('--number_of_insertions', type = int, default=params.number_of_insertions,
-    #       help = 'the number of genomes generated by inserting AMR in different locations of reference genome')
-    # parser.add_argument('--insertion_type', type =Insertion_type , default=params.insertion_type,
-    #       help = 'Should insertion locations be selected randomly (1) or using some defined values (2)')
-    # parser.add_argument('--insertion_locations', nargs="+", default = params.insertion_locations,
-    #       help = 'list of predefined insertion locations to insert AMR in reference genome\
-    #               if you chose multiple reference genomes first type the list of insertion locations\
-    #               for the first genome followed by the list for the second and ...\
-    #               please make sure the number of locations for each genome matches the\
-    #               corresponding one specified in --num_insertion argument')
-    # parser.add_argument('--artificial_amr_insertion', type = str2bool, default = params.artificial_amr_insertion,
-    #       help = 'Whether to insert the AMR gene in genomes artificially')
-    # parser.add_argument('--genome_amr_files', nargs="+", default = params.genome_amr_files,
-    #       help = 'the address of the files containing genome after AMR insertion')
-
+    parser.add_argument('--amr_identity_threshold', type = int,
+            help = 'The threshold used for amr alignment: a hit is returned if identity/coverage >= threshold')
+    parser.add_argument('--gfa_file', '-G', type=str,
+          help = 'The address of the file containing the assembly graph. Provide either the absolute path or the path from main_dir')
+    parser.add_argument('--max_kmer_size', type = int,
+            help = 'The maximum K-mer size used by the assembler')
+    parser.add_argument('--seq_length', '-L', type = int,
+            help = 'The length of AMR gene\'s neighbourhood to be extracted')
+    parser.add_argument('--path_node_threshold', type = int,
+          help = 'To be used in sequence extraction: after having path_node_threshold number of nodes in our path, we stop')
+    parser.add_argument('--ng_extraction_time_out', type = int,
+          help = 'Time-out in seconds to stop pre_seq or post_seq extraction; default is -1, meaning that there is no time out')
+    parser.add_argument('--use_RGI', type = str2bool,
+          help = 'Whether to contribute RGI annotation in Prokka result')
+    parser.add_argument('--RGI_include_loose', type = str2bool,
+          help = 'Whether to include loose cases in RGI result')
     return parser
+
+# def create_arguments(params, parser):
+#     """
+#     To create all required qrguments
+#     """
+#     parser.add_argument('-V', '--version', action='version',
+#                         version=f"%(prog)s {__version__}")
+#     parser.add_argument('--config_file', '-C', type = str, default='',
+# 		help = 'the config file to set parameters for full_pipeline()')
+#     parser.add_argument('--bandage_path', type = str, default=params.BANDAGE_PATH,
+#             help = 'The path for bandage')
+#     parser.add_argument('--prokka_prefix', type = str, default = params.PROKKA_COMMAND_PREFIX,
+#           help = 'Set only if prokka is run through docker')
+#     parser.add_argument('--main_dir', '-M', type = str, default='',
+#             help = 'The main dir to retrieve required files')
+#     parser.add_argument('--multi_processor', type = str2bool, default = params.multi_processor,
+#             help = 'Whether to use multi processors for parallel programming')
+#     parser.add_argument('--core_num', type = int, default = params.core_num,
+#             help = 'The number of cores used in case of parallel programming')
+#     parser.add_argument('--coverage_thr', nargs="+", default = params.coverage_thr,
+#             help = 'Coverage threshold to check if an annotated gene is truly AMR neighbor or just a false positive')
+#     parser.add_argument('--task', type=int, default=params.task,
+#             help="which task would you like to do?\
+#             For the entire pipeline choose "+str(Pipeline_tasks.all.value)+"; otherwise\
+#             provide a number representing one of the following tasks:\n \
+#             sequence_neighborhood = "+str(Pipeline_tasks.sequence_neighborhood.value)+\
+#             "\nneighborhood_annotation = "+str(Pipeline_tasks.neighborhood_annotation.value))
+#     parser.add_argument('--amr_db','-A', type=str, default = params.amr_db,
+#           help = 'The path of the fasta file containing all AMR sequences to be searched in the graph. If not provided, the one installed with Sarand (from CARD DB) will be used')
+#     parser.add_argument('--find_amr_genes', type = str2bool, default = params.find_amr_genes,
+#             help = 'Whether to assume the AMR genes (in metagenome) are known or to look for them in assembly graph')
+#     parser.add_argument('--amr_identity_threshold', type = int, default = params.amr_identity_threshold,
+#             help = 'The threshold used for amr alignment: a hit is returned if identity/coverage >= threshold')
+#     parser.add_argument('--gfa_file', '-G', type=str, default='',
+#           help = 'The address of the file containing the assembly graph. Provide either the absolute path or the path from main_dir')
+#     parser.add_argument('--max_kmer_size', type = int, default=params.max_kmer_size,
+#             help = 'The maximum K-mer size used by the assembler')
+#     parser.add_argument('--seq_length', '-L', type = int, default=params.seq_length,
+#             help = 'The length of AMR gene\'s neighbourhood to be extracted')
+#     parser.add_argument('--path_node_threshold', type = int, default=params.path_node_threshold,
+#           help = 'To be used in sequence extraction: after having path_node_threshold number of nodes in our path, we stop')
+#     parser.add_argument('--ng_extraction_time_out', type = int, default=params.ng_extraction_time_out,
+#           help = 'Time-out in seconds to stop pre_seq or post_seq extraction; default is -1, meaning that there is no time out')
+#     parser.add_argument('--use_RGI', type = str2bool, default = params.use_RGI,
+#           help = 'Whether to contribute RGI annotation in Prokka result')
+#     parser.add_argument('--RGI_include_loose', type = str2bool, default = params.RGI_include_loose,
+#           help = 'Whether to include loose cases in RGI result')
+#     return parser
 
 if __name__=="__main__":
 	import params
 	text = 'This code is used to find the context of a given AMR gene'
 	parser = argparse.ArgumentParser(description=text)
-	parser.add_argument('--config_file', '-C', type = str, default='',
-		help = 'the config file to set parameters for full_pipeline()')
-	args = parser.parse_args()
-    # Read config file into a dictionery
-	print("Reading the config file '"+args.config_file+"' ...")
-	with open(args.config_file, 'r') as yamlfile:
-		data = yaml.load(yamlfile, Loader=yaml.FullLoader)
-	params = update_full_pipeline_params(params, data)
+    parser = create_arguments(parser)
+    args = parser.parse_args()
+    #If no argument has been passed
+    if not len(sys.argv) > 1:
+        print("Please use -h option to access usage information!")
+        sys.exit()
+    # Check if the config file has correctly been set and exist???
+    config_data = ''
+    if args.config_file!='':
+        if not os.path.isfile(args.config_file) or\
+            not args.config_file.lower().endswith('yaml') or\
+			not haveContent(args.config_file):
+            print(args.config_file+" Config file ("+args.config_file+") doesn't exist or not in the right format! Please provide the correct path to the YAML config file!")
+            sys.exit()
+        else:
+            # Read config file into a dictionery
+            print("Reading the config file '"+args.config_file+"' ...")
+            with open(args.config_file, 'r') as yamlfile:
+                config_data = yaml.load(yamlfile, Loader=yaml.FullLoader)
+	if config_data=='':
+		params = update_full_pipeline_params(args, params)
+	else:
+		params = update_full_pipeline_params(args, config_data, params)
+	#params = update_full_pipeline_params(params, data)
 	log_name = 'logger_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')+'.log'
 	initialize_logger(params.main_dir, log_name)
 	validate_print_parameters_tools(params)
