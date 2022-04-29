@@ -9,9 +9,9 @@ import yaml
 
 from sarand import params, full_pipeline, utils
 from sarand.__init__ import __version__
-from sarand.full_pipeline import full_pipeline_main
+from sarand.full_pipeline import full_pipeline_main, create_arguments
 from sarand.utils import initialize_logger, validate_print_parameters_tools,\
-                    update_full_pipeline_params, haveContent
+                    update_full_pipeline_params, update_full_pipeline_params2, haveContent
 
 def full_pipeline_init(args, config_data, params):
     """
@@ -19,14 +19,14 @@ def full_pipeline_init(args, config_data, params):
     # Rewrite parameters of params which are available in data and
     # are supposed to be set for this function
     if config_data=='':
-        params = update_full_pipeline_params(args, params)
+        params = update_full_pipeline_params2(args, params)
     else:
         params = update_full_pipeline_params(args, config_data, params)
     #logging file
     log_name = 'logger_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')+'.log'
     initialize_logger(params.main_dir, log_name)
     #logging.info(str(params.__dict__))
-
+    params = validate_print_parameters_tools(params)
     #create the output directory;
     if not os.path.exists(params.output_dir):
         os.makedirs(params.output_dir)
@@ -38,7 +38,6 @@ def full_pipeline_init(args, config_data, params):
     #         logging.error("Error: %s - %s." % (e.filename, e.strerror))
     #     os.makedirs(args.output_dir)
     logging.info('Running full_pipeline ...')
-    params = validate_print_parameters_tools(params)
     full_pipeline_main(params)
 
 def main():
@@ -55,7 +54,7 @@ def main():
         sys.exit()
     # Check if the config file has correctly been set and exist???
     config_data = ''
-    if args.config_file!='':
+    if args.config_file is not None and  args.config_file!='':
         if not os.path.isfile(args.config_file) or\
             not args.config_file.lower().endswith('yaml') or\
             not haveContent(args.config_file):

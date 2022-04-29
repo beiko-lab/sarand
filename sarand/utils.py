@@ -146,7 +146,7 @@ def haveContent(config_file):
 			return True
 	return False
 
-def update_full_pipeline_params(args, params):
+def update_full_pipeline_params2(args, params):
 	"""
 	"""
 	arg_main_dir =''
@@ -205,7 +205,7 @@ def update_full_pipeline_params(args, config_data, params):
 	if args.main_dir is not None:
 		user_main_dir = args.main_dir
 	elif 'main_dir' in config_params:
-		user_main_dir = config['main_dir']
+		user_main_dir = config_data['main_dir']
 	if os.path.realpath(user_main_dir)!=os.path.realpath(params.main_dir):
 			#changes params variables dependant on main_dir only accessible through params.py
 			params.output_dir = params.output_dir.replace(params.main_dir.rstrip(' /'), user_main_dir.rstrip(' /'))
@@ -217,69 +217,69 @@ def update_full_pipeline_params(args, config_data, params):
 	if args.bandage_path is not None:
 		params.BANDAGE_PATH = args.bandage_path
 	elif 'BANDAGE_PATH' in config_params:
-		params.BANDAGE_PATH = config['BANDAGE_PATH']
+		params.BANDAGE_PATH = config_data['BANDAGE_PATH']
 	if args.prokka_prefix is not None:
   		params.PROKKA_COMMAND_PREFIX = args.prokka_prefix
 	elif 'PROKKA_COMMAND_PREFIX' in config_params:
-		params.PROKKA_COMMAND_PREFIX = config['PROKKA_COMMAND_PREFIX']
+		params.PROKKA_COMMAND_PREFIX = config_data['PROKKA_COMMAND_PREFIX']
 	if args.multi_processor is not None:
   		params.multi_processor = args.multi_processor
 	elif 'multi_processor' in config_params:
-		params.multi_processor = config['multi_processor']
+		params.multi_processor = config_data['multi_processor']
 	if args.core_num is not None:
   		params.core_num = args.core_num
 	elif 'core_num' in config_params:
-		params.core_num = config['core_num']
+		params.core_num = config_data['core_num']
 	if args.coverage_thr is not None:
  		params.coverage_thr = args.coverage_thr
 	elif 'coverage_thr' in config_params:
-		params.coverage_thr = config['coverage_thr']
+		params.coverage_thr = config_data['coverage_thr']
 	if args.task is not None:
   		params.task = args.task
 	elif 'task' in config_params:
-		params.task = config['task']
+		params.task = config_data['task']
 	if args.amr_db is not None:
   		params.amr_db = args.amr_db
-	elif 'amr_db' in config_params and config['amr_db']!='':
-		params.amr_db = config['amr_db']
+	elif 'amr_db' in config_params and config_data['amr_db']!='':
+		params.amr_db = config_data['amr_db']
 	if args.find_amr_genes is not None:
   		params.find_amr_genes = args.find_amr_genes
 	elif 'find_amr_genes' in config_params:
-		params.find_amr_genes = config['find_amr_genes']
+		params.find_amr_genes = config_data['find_amr_genes']
 	if args.amr_identity_threshold is not None:
   		params.amr_identity_threshold = args.amr_identity_threshold
 	elif 'amr_identity_threshold' in config_params:
-		params.amr_identity_threshold = config['amr_identity_threshold']
+		params.amr_identity_threshold = config_data['amr_identity_threshold']
 	if args.gfa_file is not None:
   		params.gfa_file = args.gfa_file
 	elif 'gfa_file' in config_params:
-		params.gfa_file = config['gfa_file']
+		params.gfa_file = config_data['gfa_file']
 	else:
   		params.gfa_file = ''
 	if args.max_kmer_size is not None:
   		arams.max_kmer_size = args.max_kmer_size
 	elif 'max_kmer_size' in config_params:
-		params.max_kmer_size = config['max_kmer_size']
+		params.max_kmer_size = config_data['max_kmer_size']
 	if args.seq_length is not None:
   		params.seq_length = args.seq_length
 	elif 'seq_length' in config_params:
-		params.seq_length = config['seq_length']
+		params.seq_length = config_data['seq_length']
 	if args.path_node_threshold is not None:
   		params.path_node_threshold = args.path_node_threshold
 	elif 'path_node_threshold' in config_params:
-		params.path_node_threshold = config['path_node_threshold']
+		params.path_node_threshold = config_data['path_node_threshold']
 	if args.ng_extraction_time_out is not None:
   		params.ng_extraction_time_out = args.ng_extraction_time_out
 	elif 'ng_extraction_time_out' in config_params:
-		params.ng_extraction_time_out = config['ng_extraction_time_out']
+		params.ng_extraction_time_out = config_data['ng_extraction_time_out']
 	if args.use_RGI is not None:
   		params.use_RGI = args.use_RGI
 	if 'use_RGI' in config_params:
-		params.use_RGI = config['use_RGI']
+		params.use_RGI = config_data['use_RGI']
 	if args.RGI_include_loose is not None:
   		params.RGI_include_loose = args.RGI_include_loose
 	elif 'RGI_include_loose' in config_params:
-		params.RGI_include_loose = config['RGI_include_loose']
+		params.RGI_include_loose = config_data['RGI_include_loose']
 
 	return params
 

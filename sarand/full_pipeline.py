@@ -47,6 +47,7 @@ import pandas as pd
 import math
 import yaml
 
+from sarand.__init__ import __version__
 from sarand.params import Pipeline_tasks, Assembler_name
 from sarand.extract_neighborhood import neighborhood_sequence_extraction
 from sarand.annotation_visualization import visualize_annotation
@@ -60,7 +61,7 @@ from sarand.utils import initialize_logger, str2bool, verify_file_existence,\
 			read_path_info_from_align_file, read_path_info_from_align_file_with_multiple_amrs,\
 			extract_path_info_for_amrs, compare_two_sequences,\
 			delete_lines_started_with, validate_task_values, validate_print_parameters_tools,\
-			update_full_pipeline_params, haveContent
+			update_full_pipeline_params, update_full_pipeline_params2, haveContent
 
 ASSEMBLY_FILE = 'assembly_graph_with_scaffolds.gfa'
 #ALL_AMR_SEQUENCES ='nucleotide_fasta_protein_homolog_model_without_efflux_without_space.fasta'
@@ -1324,9 +1325,9 @@ def create_arguments(parser):
 #     return parser
 
 if __name__=="__main__":
-	import params
-	text = 'This code is used to find the context of a given AMR gene'
-	parser = argparse.ArgumentParser(description=text)
+    import params
+    text = 'This code is used to find the context of a given AMR gene'
+    parser = argparse.ArgumentParser(description=text)
     parser = create_arguments(parser)
     args = parser.parse_args()
     #If no argument has been passed
@@ -1346,22 +1347,22 @@ if __name__=="__main__":
             print("Reading the config file '"+args.config_file+"' ...")
             with open(args.config_file, 'r') as yamlfile:
                 config_data = yaml.load(yamlfile, Loader=yaml.FullLoader)
-	if config_data=='':
-		params = update_full_pipeline_params(args, params)
-	else:
-		params = update_full_pipeline_params(args, config_data, params)
+    if config_data=='':
+        params = update_full_pipeline_params2(args, params)
+    else:
+        params = update_full_pipeline_params(args, config_data, params)
 	#params = update_full_pipeline_params(params, data)
-	log_name = 'logger_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')+'.log'
-	initialize_logger(params.main_dir, log_name)
-	validate_print_parameters_tools(params)
+    log_name = 'logger_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M')+'.log'
+    initialize_logger(params.main_dir, log_name)
+    validate_print_parameters_tools(params)
 	#logging.info(str(params.__dict__))
 	#create the output directory; if it exists, delete it and create a new one
-	if not os.path.exists(params.output_dir):
-		os.makedirs(params.output_dir)
+    if not os.path.exists(params.output_dir):
+        os.makedirs(params.output_dir)
 	# else:
 	# 	try:
 	# 		shutil.rmtree(params.output_dir)
 	# 	except OSError as e:
 	# 		logging.error("Error: %s - %s." % (e.filename, e.strerror))
 	# 	os.makedirs(params.output_dir)
-	full_pipeline_main(params)
+    full_pipeline_main(params)
