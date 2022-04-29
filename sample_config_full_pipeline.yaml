@@ -15,11 +15,14 @@
 ##-1 when no gene-coverage threshold is used
 #coverage_thr: 30
 ## which task would you like to do? For the entire
-## pipeline choose 0; otherwise provide a number
-## representing one of the following tasks:
+## pipeline choose 0; otherwise either provide a number
+## representing one of the following tasks or two numbers
+## to denote the start and end tasks (and of course all
+## tasks in the middle will be run). Here is the list:
 ## sequence_neighborhood = 1
 ## neighborhood_annotation = 2
-#task: 0
+#task:
+#  - 0
 ## Whether to assume the AMR genes (in metagenome) are known or to look for them in the assembly graph
 #find_amr_genes: true
 ## the path of the fasta file containing all AMR sequences;

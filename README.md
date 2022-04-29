@@ -1,119 +1,104 @@
-# Documentation for Sarand
+# Sarand
 
-
-This document provides an overview of how Sarand can be installed and used. It attempts to document all necessary details to set up the tool, and provides some run guides.
-
-## Overview
-Sarand can be used to extract the neighborhood of the target Antimicrobial Resistance (AMR) genes from the assembly graph.
-
+Sarand is a tool to identify genes within an assembly graph and extract the local graph neighbourhood.
+It has primarily been developed for the analysis of Antimicrobial Resistance (AMR) genes within metagenomic assembly graphs.
+Currently this is fixed to using the [CARD](card.mcmaster.ca) database but will be expanded in the near future to support any user-supplied nucleotide fasta file of target genes.
 
 ![sarand](sarand/docs/sarand.png)
 
-
 ## Installation
-### Step I: install the dependencies
-Our tool relies on dependencies, including Python, Prokka, RGI, BLAST, and Bandage.
-The most straight forward way to install this tool's dependencies is using bioconda.
-#### Cloning the tool repository
-`git clone https://github.com/beiko-lab/sarand`
 
-Now, move to sarand directory (You should see setup.py there!).
-#### Installing bioconda
-Make sure [bioconda](https://bioconda.github.io/user/install.html) has been installed and the channels are set properly as follows.
+Sarand requires 4 key dependencies:
+
+- [Prokka](https://github.com/tseemann/prokka)
+- [RGI](https://github.com/arpcard/rgi)
+- [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+- [Bandage](https://rrwick.github.io/Bandage/)
+
+These can be installed most easily using bioconda.
+
+1. Clone and enter the sarand repository: `git clone https://github.com/beiko-lab/sarand; cd sarand`
+
+2. Install conda and configure the bioconda channel (detailed instructions can be found [here](https://bioconda.github.io/user/install.html)).
+
+3. Create the `sarand` conda environment with required dependencies: `conda env create -f conda_env.yaml`
+
+4. Activate the environment: `conda activate sarand`
+
+5. Install the sarand package into this environment `pip install .`
+
+### Testing
+
+You can test your install has worked by...
+
+This will execute sarand on a test dataset and check all the expected outputs are created correctly.
+
+## Usage
+
+All of sarand's parameters can be set using the command line flags. 
+The only required input file is an assembly graph in `.gfa` format.
+
+This can be generated using metagenomic (or genomic) de-novo assembly tools
+such as [metaSPAdes](https://github.com/ablab/spades) or [megahit](https://github.com/voutcn/megahit).
+If your chosen assembly tool generates a `fastg` formatted graph utilities such as `fastg2gfa` can be used to convert them.
+
+```usage: sarand [-h] [-v] -i INPUT_GFA [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
+              [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
+              [-l NEIGHBOURHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
+              [--no_rgi | --rgi_include_loose]
+
+Identify and extract the local neighbourhood of target genes (such as AMR)
+from a GFA formatted assembly graph
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --version         show program's version number and exit
+  -i INPUT_GFA, --input_gfa INPUT_GFA
+                        Path to assembly graph (in GFA format) that you wish
+                        to analyse
+  -j NUM_CORES, --num_cores NUM_CORES
+                        Number of cores to use
+  -c COVERAGE_DIFFERENCE, --coverage_difference COVERAGE_DIFFERENCE
+                        Maximum coverage difference to include when filtering
+                        graph neighbourhood. Use -1 to indicate no coverage
+                        threshold (although this will likely lead to false
+                        positive neighbourhoods).
+  -t TARGET_GENES, --target_genes TARGET_GENES
+                        Target genes to search for in the assembly graph
+                        (fasta formatted). Default is the pre-installed CARD
+                        database
+  -x MIN_TARGET_IDENTITY, --min_target_identity MIN_TARGET_IDENTITY
+                        Minimum identity/coverage to identify presence of
+                        target gene in assembly graph
+  -l NEIGHBOURHOOD_LENGTH, --neighbourhood_length NEIGHBOURHOOD_LENGTH
+                        Size of gene neighbourhood to extract from the
+                        assembly graph
+  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
+                        Output folder for current run of sarand
+  -f, --force           Force overwrite any previous files/output directories
+  --no_rgi              Disable RGI based annotation of graph neighbourhoods
+  --rgi_include_loose   Include loose criteria hits if using RGI to annotate
+                        graph neighbourhoods
 ```
-conda config --add channels defaults
-conda config --add channels bioconda
-conda config --add channels conda-forge
-```
-#### Create a new conda environment
 
-`conda env create -f conda_env.yaml`
+### Output 
+All results will be available in specified output directory (default is `sarand_results_` followed by a timestamp).
 
-Links to repositories of the main tool dependencies can be found here:
-- prokka: https://github.com/tseemann/prokka
-- RGI: https://github.com/arpcard/rgi
-- Bandage: https://rrwick.github.io/Bandage/
-
-Note: In case, prokka can't be installed through bioconda, I suggest using the docker
-container [staphb/prokka](https://hub.docker.com/r/staphb/prokka) by the following command:
-`docker pull staphb/prokka:latest`. Please note that PROKKA_COMMAND_PREFIX variable in your config (YAML) file need to be updated with an appropriate value which is probably an empty string (the default) unless Prokka is run through docker.  
-
-#### Installing python requirements
-Note: Make sure that you are in the root directory of this tool (sarand).
-
-    conda activate sarand
-    pip install .
-
-### Step II: Testing
-#### Available modules
-full_pipeline is the main module, under Sarand, which provides the complete pipeline to extract AMR neighborhood from the assembly graph and annotate it, and can be run by
-
-      sarand full_pipeline -C <config_file>
-
-#### Setting config file
-To run Sarand, you need to have a config file as the input. A sample config file, with the list of all parameters that can be set, has been provided as sample_config_full_pipeline.yaml.
-
-Please note that the config file is a mandatory parameter. However, you don't need to set all the parameters available in the config file (probably the main one you want to set is main_dir).
-
-Make sure to update the following parameter in your config file:
-- main_dir: the address of the main directory to read inputs (graph file) and store results.
-- PROKKA_COMMAND_PREFIX: Only if you use docker to run Prokka, set this parameter with the command from docker (e.g., `docker pull staphb/prokka:latest`))
-
-Note: you might also need to update the following parameter in your config file to provide the path to Bandage.
-- BANDAGE_PATH (the path to access bandage executable file)
-
-#### Running the test code
-A sample test has been provided in test directory.
-To run the code, make sure you are in the created conda environment.
-To activate it, run:
-
-    conda activate sarand
-
-and then run the code by:
-
-    sarand full_pipeline -C <config_file>
-
-#### Expected results
-All results will be available in test directory (mostly in output_dir). You can validate your results for the sample test by comparing them with the ones provided in test/sample_output.
-
-Here is the list of important directories and files that can be seen there and a short description of their content.
-- AMR_info: this directory contains the list of identified AMR sequences.
-  - AMR_info/sequences/:The sequence of identified AMRs, from graph, is stored here, with a name similar to their original name (file name is generated by calling `sarand/utils.py::restricted_amr_name_from_modified_name(amr_name_from_title(amr_original_name)))`
-  - AMR_info/alignments/: The alignment details for all AMR sequences are stored here.
-- sequences_info/sequences_info_{seq_length}/: This directory stores the information of extracted neighborhood sequences from the assembly graph.
-  - sequences_info/sequences_info_{params.seq_length}/sequences/: the extracted sequences in the neighborhood of each AMR are stored in a file like `ng_sequences_{AMR_NAME}_{params.seq_length}_{DATE}.txt`.
-  For each extracted sequence, the first line denotes the corresponding path, where the nodes representing the AMR sequence are placed in '[]'.
-  The next line denotes the extracted sequence where the AMR sequence is in lower case letters and the neighborhood is in upper case letters.
-  - sequences_info/sequences_info_{params.seq_length}/paths_info/: The information of nodes representing the AMR neighborhood including their name, the part of the sequence represented by each node (start position and end position) as well as their coverage is stored in a file like `ng_sequences_{AMR_NAME}_{params.seq_length}_{DATE}.csv`
-- annotations/annotations_{params.seq_length}: The annotation details are stored in this directory.
-  - annotations/annotations_{params.seq_length}/annotation_{AMR_NAME}_{params.seq_length}: this directory contains all annotation details for a given AMR.
-    - gene_comparison_<AMR_NAME>.png: An image visualizing annotations
-    - annotation_detail_{AMR_NAME}.csv: the list of annotations of all extracted sequences for an AMR gene
-    - trimmed_annotation_info_{AMR_NAME}.csv: the list of unique annotations of all extracted sequences for an AMR gene
-    - coverage_annotation_{GENE_COVERAGE_THRESHOLD}_{AMR_NAME}.csv:
-    the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_THRESHOLD value.
-    - prokka_dir_extracted{NUM}_{DATE}: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
-    - rgi_dir: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.
-
-## Exploring the code
-### Optional parameters to set
-The list of all parameters that can be set in Sarand has been provided in the sample config file, sample_config_full_pipeline.yaml.
-
-### Python files
-#### 1- sarand_main.py
-The driver file to run the program.
-
-
-#### 2- full_pipeline.py
-This is the core file to do all the steps available in our tool including extracting amr neighborhood and annotating amr neighborhood sequences.
-#### 3- extract_neighborhood.py
-This is the main file to extract the neighborhood of an AMR gene from an assembly graph.
-
-#### 4- annotation_visualization.py
-This file is used to visualize sequences annotations.
-
-#### 5- utils.py
-All utility methods are available here.
-
-#### 6- params.py
-A file containing all required parameters.
+	Here is the list of important directories and files that can be seen there and a short description of their content.
+	- `AMR_info`: this directory contains the list of identified AMR sequences.
+	  - AMR_info/sequences/:The sequence of identified AMRs, from graph, is stored here, with a name similar to their original name (file name is generated by calling `sarand/utils.py::restricted_amr_name_from_modified_name(amr_name_from_title(amr_original_name)))`
+	  - AMR_info/alignments/: The alignment details for all AMR sequences are stored here.
+	- `sequences_info/sequences_info_{neighbourhood_length}/`: This directory stores the information of extracted neighborhood sequences from the assembly graph.
+	  - sequences_info/sequences_info_{params.neighbourhood_length}/sequences/: the extracted sequences in the neighborhood of each AMR are stored in a file like `ng_sequences_{AMR_NAME}_{params.neighbourhood_length}_{DATE}.txt`.
+	  For each extracted sequence, the first line denotes the corresponding path, where the nodes representing the AMR sequence are placed in '[]'.
+	  The next line denotes the extracted sequence where the AMR sequence is in lower case letters and the neighborhood is in upper case letters.
+	  - sequences_info/sequences_info_{params.neighbourhood_length}/paths_info/: The information of nodes representing the AMR neighborhood including their name, the part of the sequence represented by each node (start position and end position) as well as their coverage is stored in a file like `ng_sequences_{AMR_NAME}_{params.neighbourhood_length}_{DATE}.csv`
+	- `annotations/annotations_{params.neighbourhood_length}`: The annotation details are stored in this directory.
+	  - annotations/annotations_{params.neighbourhood_length}/annotation_{AMR_NAME}_{params.neighbourhood_length}: this directory contains all annotation details for a given AMR.
+	    - gene_comparison_<AMR_NAME>.png: An image visualizing annotations
+	    - annotation_detail_{AMR_NAME}.csv: the list of annotations of all extracted sequences for an AMR gene
+	    - trimmed_annotation_info_{AMR_NAME}.csv: the list of unique annotations of all extracted sequences for an AMR gene
+	    - coverage_annotation_{GENE_COVERAGE_THRESHOLD}_{AMR_NAME}.csv:
+	    the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_THRESHOLD value.
+	    - prokka_dir_extracted{NUM}_{DATE}: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
+	    - rgi_dir: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.
