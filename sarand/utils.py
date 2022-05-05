@@ -317,7 +317,10 @@ def annotate_sequence(
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     )
     prefix_name = "mygenome_" + seq_description
+    cwd = os.getcwd()
+    PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     arg_list = [
+        PROKKA_COMMAND_PREFIX,            
         "prokka",
         "--metagenome",
         "--outdir",
@@ -798,6 +801,7 @@ def check_dependencies(programs):
     missing = False
     for program in programs:
         try:
+            program_name = program.split()[0]            
             output = subprocess.run(
                 program,
                 shell=True,
@@ -806,7 +810,6 @@ def check_dependencies(programs):
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
             )
-            program_name = program.split()[0]
             logging.debug(f"Tool {program_name} is installed: {output.stdout.strip()}")
         except:
             logging.error(f"Tool {program_name} is not installed")

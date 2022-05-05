@@ -1445,7 +1445,8 @@ def find_amr_related_nodes(
             os.remove(output_name + ".tsv")
         bandage_command = subprocess.run(
             [
-                "Bandage",
+                "/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",      
+                #"Bandage",
                 "querypaths",
                 gfa_file,
                 amr_file,
