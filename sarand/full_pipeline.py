@@ -693,62 +693,6 @@ def neighborhood_annotation(
 
     return all_seq_info_list, trimmed_annotation_info_name
 
-
-def is_there_amr_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_file):
-    """
-    To call bandage+blast and check if the amr sequence can be found in the assembly graph
-    Parameters:
-        amr_file: the address of the query file
-        amr_name: the name of the AMR sequence
-        gfa_file: the address of the assembly graph
-        output_dir: the address of the output directory
-        bandage_path: the address of bandage executable file
-        threshold: the threshold for coverage and identity
-    Return:
-        a boolean value which is True if amr_file was found in gfa_file and the
-        list of paths returned by bandage+blast in which the coverage and identiry
-        are greater/equal than/to threshold
-    """
-    amr_name = extract_name_from_file_name(amr_file)
-    logging.info('Checking if AMR "' + amr_name + '" exists in the assembly graph...')
-    output_name = os.path.join(
-        output_dir,
-        amr_name + "_align_" + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-    )
-    if os.path.isfile(output_name + ".tsv"):
-        os.remove(output_name + ".tsv")
-    bandage_command = subprocess.run(
-        [
-            bandage_path,
-            "querypaths",
-            gfa_file,
-            amr_file,
-            output_name,
-            "--pathnodes",
-            "50",
-            "--minpatcov",
-            str((threshold - 1) / 100.0),
-            "--minmeanid",
-            str((threshold - 1) / 100.0),
-            "--minhitcov",
-            str((threshold - 1) / 100.0),
-        ],
-        stdout=subprocess.PIPE,
-        check=True,
-    )
-    logging.info(bandage_command.stdout.decode("utf-8"))
-    # command = bandage_path +' querypaths '+gfa_file+' '+amr_file+' '+output_name + ' --pathnodes 50'
-    # os.system(command)
-
-    found, paths_info = read_path_info_from_align_file(output_name + ".tsv", threshold)
-    if not found:
-        os.remove(output_name + ".tsv")
-        logging.debug(amr_name + " not found in the graph!")
-    else:
-        logging.debug(amr_name + " found!")
-    return found, paths_info, output_name + ".tsv"
-
-
 def amr_path_overlap(found_amr_paths, new_paths, new_amr_len, overlap_percent=95):
     """
     To check if all paths found for the new AMR seq overlap significantly (greater/equal
@@ -836,8 +780,6 @@ def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_o
         check=True,
     )
     logging.info(bandage_command.stdout.decode("utf-8"))
-    # command = bandage_path +' querypaths '+gfa_file+' '+cat_file+' '+output_name + ' --pathnodes 50'
-    # os.system(command)
 
     paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
         output_name + ".tsv", threshold
@@ -888,7 +830,7 @@ def process_amr_group_and_find(
 
 
 def find_all_amr_in_graph(
-    gfa_file, output_dir, amr_sequences_file, amr_threshold, core_num
+    gfa_file, output_dir, amr_sequences_file, bandage_path, amr_threshold, core_num
 ):
     """
     To go over a list of AMR sequences (amr_sequences_file) and run bandage+blast
@@ -934,7 +876,7 @@ def find_all_amr_in_graph(
         gfa_file,
         align_dir,
         output_dir,
-        "Bandage",
+        bandage_path,
         amr_threshold,
     )
     with Pool(core_num) as p:
@@ -1141,11 +1083,12 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files):
     return all_seq_info_lists, annotation_files
 
 
-def sequence_neighborhood_main(params, gfa_file, amr_seq_align_info):
+def sequence_neighborhood_main(params, bandage_path, gfa_file, amr_seq_align_info):
     """
     The core function to extract the neighborhood of AMRs
     Parameters:
         params: the list pf parameters imported from params.py
+		bandage_path: the path to bandage executable file
         gfa_file: the file containing the assembly graph
         amr_seq_align_info: the alignment info (AMR alignment in the graph)
     Return:
@@ -1171,6 +1114,7 @@ def sequence_neighborhood_main(params, gfa_file, amr_seq_align_info):
     p_extraction = partial(
         neighborhood_sequence_extraction,
         gfa_file,
+		bandage_path,
         params.neighbourhood_length,
         sequence_dir,
         params.min_target_identity,
@@ -1203,6 +1147,8 @@ def full_pipeline_main(params):
         params.input_gfa,
         params.output_dir,
         params.target_genes,
+		#"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",
+		"Bandage",
         params.min_target_identity,
         params.num_cores,
     )
@@ -1229,7 +1175,11 @@ def full_pipeline_main(params):
         amr_seq_align_info.append((amr_file, unique_amr_path_list[i]))
 
     seq_files, path_info_files = sequence_neighborhood_main(
-        params, params.input_gfa, amr_seq_align_info
+        params,
+		#"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage"
+		"Bandage",
+		params.input_gfa,
+		amr_seq_align_info
     )
 
     coverage_annotation_list = []

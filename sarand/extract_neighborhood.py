@@ -1410,7 +1410,7 @@ def extract_neighborhood_sequence(
 
 
 def find_amr_related_nodes(
-    amr_file, gfa_file, output_dir, threshold=95, output_pre="", align_file=""
+    amr_file, gfa_file, output_dir, bandage_path, threshold=95, output_pre="", align_file=""
 ):
     """
     Run bandage+blast to find the sequence in amr_file (as the query) in the assembly
@@ -1445,8 +1445,7 @@ def find_amr_related_nodes(
             os.remove(output_name + ".tsv")
         bandage_command = subprocess.run(
             [
-                "/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",      
-                #"Bandage",
+				bandage_path,
                 "querypaths",
                 gfa_file,
                 amr_file,
@@ -1464,8 +1463,7 @@ def find_amr_related_nodes(
             check=True,
         )
         logging.info(bandage_command.stdout.decode("utf-8"))
-        # command = bandage_path +' querypaths '+gfa_file+' '+amr_file+' '+output_name + ' --pathnodes 50'
-        # os.system(command)
+
         align_file = output_name + ".tsv"
     # Process the output tsv file
     found, paths_info = read_path_info_from_align_file(output_name + ".tsv", threshold)
@@ -1689,6 +1687,7 @@ def extract_amr_align_from_file(gfa_file):
 
 def neighborhood_sequence_extraction(
     gfa_file,
+	bandage_path,
     length,
     output_dir,
     threshold=95,
@@ -1705,9 +1704,9 @@ def neighborhood_sequence_extraction(
     in the assembly graph
     Parameters:
             gfa_file:	the GFA file containing the assembly graph
+			bandage_path: the path to bandage executable file
             length:		the length of all sequences around the AMR gene to be extracted
             output_dir: the output directory to store files
-            bandage: 	the address of bandage executation file
             threshold: 	threshold for identity and coverage
             seq_name_prefix: used for naming output file
             path_node_threshold: the threshold used for recursive pre_path and post_path
@@ -1758,10 +1757,10 @@ def neighborhood_sequence_extraction(
             amr_file,
             gfa_file,
             os.path.join(output_dir, "alignment_files"),
-            bandage,
+			bandage_path,
             threshold,
             output_name,
-            "",
+            ""
         )
         if not found:
             logging.error("no alignment was found for " + amr_file)
