@@ -35,7 +35,7 @@ This will execute sarand on a test dataset and check all the expected outputs ar
 
 ## Usage
 
-All of sarand's parameters can be set using the command line flags. 
+All of sarand's parameters can be set using the command line flags.
 The only required input file is an assembly graph in `.gfa` format.
 
 This can be generated using metagenomic (or genomic) de-novo assembly tools
@@ -81,7 +81,7 @@ optional arguments:
                         graph neighbourhoods
 ```
 
-### Output 
+### Output
 All results will be available in specified output directory (default is `sarand_results_` followed by a timestamp).
 
 	Here is the list of important directories and files that can be seen there and a short description of their content.
@@ -98,7 +98,7 @@ All results will be available in specified output directory (default is `sarand_
 	    - gene_comparison_<AMR_NAME>.png: An image visualizing annotations
 	    - annotation_detail_{AMR_NAME}.csv: the list of annotations of all extracted sequences for an AMR gene
 	    - trimmed_annotation_info_{AMR_NAME}.csv: the list of unique annotations of all extracted sequences for an AMR gene
-	    - coverage_annotation_{GENE_COVERAGE_THRESHOLD}_{AMR_NAME}.csv:
-	    the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_THRESHOLD value.
+	    - coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv:
+	    the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_DIFFERENCE value.
 	    - prokka_dir_extracted{NUM}_{DATE}: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
 	    - rgi_dir: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.

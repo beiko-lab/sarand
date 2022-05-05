@@ -485,7 +485,6 @@ def extract_graph_seqs_annotation(
     annotation_writer,
     trimmed_annotation_writer,
     gene_file,
-    product_file,
     error_file,
 ):
     """
@@ -501,7 +500,6 @@ def extract_graph_seqs_annotation(
         annotation_writer: the file to store annotation results
         trimmed_annotation_writer: the file to store unique annotation results
         gene_file: the file to store gene nams in annotation
-        product_file: the file to store product name in annotation
         error_file: the file to store errors
     Return:
         the list of annotated genes and their details
@@ -563,7 +561,7 @@ def extract_graph_seqs_annotation(
         # If it's a novel sequence correct annotation (if applicable) for cases that RGI doesn't have a hit but Prokka has
         if not found:
             all_seq_info_list.append(seq_info)
-        myLine1 = myLine2 = seq_description + ":\t"
+        myLine1 = seq_description + ":\t"
         # write annotation onfo into the files
         for j, gene_info in enumerate(seq_info):
             coverage = coverage_list[j] if coverage_list else -1
@@ -576,9 +574,7 @@ def extract_graph_seqs_annotation(
                 myLine1 += "UNKNOWN---"
             else:
                 myLine1 += gene_info["gene"] + "---"
-            myLine2 += gene_info["product"] + "---"
         gene_file.write(myLine1[:-3] + "\n")
-        product_file.write(myLine2[:-3] + "\n")
     if not all_seq_info_list:
         error_writer.write(amr_name + " no annotation was found in the graph.\n")
     error_writer.close()
@@ -612,7 +608,7 @@ def neighborhood_annotation(
         output_name:the name used to distinguish different output files usually based on the name of AMR
     Return:
         the address of files stroing annotation information (annotation_detail_name,
-            trimmed_annotation_info, gene_file_name, product_file_name, visual_annotation)
+            trimmed_annotation_info, gene_file_name, visual_annotation)
     """
     logging.debug("Started annotation for " + amr_name)
     # initializing required files and directories
@@ -670,10 +666,6 @@ def neighborhood_annotation(
         annotate_dir, "seq_comparison_genes" + output_name + ".txt"
     )
     gene_file = open(gene_file_name, "w")
-    product_file_name = os.path.join(
-        annotate_dir, "seq_comparison_products" + output_name + ".txt"
-    )
-    product_file = open(product_file_name, "w")
 
     # annotate the sequences extraced from assembly graph
     all_seq_info_list = extract_graph_seqs_annotation(
@@ -687,7 +679,6 @@ def neighborhood_annotation(
         annotation_writer,
         trimmed_annotation_writer,
         gene_file,
-        product_file,
         error_file,
     )
     logging.info(
@@ -695,13 +686,10 @@ def neighborhood_annotation(
         + annotation_detail_name
         + ", "
         + gene_file_name
-        + ", "
-        + product_file_name
     )
     annotation_detail.close()
     trimmed_annotation_info.close()
     gene_file.close()
-    product_file.close()
 
     return all_seq_info_list, trimmed_annotation_info_name
 
@@ -1058,13 +1046,13 @@ def seq_annotation_trim_main(
         )
         coverage_annotation = ""
         remained_seqs = []
-        if params.coverage_thr > 0:
+        if params.coverage_difference > 0:
             (
                 coverage_annotation,
                 remained_seqs,
             ) = check_coverage_consistency_remove_rest_seq(
                 all_seq_info_lists[i],
-                params.coverage_thr,
+                params.coverage_difference,
                 restricted_amr_name,
                 annotate_dir,
             )
@@ -1077,13 +1065,13 @@ def seq_annotation_trim_main(
             visual_annotation = os.path.join(
                 annotate_dir,
                 "gene_comparison_"
-                + str(params.coverage_thr)
+                + str(params.coverage_difference)
                 + "_"
                 + restricted_amr_name
                 + ".png",
             )
             visualize_annotation(visual_annotation_csv, output=visual_annotation)
-        if params.coverage_thr > 0:
+        if params.coverage_difference > 0:
             coverage_annotation_list.append(coverage_annotation)
     return coverage_annotation_list
 
@@ -1103,17 +1091,16 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files):
     if seq_files:
         neighborhood_files = seq_files
     else:
-        neighborhood_files = extract_files(
-            params.ng_seq_files,
-            "please provide the \
-            address of the files containing all extracted sequences from AMR neighborhood \
-            in the assembly graph",
-        )
+        logging.error("No file containing the extracted neighborhood sequences is available!")
+        import pdb
+        pdb.set_trace()
+
     if path_info_files:
         nodes_info_files = path_info_files
     else:
-        nodes_info_files = extract_files(params.ng_path_info_files, "")
-    # extract ref neighborhood annotation from the file
+        logging.error("No file containing path info for neighborhood sequences is available!")
+        import pdb
+        pdb.set_trace()
 
     all_seq_info_lists = []
     annotation_files = []
@@ -1241,59 +1228,18 @@ def full_pipeline_main(params):
     for i, amr_file in enumerate(unique_amr_files):
         amr_seq_align_info.append((amr_file, unique_amr_path_list[i]))
 
-        seq_files, path_info_files = sequence_neighborhood_main(
-            params, params.input_gfa, amr_seq_align_info
-        )
+    seq_files, path_info_files = sequence_neighborhood_main(
+        params, params.input_gfa, amr_seq_align_info
+    )
 
     coverage_annotation_list = []
     all_seq_info_lists, annotation_file_list = seq_annotation_main(
         params, seq_files, path_info_files, unique_amr_files
     )
 
-    if isinstance(params.coverage_thr, list) and len(coverage_thr) > 1:
-        coverage_thr_list = params.coverage_thr
-        evaluation_dir = os.path.join(
-            params.output_dir,
-            EVAL_DIR,
-            EVAL_DIR + "_" + str(params.neighbourhood_length),
-        )
-        if not os.path.exists(evaluation_dir):
-            try:
-                os.makedirs(evaluation_dir)
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-                pass
-        coverage_evaluation_file = os.path.join(
-            evaluation_dir,
-            "coverage_evaluation_"
-            + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-            + ".csv",
-        )
-        with open(coverage_evaluation_file, "a") as fd:
-            writer = csv.writer(fd)
-            writer.writerow(["coverage_thr", "precision", "sensitivity"])
-            data = []
-            # for cov_thr in range(1, 50):
-            # 	params.coverage_thr = cov_thr
-            for cov_thr in coverage_thr_list:
-                params.coverage_thr = cov_thr
-                coverage_annotation_list = seq_annotation_trim_main(
-                    params,
-                    unique_amr_files,
-                    all_seq_info_lists,
-                    annotation_file_list,
-                    False,
-                )
-        df = pd.DataFrame(data, columns=["cov_thr", "value", "type"])
-        sns.scatterplot(data=df, x="cov_thr", y="value", hue="type", style="type")
-        plt.show()
-    else:
-        if isinstance(params.coverage_thr, list):
-            params.coverage_thr = params.coverage_thr[0]
-        coverage_annotation_list = seq_annotation_trim_main(
-            params, unique_amr_files, all_seq_info_lists, annotation_file_list, True
-        )
+    coverage_annotation_list = seq_annotation_trim_main(
+        params, unique_amr_files, all_seq_info_lists, annotation_file_list, True
+    )
 
     logging.info("Run complete")
 

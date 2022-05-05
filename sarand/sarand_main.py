@@ -120,10 +120,9 @@ def main():
         help="Force overwrite any previous files/output directories",
     )
     group = parser.add_mutually_exclusive_group()
-    #@Fin: Don't we use RGI for annoation by default?
     group.add_argument(
         "--no_rgi",
-        default=True,
+        default=False,
         action="store_false",
         help="Disable RGI based annotation of graph neighbourhoods",
     )
