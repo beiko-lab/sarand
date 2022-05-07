@@ -139,14 +139,14 @@ def main():
     # check dependencies work
     cwd = os.getcwd()
     PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
-    #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",
-    #   PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
+    #dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
+    dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",
+       PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
     if not args.no_rgi:
         dependencies.append("rgi main --version")
     check_dependencies(dependencies)
 
-    if args.output_dir.exists():
+    if os.path.exists(args.output_dir):
         if not args.force:
             parser.error(
                 f"{args.output_dir} already exists, please use a different "
@@ -155,15 +155,15 @@ def main():
         else:
             print(f"Overwriting previously created {args.output_dir}", file=sys.stderr)
             shutil.rmtree(args.output_dir)
-            args.output_dir.mkdir()
+            os.makedirs(args.output_dir)
     else:
-        args.output_dir.mkdir()
+        os.makedirs(args.output_dir)
 
     # convert argparse to config dictionary
     args.run_time = run_time
 
     # logging file
-    initialize_logger(args.output_dir / f"run_{run_time}.log")
+    initialize_logger(os.path.join(args.output_dir, f"run_{run_time}.log"))
     logging.info("Sarand initialised...")
 
     # execute main workflow

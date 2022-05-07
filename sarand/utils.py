@@ -284,7 +284,7 @@ def annotate_sequence(
     seq,
     seq_description,
     output_dir,
-    use_RGI=True,
+    no_RGI=False,
     RGI_include_loose=False,
     delete_prokka_dir=False,
 ):
@@ -295,7 +295,7 @@ def annotate_sequence(
         seq:	the sequence to be annotated
         seq_description: a small description of the sequence used for naming
         output_dir:  the path for the output directory
-        use_RGI:	RGI annotations incorporated for AMR annotation
+        no_RGI:	RGI annotations incorporated for AMR annotation
     Return:
         the list of extracted annotation information for the sequence
     """
@@ -317,10 +317,7 @@ def annotate_sequence(
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     )
     prefix_name = "mygenome_" + seq_description
-    cwd = os.getcwd()
-    PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    arg_list = [
-        PROKKA_COMMAND_PREFIX,            
+    arg_list = [            
         "prokka",
         "--metagenome",
         "--outdir",
@@ -331,13 +328,17 @@ def annotate_sequence(
         "--notrna",
         seq_file_name,
     ]
+    cwd = os.getcwd()
+    PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
+    pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
+    arg_list = pre_list + arg_list    
     prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
     logging.info(prokka_command.stdout.decode("utf-8"))
     # move prokka directory to the right address
     shutil.move(prokka_dir, os.path.join(output_dir, prokka_dir))
     prokka_dir = os.path.join(output_dir, prokka_dir)
     RGI_output_list = None
-    if use_RGI:
+    if not no_RGI:
         RGI_output_list = run_RGI(
             os.path.join(prokka_dir, prefix_name + ".faa"),
             output_dir,
