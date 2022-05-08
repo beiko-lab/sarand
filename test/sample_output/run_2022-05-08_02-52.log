@@ -1,0 +1,1114 @@
+2022-05-08 02:52:22,618 [INFO ]	Sarand initialised...
+2022-05-08 02:52:22,618 [INFO ]	Starting analysis...
+2022-05-08 02:52:22,619 [INFO ]	Finding AMR genes in the assembly graph ...
+2022-05-08 02:52:22,662 [INFO ]	Checking if AMRs "['CblA-1', 'ACT-35', 'TEM-72', 'CMY-1', 'CTX-M-121', 'CTX-M-155', 'APH3SS-Va', 'CMY-114', 'OXY-2-2', 'SHV-24', 'CMY-42', 'OXA-391', 'SHV-42', 'TEM-47', 'PER-4', 'CMY-55', 'CMY-56', 'TEM-109', 'catB9', 'FosA5', 'LRA-9', 'IND-7', 'FosX', 'rgt1438', 'AAC6SS-IIb', 'OXA-98', 'OKP-A-15', 'vgaALC', 'vanN', 'IMP-33', 'CTX-M-24', 'DHA-19', 'OXA-348', 'CTX-M-38', 'TEM-138', 'OXY-2-8', 'CMY-105', 'SHV-121', 'OKP-A-12', 'MIR-2', 'OXA-422', 'OXA-181', 'ACT-30', 'TEM-158', 'vanXYG', 'ErmN', 'SHV-128', 'LEN-20', 'OKP-B-2', 'CMY-110', 'TEM-67', 'TEM-17', 'CMY-98', 'TEM-207', 'CTX-M-101', 'OXA-167', 'TEM-148', 'aadA9', 'CTX-M-159', 'OXY-1-2', 'SHV-188', 'PDC-5', 'VIM-38', 'CTX-M-151', 'CARB-14', 'lnuC', 'QnrB61', 'tetW', 'OXA-130', 'PDC-1', 'ACC-4', 'QnrB11', 'OXA-204', 'TEM-2', 'aadK', 'LEN-16', 'SHV-83', 'catB8', 'LRA-5', 'CTX-M-94', 'vanSO', 'OXA-4', 'catP', 'LEN-1', 'blaF', 'TEM-84', 'QnrB17', 'CTX-M-69', 'dfrA3', 'QnrD2', 'dfrA25', 'SHV-185', 'OXA-120', 'GES-22', 'CMY-71', 'OXA-133', 'OKP-B-8', 'OXA-32', 'OXA-137', 'QnrB65', 'FOX-7', 'TEM-73', 'QnrB41', 'CMY-2', 'IMI-2', 'PDC-7', 'OXA-147', 'OXA-68', 'TEM-21', 'ACT-16', 'mecR1', 'aadA', 'AAC3-VIIa', 'CMY-104', 'CMY-43', 'MIR-12', 'OXA-15', 'SHV-108', 'SHV-37', 'CTX-M-123', 'CTX-M-40', 'QnrS9', 'CMY-116', 'dfrB6', 'PDC-3', 'BcI', 'GES-11', 'AAC6SS-IIc', 'TEM-30', 'CfxA', 'AAC2SS-Ib', 'vanRM', 'OXA-198', 'catI', 'SHV-43', 'OCH-4', 'IMP-25', 'AAC6SS-Iv', 'IMP-43', 'OXA-324', 'mfpA', 'OKP-B-1', 'CMY-10', 'CTX-M-158', 'SHV-20', 'OKP-B-13', 'TEM-68', 'CTX-M-14', 'CTX-M-108', 'OXA-160', 'TEM-42', 'OXA-244', 'KPC-19', 'APH6-Ib', 'IND-10', 'QnrB37', 'OXA-383', 'APH2SSSS-Ig', 'OXA-5', 'SHV-106', 'TEM-152', 'AAC3-IIb', 'mecI', 'OXA-314', 'TEM-125', 'CTX-M-77', 'SHV-96', 'SHV-93', 'vanSC', 'vanUG', 'OXA-378', 'OXA-134', 'GES-20', 'EreA', 'VIM-31', 'OXA-18', 'TEM-209', 'OXA-255', 'CTX-M-54', 'SHV-74', 'OXA-365', 'OXA-95', 'catS', 'SHV-2', 'SHV-103', 'OXA-384', 'DHA-22', 'IMP-37', 'IMP-30', 'CMY-41', 'AAC6SS-31', 'vanB', 'CMY-17', 'LEN-19', 'OXA-435', 'IMI-7', 'OKP-B-11', 'PDC-9', 'MIR-6', 'dfrA17', 'CMY-63', 'CTX-M-39', 'vanG', 'aadA15', 'OXA-360', 'QnrB22', 'tetQ', 'ErmV', 'OXA-16', 'CARB-22', 'QnrB45', 'FosC', 'OCH-5', 'aadA2', 'tet32', 'SHV-81', 'TEM-114', 'CTX-M-157', 'OXA-55', 'MIR-4', 'QnrS3', 'OXA-210', 'OXA-110', 'CTX-M-110', 'CTX-M-109', 'fosA', 'AAC6SS-Ic', 'OXY-1-6', 'OXA-111', 'SHV-65', 'vanSM', 'SHV-126', 'OXA-166', 'QnrVC1', 'CTX-M-132', 'CARB-1', 'AAC6SS-Ib10', 'MOX-6', 'CcrA_beta-lactamase', 'OXA-99', 'THIN-B_beta-lactamase', 'OXA-315', 'armA', 'OXA-19', 'AAC2SS-Id', 'aadA5', 'RbpA', 'GES-15', 'SHV-80', 'OKP-A-10', 'vanYD', 'TEM-157', 'SHV-63', 'LEN-22', 'SHV-99', 'OXY-1-4', 'CARB-12', 'lnuF', 'OXA-224', 'CMY-49', 'QnrA2', 'QnrB64', 'EreA2', 'TEM-160', 'OXA-67', 'CMY-16', 'rmtC', 'vanRC', 'tetS', 'vanTG', 'vanXD', 'SHV-110', 'QnrB9', 'CMY-73', 'QnrB27', 'mecB', 'LRA-1', 'CTX-M-16', 'CMY-38', 'OXA-362', 'Lactobacillus_reuteri_cat-TC', 'CTX-M-95', 'CTX-M-53', 'MOX-7', 'clbC', 'CTX-M-2', 'AAC6SS-Ip', 'OKP-B-4', 'ACC-1', 'TEM-211', 'cepA_beta-lactamase', 'QnrB67', 'CTX-M-90', 'TEM-143', 'vanXO', 'CMY-57', 'TEM-115', 'OXA-73', 'vanHM', 'CTX-M-66', 'IND-4', 'SHV-16', 'IMP-24', 'Erm33', 'OXA-326', 'NDM-2', 'CTX-M-144', 'CTX-M-106', 'CTX-M-12', 'VIM-36', 'QnrB44', 'tmrB', 'TEM-147', 'OXA-107', 'VIM-15', 'CTX-M-134', 'bacA', 'SHV-5', 'QnrS2', 'ACT-5', 'rmtD', 'FomB', 'CTX-M-72', 'OXA-165', 'ACC-5', 'OXA-66', 'MIR-11', 'OXA-72', 'TEM-70', 'OXA-114a', 'vanYF', 'ACT-21', 'CTX-M-136', 'CMY-47', 'EreB', 'OXA-50', 'SHV-160', 'QnrB30', 'CTX-M-160', 'OXA-1', 'VIM-18', 'TEM-190', 'SHV-44', 'OXA-200', 'vanTN', 'CMY-7', 'vanXM', 'OXA-250', 'SHV-145', 'Erm41', 'OXA-213', 'ACC-2', 'TEM-123', 'CTX-M-15', 'TEM-60', 'OXY-2-3', 'dfrA15', 'SHV-179', 'blaR1', 'sgm', 'TEM-4', 'CMY-36', 'BJP-1_beta-lactamase', 'LnuP', 'MCR-1', 'PEDO-2', 'MSI-OXA', 'vanJ', 'vanKI', 'OXA-477', 'ACT-38', 'Clostridium_perfringens_mprF', 'mupB', 'Tet47', 'AAC3-IIe', 'FAR-1', 'MOX-9', 'AAC3-IId', 'ADC-73', 'aacA43', 'cfrB', 'ADC-6', 'QnrS12', 'dfrA3b', 'OXA-291', 'OXA-479', 'ErmO-lrm', 'catB11', 'FosB1', 'FosB5', 'OXA-480', 'LEN-42', 'CatU', 'VgbC', 'MCR-9', 'aadA8b', 'FosD', 'TetX4', 'OXA-482', 'ADC-31', 'MCR-43', 'OXA-444', 'GOB-10', 'OXA-140', 'MCR-45', 'OXA-446', 'MCR-52', 'OXA-299', 'GOB-12', 'OXA-300', 'GOB-13', 'ADC-19', 'OXA-124', 'OXA-453', 'GOB-14', 'lnuG', 'ADC-25', 'TMB-1', 'FosA7', 'BAT-1', 'OXA-126', 'APH2SSSS-If', 'LAP-2', 'ADC-13', 'ADC-41', 'ADC-61', 'ADC-78', 'MCR-5', 'PDC-77', 'PDC-82', 'PDC-87', 'PDC-92', 'OXA-436', 'tetWNW', 'TRU-1', 'Streptococcus_suis_chloramphenicol_acetyltransferase', 'Pseudomonas_aeruginosa_catB7', 'poxtA', 'ARL-3', 'OXA-151', 'OXA-458', 'OXA-152', 'ARL-5', 'LAP-1', 'OXA-460', 'HERA-3', 'AST-1', 'OXA-275', 'GOB-5', 'OXA-417', 'LEN-17', 'OXA-274', 'OXA-427', 'OXA-339', 'IMP-49', 'OXA-724', 'OXA-430', 'IMP-52', 'NDM-16', 'OXA-281', 'CMY-133', 'NDM-18', 'OXA-432', 'NDM-19', 'OXA-474', 'MCR-61', 'MCR-110', 'MCR-32', 'MCR-71', 'OXA-475', 'mphH', 'tet52', 'dfrA27', 'dfrB7', 'tet48', 'Erm48', 'erm46', 'OXA-476', 'TEM-181', 'CMY-150', 'FRI-4', 'FRI-9', 'CTX-M-164', 'PDC-65', 'MecC-type_methicillin_resistance_repressor_MecI', 'ArnT', 'ANT3SSSS-Ib', 'ROB-5', 'ROB-10', 'OXA-899']" exists in the assembly graph...
+2022-05-08 02:52:24,441 [INFO ]	
+(08 May 2022 02:52:22) Loading graph...        done
+(08 May 2022 02:52:22) Running BLAST search... done
+(08 May 2022 02:52:24) Saving results...       done
+
+Results:      test/output_dir/AMR_info/alignments/amr_group_0_align_2022-05-08_02-52-22.tsv
+
+Summary: Total BLAST queries:           490
+         Queries with found paths:      0
+         Total query paths:             0
+
+Elapsed time: 00:00:01.757
+
+2022-05-08 02:52:24,454 [INFO ]	Checking if AMRs "['SHV-52', 'CARB-5', 'TEM-59', 'OXA-329', 'VEB-3', 'DHA-15', 'AAC3-Ia', 'OXA-60', 'MOX-5', 'QnrB47', 'AAC6SS-Ib', 'TEM-132', 'OXA-35', 'TEM-16', 'GIM-1', 'vanYA', 'OXA-426', 'TLA-2', 'TEM-43', 'VEB-5', 'VIM-12', 'SHV-182', 'CTX-M-112', 'SME-5', 'vanRB', 'OXA-27', 'TEM-195', 'OXA-236', 'VIM-29', 'IMP-19', 'CMY-25', 'GES-14', 'SHV-89', 'TEM-121', 'SRT-1', 'VIM-43', 'AAC3-IbAAC6SS-IbSSSS', 'bcrC', 'TEM-92', 'CTX-M-88', 'OXA-178', 'ACT-19', 'SHV-152', 'OKP-B-9', 'OXA-150', 'CMY-65', 'QnrB13', 'CMY-4', 'TEM-91', 'CTX-M-125', 'CMY-60', 'SHV-180', 'vanYG1', 'ErmQ', 'CMY-118', 'OXA-143', 'OXA-358', 'QnrB54', 'IMP-26', 'NDM-23', 'QnrB23', 'QnrB2', 'QnrB42', 'TEM-155', 'SHV-15', 'TEM-214', 'APH2SSSS-IVa', 'vanSG', 'sul3', 'ACT-22', 'OXA-352', 'OXA-117', 'QnrB6', 'FOX-10', 'OCH-7', 'OKP-A-9', 'OXA-54', 'SHV-67', 'QnrVC4', 'CMY-29', 'CTX-M-76', 'TEM-151', 'AAC3-IIa', 'GES-7', 'mphF', 'KPC-14', 'vanSB', 'TEM-52', 'CTX-M-82', 'vanXYN', 'CMY-13', 'VIM-11', 'QnrB59', 'TLA-1', 'CTX-M-117', 'vanYB', 'TEM-187', 'CTX-M-41', 'OXA-136', 'SHV-11', 'SHV-100', 'OKP-A-7', 'SHV-75', 'dfrA20', 'TEM-201', 'VEB-4', 'SHV-30', 'QnrB46', 'OXA-355', 'CARB-6', 'OXA-349', 'SAT-3', 'dfrA26', 'AAC6SS-29b', 'TEM-10', 'IND-3', 'OXA-25', 'CMY-54', 'OXA-239', 'OXA-347', 'CMY-66', 'ACT-31', 'APH7SSSS-Ia', 'SHV-62', 'QnrB32', 'OXA-28', 'PC1_beta-lactamase_blaZ', 'IMP-11', 'arr-7', 'AAC3-Id', 'QnrA4', 'SMB-1_beta-lactamase', 'OCH-2', 'FOX-2', 'KPC-11', 'tet37', 'OXA-350', 'OXY-2-9', 'CMY-32', 'iri', 'QnrA3', 'TEM-171', 'OXA-216', 'SHV-141', 'QnrB55', 'SHV-161', 'vatH', 'QnrB14', 'OKP-A-2', 'CMY-58', 'OXA-215', 'OXA-175', 'dfrA19', 'ErmC', 'SHV-33', 'APH6-Ic', 'VEB-9', 'rmtB', 'CMY-50', 'OXA-36', 'OKP-A-11', 'KPC-15', 'OXA-316', 'OKP-A-13', 'GES-1', 'ErmX', 'TEM-88', 'OXA-356', 'AAC6SS-Isa', 'ugd', 'lmrC', 'TEM-96', 'ErmA', 'SHV-66', 'SHV-134', 'vanRD', 'TEM-29', 'CTX-M-86', 'TEM-28', 'SHV-1', 'vanSN', 'SHV-76', 'QnrB33', 'VIM-19', 'OXY-2-10', 'TEM-118', 'OXA-37', 'OXA-420', 'CTX-M-7', 'OXA-253', 'CARB-17', 'OXA-48', 'AAC3-VIa', 'AAC6SS-Ig', 'arr-2', 'APH3SS-VIa', 'OXA-184', 'AAC3-Ic', 'TEM-90', 'OXA-7', 'OXA-363', 'KPC-3', 'SHV-22', 'CMY-94', 'CMY-46', 'KPC-12', 'OXA-182', 'vatB', 'SHV-55', 'CTX-M-28', 'VIM-1', 'SHV-119', 'OXA-231', 'CMY-30', 'MIR-13', 'TEM-144', 'AAC2SS-Ic', 'GES-23', 'SHV-31', 'ANT4SS-IIa', 'AAC6SS-Iw', 'GES-16', 'SIM-1_beta-lactamase', 'OXA-82', 'OXA-197', 'catII', 'EreD', 'vanTE', 'OXA-214', 'LRA-2', 'ANT4SS-IIb', 'QnrB8', 'SHV-94', 'OXA-251', 'VIM-24', 'CMY-101', 'CTX-M-26', 'CTX-M-60', 'rmtG', 'oleB', 'OXA-257', 'CTX-M-74', 'OXA-121', 'OXA-62', 'OXA-89', 'TEM-85', 'IMP-7', 'CMY-18', 'CTX-M-103', 'SHV-26', 'CMY-112', 'CTX-M-78', 'LRA-19', 'SHV-135', 'TEM-199', 'SME-1', 'SHV-48', 'MOX-3', 'dfrA10', 'OXA-209', 'vanXF', 'IMP-28', 'vatE', 'AAC6SS-Iaa', 'TEM-81', 'OXA-421', 'ACT-14', 'APH3SS-Vb', 'SHV-140', 'aad6', 'FosB', 'OXA-91', 'catIII', 'CTX-M-32', 'CMY-64', 'OXA-24', 'AAC6SS-Iai', 'QnrC', 'TEM-194', 'L1_beta-lactamase', 'vanWG', 'SHV-154', 'catQ', 'CMY-111', 'arnA', 'DHA-21', 'SHV-95', 'OXA-258', 'vanXB', 'QnrA6', 'AAC6SS-Ib-cr', 'LEN-18', 'vanRO', 'OXA-353', 'ACT-28', 'SHV-111', 'AQU-1', 'OXA-398', 'TEM-101', 'OXA-235', 'vatA', 'TEM-53', 'CMY-103', 'SHV-148', 'vanF', 'OXA-97', 'CTX-M-115', 'QnrS7', 'OXA-146', 'OXA-334', 'vanHF', 'VEB-2', 'SHV-120', 'TEM-131', 'CARB-2', 'TEM-8', 'AAC6SS-Ir', 'GES-6', 'OXA-374', 'aadA14', 'OXA-128', 'KPC-13', 'QnrB20', 'LEN-15', 'KPC-7', 'OXA-389', 'LEN-7', 'OXA-80', 'MIR-10', 'SHV-127', 'ACT-13', 'CTX-M-17', 'AAC6SS-Iad', 'TEM-208', 'APH3SSSS-Ia', 'ACT-24', 'lnuD', 'SHV-98', 'TEM-167', 'SHV-155', 'VIM-33', 'IMP-45', 'dfrB2', 'FosA4', 'SHV-144', 'CMY-82', 'tlrC', 'TEM-189', 'aadA6', 'DHA-3', 'tetO', 'TEM-57', 'AAC3-IXa', 'SHV-163', 'OXA-424', 'OXA-322', 'APH3SSSS-Ic', 'OKP-A-1', 'TEM-196', 'aadA13', 'AAC6SS-Ib7', 'ACT-33', 'OXA-287', 'Bacillus_subtilis_mprF', 'VEB-1b', 'PEDO-3', 'SPG-1', 'vanWI', 'vanRI', 'vatF', 'QnrS10', 'Streptococcus_agalactiae_mprF', 'mupA', 'ADC-11', 'Acinetobacter_baumannii_AmpC_beta-lactamase', 'LEN-41', 'AAC6SS-Ian', 'QnrS11', 'AAC6SS-Il', 'ErmK', 'Rm3_beta-lactamase', 'ADC-7', 'ANT4SS-Ib', 'AQU-3', 'apmA', 'FIM-1', 'catII_from_Escherichia_coli_K-12', 'lin', 'FosB4', 'aphA15', 'FONA-2', 'FosB6', 'BahA', 'mphI', 'MCR-15', 'vgaE_Staphylococcus_cohnii', 'rmtE', 'OXA-294', 'FONA-3', 'ADC-39', 'OXA-402', 'OXA-483', 'LEN-51', 'OXA-262', 'OXA-103', 'OXA-484', 'SFH-1', 'OXA-405', 'LEN-58', 'OXA-406', 'determinant_of_bleomycin_resistance', 'ADC-20', 'OXA-266', 'OXA-488', 'HMB-1_beta-lactamase', 'ANT3SSSS-IIa', 'OXA-125', 'TMB-2', 'OXA-450', 'BES-1', 'mecD', 'MCR-12', 'Escherichia_coli_ampC', 'ADC-14', 'ADC-42', 'ADC-74', 'ADC-79', 'PDC-73', 'PDC-78', 'PDC-83', 'PDC-88', 'PDC-93', 'OXA-535', 'RSA-1', 'Chryseobacterium_meningosepticum_BlaB', 'Enterococcus_faecium_chloramphenicol_acetyltransferase', 'EBR-2', 'OXA-303', 'BIC-1', 'OXA-270', 'ARL-4', 'OXA-271', 'BKC-1', 'OXA-153', 'ARL-6', 'OXA-154', 'CIA-2', 'OXA-308', 'HERA-8', 'OXA-465', 'vmlR', 'OXA-286', 'OXA-466', 'OXA-429', 'LEN-25', 'NDM-15', 'OXA-471', 'LEN-35', 'ADC-68', 'OXA-341', 'KPC-24', 'OXA-252', 'OXA-473', 'OXA-259', 'DES-1', 'MCR-22', 'MCR-19', 'MCR-16', 'OXA-260', 'DHA-9', 'mphK', 'NDM-11', 'dfrA28', 'CAM-1', 'tet49', 'tet54', 'clcD', 'ERP-1', 'IDC-1', 'LMB-1', 'FRI-5', 'FLC-1', 'CTX-M-165', 'PDC-55', 'eptB', 'TetX6', 'cprR', 'ROB-6', 'dfrA31', 'OXA-898']" exists in the assembly graph...
+2022-05-08 02:52:26,188 [INFO ]	
+(08 May 2022 02:52:24) Loading graph...        done
+(08 May 2022 02:52:24) Running BLAST search... done
+(08 May 2022 02:52:26) Saving results...       done
+
+Results:      test/output_dir/AMR_info/alignments/amr_group_1_align_2022-05-08_02-52-24.tsv
+
+Summary: Total BLAST queries:           490
+         Queries with found paths:      1
+         Total query paths:             1
+
+Elapsed time: 00:00:01.714
+
+2022-05-08 02:52:26,205 [INFO ]	Checking if AMRs "['dfrF', 'Erm34', 'KPC-10', 'ACT-10', 'lnuA', 'msrE', 'QnrB58', 'OXA-90', 'TEM-34', 'OXA-256', 'CMY-70', 'aadA23', 'SHV-18', 'VIM-37', 'IMP-42', 'CTX-M-42', 'vanXYC', 'SHV-12', 'PDC-8', 'dfrA13', 'aadA4', 'TEM-183', 'CTX-M-50', 'CMY-9', 'cphA7', 'SHV-92', 'AAC6SS-Iaf', 'SHV-56', 'tsnR', 'TEM-78', 'IMP-51', 'OCH-1', 'CTX-M-19', 'SHV-61', 'LEN-14', 'APH4-Ia', 'SHV-35', 'LEN-9', 'CMY-100', 'OXA-113', 'imiH', 'SHV-137', 'OXA-9', 'ermZ', 'CMY-21', 'VIM-8', 'OXA-43', 'QnrB36', 'imiS', 'CMY-85', 'OXA-85', 'CfxA4', 'CepS_beta-lactamase', 'IND-11', 'CMY-35', 'TEM-176', 'OXA-366', 'LEN-23', 'TEM-166', 'CMY-51', 'OXY-3-1', 'QnrB24', 'TEM-112', 'CMY-83', 'SHV-8', 'OXA-148', 'OXA-46', 'VIM-2', 'OXA-357', 'dfrA8', 'OXA-380', 'OXA-144', 'OXA-325', 'DHA-16', 'OXY-2-7', 'OXY-4-1', 'OKP-B-10', 'dfrG', 'KPC-4', 'OXA-13', 'CARB-3', 'TEM-128', 'IMP-29', 'QnrB49', 'SHV-156', 'CMY-28', 'OXA-164', 'IMP-5', 'CARB-19', 'VIM-26', 'ACT-2', 'CTX-M-47', 'TEM-133', 'arr-5', 'QnrB28', 'SHV-9', 'OKP-B-6', 'CTX-M-20', 'AAC6SS-Ia', 'vgaA', 'aadA21', 'TEM-145', 'ROB-1', 'VIM-16', 'OXA-361', 'SFB-1', 'OXA-320', 'vanHB', 'OXA-332', 'aadA25', 'TEM-89', 'vanVB', 'OXA-243', 'VIM-5', 'CTX-M-34', 'CTX-M-137', 'AAC6SS-Ih', 'TEM-120', 'OXA-162', 'vanRE', 'cfrA', 'SHV-129', 'AIM-1', 'catB2', 'CTX-M-100', 'vanRA', 'ErmS', 'OXA-237', 'AAC6SS-Iae', 'arr-3', 'SHV-97', 'CTX-M-48', 'TEM-6', 'QnrB7', 'SHV-57', 'CMY-113', 'CARB-9', 'vanHO', 'SHV-14', 'TEM-55', 'cphA4', 'lnuB', 'TEM-113', 'CTX-M-68', 'TEM-83', 'CfxA5', 'CTX-M-102', 'CMY-117', 'OXA-138', 'TEM-142', 'IMP-16', 'DHA-1', 'SHV-124', 'LRA-17', 'Erm36', 'CMY-90', 'OXA-94', 'CTX-M-93', 'LEN-13', 'SHV-186', 'AAC6SS-30AAC6SS-IbSS_fusion_protein', 'OXA-381', 'GES-8', 'OXA-242', 'OXA-104', 'ACT-15', 'OXA-418', 'CMY-69', 'MIR-15', 'RCP-1', 'QnrB1', 'y56_beta-lactamase', 'CTX-M-4', 'AAC6SS-Ib9', 'LEN-2', 'OKP-A-8', 'KPC-5', 'APH3SS-IIc', 'IMP-14', 'CMY-102', 'QnrA7', 'CTX-M-22', 'MOX-1', 'CTX-M-114', 'SHV-71', 'AAC6SS-Ib3', 'OKP-B-19', 'VIM-4', 'OXA-323', 'CMY-14', 'SHV-59', 'OXA-245', 'NDM-5', 'OXA-58', 'ErmD', 'OXA-180', 'CTX-M-64', 'AAC6SS-Ii', 'dfrA12', 'VgbB', 'AER-1', 'TEM-146', 'TEM-129', 'MIR-9', 'tet44', 'CMY-81', 'OXA-176', 'OXA-354', 'OXA-71', 'VIM-39', 'OXA-141', 'OXA-139', 'viomycin_phosphotransferase', 'CTX-M-6', 'AAC6SS-IbSS', 'aadA6aadA10', 'CMY-72', 'CTX-M-46', 'APH3SS-IVa', 'QnrB40', 'CTX-M-67', 'TEM-45', 'KPC-6', 'OKP-B-7', 'Sed1_beta-lactamase', 'OKP-B-12', 'BEL-2', 'ACT-20', 'CTX-M-3', 'OXA-65', 'CTX-M-52', 'BcII', 'OXA-425', 'GES-5', 'OXA-233', 'AAC6SS-I30', 'ANT2SSSS-Ia', 'AAC3-IIc', 'IMI-4', 'KPC-22', 'OXA-11', 'OXA-390', 'CMY-62', 'SHV-167', 'OXA-131', 'ACC-3', 'cphA2', 'Erm35', 'CARB-7', 'OXA-59', 'IND-9', 'FosB3', 'GES-19', 'QnrB26', 'CARB-10', 'AAC3-Xa', 'TEM-75', 'PER-6', 'cphA8', 'LEN-4', 'vanTrL', 'NDM-3', 'SHV-85', 'SHV-51', 'OXA-249', 'GES-2', 'CMY-22', 'ErmB', 'VIM-13', 'CTX-M-63', 'OXA-183', 'OXA-17', 'ACT-3', 'OXA-10', 'dfrA14', 'SHV-2A', 'SHV-86', 'OXA-74', 'APH2SSSS-IIa', 'CTX-M-156', 'GIM-2', 'TEM-197', 'CMY-78', 'SHV-84', 'SHV-70', 'CMY-15', 'TEM-117', 'OXA-375', 'TEM-80', 'AAC6SS-It', 'OXA-49', 'SHV-40', 'OXA-317', 'DHA-5', 'Erm39', 'OXA-142', 'IMP-41', 'OXA-230', 'FOX-4', 'mphB', 'GES-24', 'OXA-359', 'lsaC', 'vanO', 'QnrB35', 'OXA-56', 'TEM-127', 'SHV-159', 'DIM-1_beta-lactamase', 'TEM-48', 'TEM-164', 'CMY-119', 'AAC6SS-Ib11', 'OXA-14', 'KHM-1_beta-lactamase', 'vgaB', 'OXY-1-3', 'CMY-87', 'TEM-94', 'CMY-59', 'OXA-312', 'rmtF', 'VIM-9', 'OXA-109', 'CTX-M-116', 'vanXYL', 'CMY-12', 'DHA-10', 'NDM-4', 'CfxA3', 'CTX-M-51', 'vanSA', 'LRA-13', 'spd', 'vanM', 'CTX-M-29', 'CTX-M-43', 'CTX-M-148', 'cphA6', 'TEM-154', 'ACT-7', 'LEN-11', 'OXA-149', 'OXA-247', 'SHV-7', 'dfrA1', 'CTX-M-83', 'CTX-M-89', 'CTX-M-129', 'OXA-370', 'SHV-165', 'OXA-84', 'OXA-173', 'tetT', 'IND-8', 'OXA-57', 'dfrA7', 'FosC2', 'CMY-5', 'SHV-3', 'LRA-10', 'NmcA_beta-lactamase', 'gimA', 'ANT3SSSS-Ii-AAC6SS-IId_fusion_protein', 'AAC6SS-Iaj', 'CPS-1', 'Escherichia_coli_ampH', 'fusD', 'vanXI', 'lnuE', 'Bifidobacteria_intrinsic_ileS_conferring_resistance_to_mupirocin', 'mphM', 'ADC-10', 'SPM-1', 'OXA-364', 'TLA-3', 'kdpE', 'Erm49', 'qnrE1', 'dfrA6_from_Proteus_mirabilis', 'ADC-1', 'ADC-8', 'ADC-62', 'AAC3-IV', 'OXA-372', 'FONA-1', 'catA4', 'Staphylococcus_aureus_FosB', 'AAC2SS-IIa', 'OXA-292', 'FRI-1', 'rmtD2', 'VatI', 'rphB', 'MCR-111', 'TetX3', 'MCR-17', 'tvaA', 'FRI-2', 'rmtE2', 'OXA-261', 'FONA-4', 'NDM-28', 'OXA-297', 'OXA-263', 'FONA-5', 'KPC-1', 'OXA-447', 'OXA-123', 'EdeQ', 'basS', 'ADC-21', 'OXA-301', 'ARL-1', 'MIR-23', 'ANT3SSSS-IIb', 'OXA-267', 'OXA-408', 'OXA-455', 'BRO-2', 'Nocardia_rifampin_resistant_beta-subunit_of_RNA_polymerase_rpoB2', 'GOB-18', 'Rhodobacter_sphaeroides_ampC_beta-lactamase', 'ADC-15', 'ADC-43', 'ADC-75', 'ADC-81', 'PDC-74', 'PDC-79', 'PDC-84', 'PDC-89', 'catV', 'almG', 'RSA-2', 'Agrobacterium_fabrum_chloramphenicol_acetyltransferase', 'Staphylococcus_intermedius_chloramphenicol_acetyltransferase', 'CFE-2', 'OXA-409', 'CBP-1', 'OXA-304', 'BIL-1', 'OXA-305', 'GOB-2', 'OXA-272', 'BPU-1', 'OXA-273', 'GOB-4', 'OXA-416', 'OXA-156', 'CIA-4', 'OXA-664', 'OXA-277', 'CMY-136', 'OXA-470', 'pgpB', 'OXA-185', 'CME-1', 'Klebsiella_pneumoniae_OmpK37', 'IMP-55', 'OXA-431', 'GOB-9', 'OXA-282', 'CMY-135', 'OXA-283', 'LEN-38', 'MCR-36', 'MCR-39', 'MCR-13', 'OXA-284', 'LEN-39', 'mphN', 'dfrA6', 'dfrA30', 'dfrA18', 'tet50', 'tet55', 'OXA-285', 'LEN-40', 'IDC-2', 'IMP-68', 'FRI-6', 'CTX-M-161', 'CTX-M-166', 'OmpA', 'ROB-3', 'TetX5', 'cprS', 'ROB-7', 'AAC3-IIg', 'GPC-1']" exists in the assembly graph...
+2022-05-08 02:52:27,917 [INFO ]	
+(08 May 2022 02:52:26) Loading graph...        done
+(08 May 2022 02:52:26) Running BLAST search... done
+(08 May 2022 02:52:27) Saving results...       done
+
+Results:      test/output_dir/AMR_info/alignments/amr_group_2_align_2022-05-08_02-52-26.tsv
+
+Summary: Total BLAST queries:           490
+         Queries with found paths:      0
+         Total query paths:             0
+
+Elapsed time: 00:00:01.690
+
+2022-05-08 02:52:27,928 [INFO ]	Checking if AMRs "['CTX-M-130', 'TEM-126', 'OXA-212', 'OXA-371', 'OXA-45', 'OXY-6-3', 'rmtH', 'SME-2', 'OXA-69', 'QnrS6', 'GES-21', 'NDM-10', 'fusH', 'ACT-29', 'TEM-102', 'SHV-105', 'CMY-48', 'OXA-61', 'ErmE', 'TEM-87', 'VIM-34', 'clbB', 'TEM-198', 'APH2SSSS-Ie', 'IMP-12', 'aadA12', 'dfrA21', 'KPC-8', 'CMY-39', 'arr-4', 'vanHA', 'OXA-232', 'OXA-195', 'CTX-M-58', 'OCH-3', 'FomA', 'TEM-206', 'vanXA', 'JOHN-1_beta-lactamase', 'OKP-B-3', 'LEN-21', 'OXA-83', 'SHV-164', 'APH3SS-VIIa', 'ACT-37', 'dfrA24', 'CfxA6', 'VEB-7', 'CTX-M-107', 'TEM-11', 'vatD', 'OXA-145', 'AAC6SS-29a', 'chrB', 'SHV-78', 'DHA-2', 'CTX-M-35', 'OXA-225', 'r39_beta-lactamase', 'IMP-1', 'vanL', 'TEM-1', 'AAC6SS-Iy', 'TEM-122', 'MIR-3', 'CTX-M-147', 'LEN-8', 'TUS-1_beta-lactamase', 'TEM-71', 'OXA-217', 'vanRL', 'OXA-377', 'SLB-1', 'SHV-36', 'OXA-87', 'SHV-69', 'AAC6SS-Ib-Suzhou', 'SHV-133', 'vanC', 'CTX-M-30', 'Erm37', 'dfrD', 'GES-9', 'TEM-191', 'TEM-188', 'KPC-16', 'AAC3-VIIIa', 'FOX-1', 'LEN-10', 'OXA-386', 'SHV-38', 'CARB-16', 'TEM-106', 'QnrB3', 'VIM-35', 'vanXYE', 'IMP-22', 'OXA-228', 'AAC3-Ib', 'TEM-110', 'NDM-7', 'IND-6', 'dfrA16', 'OXA-385', 'SHV-153', 'OXA-211', 'ErmF', 'catB10', 'CFE-1', 'OXY-2-5', 'GES-4', 'eptA', 'OXA-219', 'TEM-162', 'ACT-1', 'CMY-27', 'OXA-171', 'QnrS4', 'APH3SS-Vc', 'TEM-159', 'Erm42', 'CTX-M-98', 'CTX-M-49', 'CTX-M-81', 'LRA-8', 'SHV-72', 'TEM-192', 'NDM-25', 'LRA-18', 'vanSL', 'SHV-172', 'KPC-9', 'GES-13', 'SHV-102', 'CMY-24', 'tetX', 'QnrB25', 'dfrA23', 'OXY-1-1', 'CTX-M-31', 'tetBP', 'mecC', 'GOB-1_beta-lactamase', 'QnrD1', 'DHA-17', 'FosA3', 'CMY-44', 'TEM-163', 'OXA-26', 'tet56', 'PER-7', 'CGB-1_beta-lactamase', 'CTX-M-142', 'CTX-M-99', 'CMY-74', 'SHV-122', 'LCR-1', 'CARB-21', 'OXY-6-4', 'TEM-49', 'VIM-25', 'carA', 'OKP-A-14', 'QnrB70', 'QnrB48', 'sul2', 'OXA-64', 'OXA-129', 'VEB-8', 'OKP-B-18', 'CTX-M-61', 'OXA-86', 'ErmG', 'SHV-77', 'AAC6SS-Ib-Hangzhou', 'BEL-1', 'APH2SSSS-IIIa', 'IMP-21', 'AAC6SS-Ib-SK', 'vanZA', 'vanWB', 'ErmO', 'LEN-12', 'VIM-27', 'QnrB73', 'IMP-35', 'LEN-3', 'OXA-161', 'LEN-5', 'TEM-169', 'TEM-79', 'CTX-M-21', 'PDC-2', 'ANT6-Ib', 'OXA-2', 'FOX-8', 'OXA-23', 'OXA-88', 'CMY-86', 'CTX-M-124', 'QnrVC5', 'ACT-9', 'QnrB34', 'OKP-A-4', 'OXA-194', 'IMP-4', 'OXA-327', 'VEB-1', 'SHV-168', 'DHA-13', 'erm40', 'TEM-219', 'Erm30', 'CTX-M-33', 'CMY-53', 'mphA', 'FOX-5', 'OXA-119', 'SHV-149', 'CMY-115', 'VIM-10', 'TEM-104', 'IND-15', 'TEM-141', 'SAT-1', 'CTX-M-80', 'CTX-M-85', 'IMP-10', 'SHV-147', 'OXA-170', 'APH3SS-IIIa', 'BLA1', 'IND-2a', 'TEM-149', 'OXA-223', 'oleD', 'CMY-26', 'OXA-313', 'OXA-382', 'CTX-M-92', 'dfrC', 'OXA-388', 'TEM-124', 'OXA-172', 'DHA-6', 'TEM-15', 'SHV-60', 'TEM-40', 'IND-12', 'MIR-17', 'IMP-15', 'plasmid-encoded_cat_pp-cat', 'aadA7', 'DHA-18', 'IMP-40', 'ACT-27', 'CMY-37', 'LAT-1', 'VEB-6', 'CMY-108', 'OXA-423', 'CMY-45', 'VIM-32', 'TEM-168', 'SHV-143', 'SHV-104', 'dfrE', 'OXA-78', 'SHV-187', 'QnrB16', 'vanSE', 'AAC6SS-32', 'dfrA5', 'QnrB50', 'CMY-99', 'OXA-101', 'CTX-M-84', 'SME-4', 'CTX-M-152', 'SHV-45', 'OXA-179', 'IMP-13', 'vanRG', 'MIR-14', 'ACT-23', 'AAC6SS-If', 'CTX-M-79', 'CARB-8', 'CMY-68', 'CTX-M-5', 'APH4-Ib', 'OXA-34', 'CMY-31', 'TEM-135', 'MIR-1', 'QnrB4', 'vanYM', 'TEM-184', 'SHV-73', 'SHV-151', 'ANT4SS-Ia', 'SHV-28', 'IMP-18', 'CTX-M-23', 'OXA-351', 'VIM-14', 'TEM-19', 'OXA-177', 'AAC2SS-Ia', 'VIM-42', 'DHA-20', 'ErmY', 'OXA-168', 'OXA-70', 'MOX-4', 'GES-26', 'oleI', 'APH3SSSS-Ib', 'OXA-201', 'OXA-76', 'CTX-M-91', 'OXA-20', 'OXA-387', 'VIM-3', 'TEM-82', 'linG', 'SRT-2', 'CTX-M-111', 'TEM-86', 'NDM-12', 'OXA-246', 'OKP-A-6', 'dfrK', 'SHV-27', 'CMY-34', 'TEM-150', 'OXA-118', 'SHV-50', 'arr-1', 'OXA-29', 'TEM-105', 'OXA-116', 'TEM-111', 'vanA', 'OXA-309', 'QnrB74', 'TEM-215', 'IMP-27', 'QnrB60', 'CTX-M-37', 'CTX-M-104', 'CMY-84', 'CTX-M-62', 'KPC-17', 'aadA8', 'QnrB72', 'msrC', 'VIM-7', 'AAC6SS-Ib8', 'CARB-20', 'LRA-7', 'Escherichia_coli_ampC1_beta-lactamase', 'pmrF', 'PDC-4', 'VCC-1', 'ESP-1', 'OXA-288', 'mphG', 'OXA-346', 'salA', 'Listeria_monocytogenes_mprF', 'fusC', 'ADC-30', 'ACT-8', 'OXA-440', 'ADC-60', 'LEN-26', 'AAC6SS-Im', 'qnrE2', 'dfrI', 'ADC-3', 'ADC-5', 'Erm47', 'OXA-368', 'cipA', 'FPH-1', 'erm44', 'MCR-33', 'OXA-296', 'OXA-373', 'MCR-312', 'APH3SS-VIIIa', 'AAC2SS-IIb', 'cpaA', 'aadA27', 'OXA-293', 'MCR-112', 'OXA-400', 'LEN-43', 'MCR-18', 'OXA-295', 'FRI-3', 'MCR-34', 'OXA-403', 'OXA-298', 'GOB-11', 'OXA-122', 'OXA-485', 'mphL', 'OXA-448', 'Chlamydia_trachomatis_intrinsic_murA_conferring_resistance_to_fosfomycin', 'ADC-22', 'OXA-407', 'BCL-1', 'APH3SS-VIII', 'ANT3SSSS-IIc', 'kamB', 'MCR-2', 'Burkholderia_pseudomallei_Omp38', 'MCR-3', 'AAC2SS-Ie', 'NPS-1', 'Laribacter_hongkongensis_ampC_beta-lactamase', 'ADC-17', 'ADC-44', 'ADC-76', 'ADC-82', 'PDC-75', 'PDC-80', 'PDC-85', 'PDC-90', 'ACI-1', 'OXA-127', 'OXA-269', 'Bacillus_clausii_chloramphenicol_acetyltransferase', 'Enterococcus_faecalis_chloramphenicol_acetyltransferase', 'ICR-Mc', 'OXA-451', 'GOB-15', 'OXA-411', 'CGA-1', 'OXA-412', 'HERA-2', 'OXA-306', 'CIA-1', 'OXA-414', 'HERA-6', 'OXA-464', 'OXA-276', 'GOB-6', 'OXA-665', 'OXA-337', 'OXA-158', 'CKO-1', 'Bifidobacterium_adolescentis_rpoB_conferring_resistance_to_rifampicin', 'OXA-280', 'CMY-132', 'LEN-30', 'IMP-56', 'OXA-472', 'LEN-36', 'OXA-342', 'LEN-37', 'OXA-343', 'NDM-20', 'MCR-310', 'MCR-38', 'MCR-14', 'OXA-344', 'NDM-21', 'mphO', 'dfrA9', 'dfrA29', 'ICR-Mo', 'tet51', 'erm32', 'OXA-345', 'NDM-22', 'VMB-1', 'FosL1', 'FRI-7', 'CTX-M-162', 'Yrc-1', 'SatA', 'LpsB', 'OXA-837', 'ROB-2', 'ROB-9', 'msrF']" exists in the assembly graph...
+2022-05-08 02:52:29,636 [INFO ]	
+(08 May 2022 02:52:27) Loading graph...        done
+(08 May 2022 02:52:27) Running BLAST search... done
+(08 May 2022 02:52:29) Saving results...       done
+
+Results:      test/output_dir/AMR_info/alignments/amr_group_3_align_2022-05-08_02-52-27.tsv
+
+Summary: Total BLAST queries:           489
+         Queries with found paths:      0
+         Total query paths:             0
+
+Elapsed time: 00:00:01.685
+
+2022-05-08 02:52:29,653 [INFO ]	Checking if AMRs "['NDM-6', 'LRA-12', 'IMP-2', 'fusB', 'OXA-226', 'FosA2', 'OXY-6-1', 'AAC3-IIIc', 'TEM-7', 'OXA-330', 'SHV-41', 'QnrB66', 'SHV-79', 'FOX-3', 'TEM-116', 'CMY-79', 'QnrB38', 'CARB-4', 'AAC6SS-Iu', 'QnrB18', 'SHV-64', 'srmB', 'arr-8', 'QnrB10', 'OXA-229', 'catB3', 'myrA', 'OXA-376', 'VIM-17', 'CfxA2', 'QnrA5', 'OXA-12', 'OXA-199', 'CTX-M-56', 'SHV-101', 'GES-12', 'OXA-21', 'npmA', 'GES-3', 'vanTmL', 'QnrS8', 'vanRF', 'CTX-M-126', 'APH9-Ia', 'OXA-208', 'lsaE', 'CMY-8', 'OXA-174', 'CTX-M-11', 'SHV-162', 'APH3SS-Ia', 'VIM-23', 'CMY-95', 'SHV-32', 'IND-2', 'CTX-M-36', 'FEZ-1_beta-lactamase', 'GES-17', 'CARB-23', 'OXA-31', 'SHV-6', 'ErmU', 'OXA-278', 'CTX-M-25', 'SHV-21', 'QnrS1', 'QnrB71', 'QnrS5', 'MIR-16', 'OXA-202', 'AAC3-IIIb', 'TEM-33', 'CTX-M-1', 'TEM-182', 'ACT-25', 'VIM-6', 'TEM-22', 'OXA-51', 'OXA-93', 'NDM-13', 'SHV-49', 'OXA-106', 'VIM-30', 'tlrB_conferring_tylosin_resistance', 'PER-2', 'OXA-79', 'aadA17', 'CTX-M-9', 'NDM-24', 'OXA-75', 'OCH-8', 'TEM-95', 'AAC6SS-Is', 'TEM-107', 'OXA-163', 'OXA-77', 'SHV-82', 'clbA', 'MIR-5', 'QnrB19', 'VIM-20', 'CTX-M-122', 'OKP-A-3', 'OXA-96', 'OXA-328', 'NDM-8', 'DHA-7', 'VIM-28', 'OXY-6-2', 'OXY-2-1', 'OXA-115', 'Clostridium_butyricum_catB', 'SHV-142', 'ACT-36', 'CTX-M-65', 'IMP-48', 'PDC-10', 'CMY-75', 'MOX-2', 'OXA-22', 'TEM-205', 'cmlv', 'TEM-213', 'dfrB1', 'CMY-33', 'AAC6SS-Ij', 'CTX-M-8', 'vanTC', 'QnrB21', 'CMY-40', 'TEM-217', 'CMY-80', 'CTX-M-55', 'OXA-207', 'LEN-6', 'NDM-1', 'OXA-63', 'SHV-46', 'IMP-34', 'CTX-M-87', 'SHV-150', 'TEM-26', 'OXA-3', 'vanD', 'SHV-157', 'APH3SS-Ib', 'CMY-20', 'DHA-12', 'QnrB62', 'IND-14', 'CMY-61', 'vatC', 'TEM-185', 'TEM-63', 'SHV-53', 'CTX-M-131', 'OXA-92', 'CTX-M-139', 'ANT6-Ia', 'PER-1', 'AAC6SS-33', 'GES-10', 'IMP-8', 'CTX-M-113', 'OXA-100', 'APH3SS-IIb', 'TEM-137', 'OXA-333', 'rphA', 'CMY-23', 'OXA-112', 'TEM-153', 'FOX-9', 'CMY-77', 'AAC6SS-Ib4', 'IND-1', 'SHV-25', 'OXA-241', 'TEM-136', 'APH6-Id', 'dfrB3', 'vgaD', 'OXA-206', 'APH9-Ib', 'CTX-M-141', 'sul1', 'TEM-20', 'SHV-158', 'OKP-B-5', 'IMP-6', 'Erm38', 'QnrB29', 'CAU-1_beta-lactamase', 'ACT-17', 'EBR-1_beta-lactamase', 'TEM-186', 'CMY-19', 'SHV-109', 'OXA-169', 'TEM-156', 'OXA-240', 'Erm31', 'lsaB', 'NDM-9', 'TEM-54', 'CTX-M-105', 'OXA-248', 'ErmH', 'msrA', 'SHV-173', 'TEM-134', 'vanRN', 'TEM-178', 'mel', 'OXA-397', 'OXY-5-1', 'CTX-M-96', 'QnrB68', 'QnrB56', 'OXA-192', 'ErmT', 'QnrB12', 'SHV-34', 'TEM-177', 'otrA', 'lsaA', 'IND-5', 'OXY-5-2', 'mecA', 'AAC6SS-Iq', 'vanHD', 'OXA-53', 'TEM-93', 'dfrA22', 'IMP-31', 'QnrB69', 'CMY-11', 'TEM-193', 'ANT9-Ia', 'aadA22', 'OXA-108', 'IMP-3', 'CMY-6', 'QnrB15', 'OXA-454', 'OXY-2-4', 'SHV-125', 'SHV-19', 'PDC-6', 'TEM-216', 'CTX-M-13', 'Pseudomonas_aeruginos_catB6', 'SHV-13', 'CTX-M-44', 'EXO_beta-lactamase', 'MOX-8', 'SHV-107', 'ACT-4', 'APH6-Ia', 'ACT-12', 'SME-3', 'OXA-33', 'IMP-38', 'TEM-130', 'PER-5', 'aadA3', 'Erm43', 'MUS-1_beta-lactamase', 'OKP-B-20', 'ACT-18', 'OXA-205', 'SHV-123', 'QnrVC6', 'PER-3', 'VgbA', 'SHV-23', 'cphA5', 'ErmR', 'vanE', 'SAT-4', 'vgaE', 'CTX-M-71', 'QnrB57', 'OXA-203', 'TEM-139', 'IMP-20', 'AAC6SS-IIa', 'OKP-B-17', 'vanZF', 'GES-18', 'aadA24', 'CEPH-A3', 'tetM', 'OCH-6', 'FosK', 'tet36', 'ErmW', 'IMP-44', 'OXA-42', 'OXA-415', 'CTX-M-45', 'OXA-338', 'OXA-254', 'CMY-93', 'aadA16', 'OKP-A-16', 'aadA11', 'OKP-A-5', 'TEM-12', 'ACT-6', 'DHA-14', 'SHV-183', 'QnrVC3', 'QnrB5', 'AAC6SS-Ie-APH2SSSS-Ia', 'TEM-3', 'CTX-M-27', 'AAC6SS-Iid', 'CTX-M-59', 'IMI-3', 'CTX-M-75', 'rmtA', 'QnrVC7', 'CMY-67', 'OXY-2-6', 'OXA-196', 'AAC3-IIIa', 'LEN-24', 'AAC6SS-Iih', 'OXA-379', 'ACT-32', 'AAC6SS-Iak', 'BEL-3', 'vanSF', 'SHV-29', 'IMP-32', 'AAC6SS-Ix', 'CTX-M-10', 'TEM-76', 'IMI-1', 'OXA-47', 'SHV-189', 'AAC6SS-Ik', 'IMP-9', 'QnrA1', 'AAC6SS-Iz', 'TEM-24', 'OXA-335', 'SHV-178', 'CMY-76', 'OXA-132', 'QnrB43', 'TEM-108', 'CARB-18', 'QnrB31', 'OXA-331', 'LRA-3', 'mphC', 'NmcR', 'APH3SS-IIa', 'vgaC', 'NDM-14', 'Bacillus_pumilus_cat86', 'APH3SS-VI', 'PEDO-1', 'MSI-1', 'vanSD', 'vanI', 'OXA-439', 'RlmAII', 'Brucella_suis_mprF', 'optrA', 'ADC-58', 'ADC-59', 'OXA-478', 'MUS-2_beta-lactamase', 'ADC-2', 'ADC-67', 'dfrA15b', 'AQU-2', 'ADC-4', 'ADC-12', 'AAC6SS-Iag', 'TEM-220', 'OXA-441', 'QnrS15', 'catA8', 'FusF', 'emtA', 'OXA-442', 'sta', 'LlmA_23S_ribosomal_RNA_methyltransferase', 'AAC6SS-34', 'aadS', 'aadA10', 'OXA-392', 'MCR-42', 'OXA-443', 'NDM-27', 'MCR-113', 'OXA-401', 'FTU-1', 'MCR-44', 'mgtA', 'OXA-404', 'LEN-55', 'OXA-264', 'FONA-6', 'OXA-265', 'OXA-486', 'ADC-18', 'ADC-23', 'OXA-449', 'BRO-1', 'APH3SS-IX', 'NDM-17', 'OXA-302', 'FosA6', 'ARL-2', 'cfrC', 'Bla2', 'Vibrio_cholerae_varG', 'BUT-1', 'ADC-16', 'ADC-56', 'ADC-77', 'MCR-4', 'PDC-76', 'PDC-81', 'PDC-86', 'PDC-91', 'sul4', 'OXA-268', 'HERA-1', 'Campylobacter_coli_chloramphenicol_acetyltransferase', 'Vibrio_anguillarum_chloramphenicol_acetyltransferase', 'CrpP', 'OXA-457', 'HERA-5', 'OXA-452', 'GOB-16', 'OXA-459', 'HERA-4', 'OXA-413', 'GOB-3', 'OXA-461', 'OXA-155', 'CIA-3', 'OXA-336', 'IMI-8', 'OXA-157', 'OXA-663', 'OXA-279', 'GOB-7', 'SHV-4', 'OXA-340', 'GOB-8', 'SCO-1', 'OXA-234', 'CMH-1', 'LEN-32', 'dfrB4', 'LEN-34', 'OXA-433', 'MCR-311', 'MCR-35', 'MCR-37', 'MCR-8', 'OXA-437', 'mphE', 'mphJ', 'dfrB5', 'dfrA32', 'PNGM-1', 'tet53', 'erm45', 'OXA-438', 'tet57', 'APH3SS-VIb', 'cfrD', 'FRI-8', 'CTX-M-163', 'ADC-159', 'BLMT', 'LpsA', 'AAC3-IVb', 'ROB-4', 'ROB-8', 'msrH']" exists in the assembly graph...
+2022-05-08 02:52:31,427 [INFO ]	
+(08 May 2022 02:52:29) Loading graph...        done
+(08 May 2022 02:52:29) Running BLAST search... done
+(08 May 2022 02:52:31) Saving results...       done
+
+Results:      test/output_dir/AMR_info/alignments/amr_group_4_align_2022-05-08_02-52-29.tsv
+
+Summary: Total BLAST queries:           489
+         Queries with found paths:      2
+         Total query paths:             2
+
+Elapsed time: 00:00:01.753
+
+2022-05-08 02:52:31,466 [DEBUG]	ErmA was found!
+2022-05-08 02:52:31,467 [DEBUG]	ANT(9)-Ia was found!
+2022-05-08 02:52:31,469 [DEBUG]	AAC(6;)-Ie-APH(2;;)-Ia was found!
+2022-05-08 02:52:31,474 [INFO ]	Extracting neighborhood sequences with length = 1000
+2022-05-08 02:52:31,490 [DEBUG]	amr_file = test/output_dir/AMR_info/sequences/ErmA.fasta
+2022-05-08 02:52:31,492 [DEBUG]	Calling extract_neighborhood_sequence for ErmA.fasta ...
+2022-05-08 02:52:31,492 [INFO ]	loading the graph from /media/Data/PostDoc/Dalhousie/Work/Test1/codes/sarand/test/spade_output/assembly_graph_with_scaffolds.gfa...
+2022-05-08 02:52:31,573 [DEBUG]	last_segment = 127 start_pos = 5721 end_pos= 6452
+2022-05-08 02:52:31,574 [DEBUG]	Running extract_pre_sequence ng_sequences_ErmA ...
+2022-05-08 02:52:31,582 [DEBUG]	Running extract_post_sequence ng_sequences_ErmA ...
+2022-05-08 02:52:31,591 [DEBUG]	Running generate_node_range_coverage ng_sequences_ErmA ...
+2022-05-08 02:52:31,591 [DEBUG]	Running generate_sequence_path ng_sequences_ErmA ...
+2022-05-08 02:52:31,601 [INFO ]	NOTE: The list of neighborhood sequences (extracted from assembly graph)	 		has been stroed in test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_ErmA_1000_2022-05-08_02-52.txt
+2022-05-08 02:52:31,601 [DEBUG]	amr_file = test/output_dir/AMR_info/sequences/ANT9-Ia.fasta
+2022-05-08 02:52:31,602 [DEBUG]	Calling extract_neighborhood_sequence for ANT9-Ia.fasta ...
+2022-05-08 02:52:31,602 [INFO ]	loading the graph from /media/Data/PostDoc/Dalhousie/Work/Test1/codes/sarand/test/spade_output/assembly_graph_with_scaffolds.gfa...
+2022-05-08 02:52:31,674 [DEBUG]	last_segment = 127 start_pos = 32090 end_pos= 32872
+2022-05-08 02:52:31,674 [DEBUG]	Running extract_pre_sequence ng_sequences_ANT9-Ia ...
+2022-05-08 02:52:31,674 [DEBUG]	Running extract_post_sequence ng_sequences_ANT9-Ia ...
+2022-05-08 02:52:31,675 [DEBUG]	Running generate_node_range_coverage ng_sequences_ANT9-Ia ...
+2022-05-08 02:52:31,675 [DEBUG]	Running generate_sequence_path ng_sequences_ANT9-Ia ...
+2022-05-08 02:52:31,676 [INFO ]	NOTE: The list of neighborhood sequences (extracted from assembly graph)	 		has been stroed in test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_ANT9-Ia_1000_2022-05-08_02-52.txt
+2022-05-08 02:52:31,677 [DEBUG]	amr_file = test/output_dir/AMR_info/sequences/AAC6SS-Ie-APH2SSSS-Ia.fasta
+2022-05-08 02:52:31,677 [DEBUG]	Calling extract_neighborhood_sequence for AAC6SS-Ie-APH2SSSS-Ia.fasta ...
+2022-05-08 02:52:31,677 [INFO ]	loading the graph from /media/Data/PostDoc/Dalhousie/Work/Test1/codes/sarand/test/spade_output/assembly_graph_with_scaffolds.gfa...
+2022-05-08 02:52:31,749 [DEBUG]	last_segment = 519 start_pos = 455 end_pos= 1894
+2022-05-08 02:52:31,749 [DEBUG]	Running extract_pre_sequence ng_sequences_AAC6SS-Ie-APH2SSSS-Ia ...
+2022-05-08 02:52:31,753 [DEBUG]	Running extract_post_sequence ng_sequences_AAC6SS-Ie-APH2SSSS-Ia ...
+2022-05-08 02:52:31,812 [DEBUG]	Running generate_node_range_coverage ng_sequences_AAC6SS-Ie-APH2SSSS-Ia ...
+2022-05-08 02:52:31,813 [DEBUG]	Running generate_sequence_path ng_sequences_AAC6SS-Ie-APH2SSSS-Ia ...
+2022-05-08 02:52:31,816 [INFO ]	NOTE: The list of neighborhood sequences (extracted from assembly graph)	 		has been stroed in test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_AAC6SS-Ie-APH2SSSS-Ia_1000_2022-05-08_02-52.txt
+2022-05-08 02:52:31,896 [INFO ]	Neighborhood Annotation ...
+2022-05-08 02:52:31,897 [DEBUG]	Started annotation for ErmA
+2022-05-08 02:52:31,899 [INFO ]	Reading test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_ErmA_1000_2022-05-08_02-52.txt for ErmA
+2022-05-08 02:52:34,201 [INFO ]	
+2022-05-08 02:52:35,511 [INFO ]	
+2022-05-08 02:52:35,622 [INFO ]	NOTE: The comparison of neighborhood sequences are available in test/output_dir/annotations/annotations_1000/annotation_ErmA_1000/annotation_detail_ErmA.csv, test/output_dir/annotations/annotations_1000/annotation_ErmA_1000/seq_comparison_genes_ErmA.txt
+2022-05-08 02:52:35,623 [DEBUG]	Started annotation for ANT(9)-Ia
+2022-05-08 02:52:35,625 [INFO ]	Reading test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_ANT9-Ia_1000_2022-05-08_02-52.txt for ANT(9)-Ia
+2022-05-08 02:52:37,951 [INFO ]	
+2022-05-08 02:52:39,260 [INFO ]	
+2022-05-08 02:52:39,348 [INFO ]	NOTE: The comparison of neighborhood sequences are available in test/output_dir/annotations/annotations_1000/annotation_ANT9-Ia_1000/annotation_detail_ANT9-Ia.csv, test/output_dir/annotations/annotations_1000/annotation_ANT9-Ia_1000/seq_comparison_genes_ANT9-Ia.txt
+2022-05-08 02:52:39,350 [DEBUG]	Started annotation for AAC(6;)-Ie-APH(2;;)-Ia
+2022-05-08 02:52:39,351 [INFO ]	Reading test/output_dir/sequences_info/sequences_info_1000/sequences/ng_sequences_AAC6SS-Ie-APH2SSSS-Ia_1000_2022-05-08_02-52.txt for AAC(6;)-Ie-APH(2;;)-Ia
+2022-05-08 02:52:41,404 [INFO ]	
+2022-05-08 02:52:42,691 [INFO ]	
+2022-05-08 02:52:42,769 [INFO ]	NOTE: The comparison of neighborhood sequences are available in test/output_dir/annotations/annotations_1000/annotation_AAC6SS-Ie-APH2SSSS-Ia_1000/annotation_detail_AAC6SS-Ie-APH2SSSS-Ia.csv, test/output_dir/annotations/annotations_1000/annotation_AAC6SS-Ie-APH2SSSS-Ia_1000/seq_comparison_genes_AAC6SS-Ie-APH2SSSS-Ia.txt
+2022-05-08 02:52:42,797 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=11.0.
+2022-05-08 02:52:42,798 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:42,798 [DEBUG]	findfont: score(<Font 'STIXSizeFiveSym' (STIXSizFiveSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'cmex10' (cmex10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'cmss10' (cmss10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,799 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'DejaVu Serif Display' (DejaVuSerifDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'DejaVu Sans Display' (DejaVuSansDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,800 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'cmr10' (cmr10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:42,801 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneral.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'cmsy10' (cmsy10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:42,802 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniIta.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'cmtt10' (cmtt10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,803 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'cmb10' (cmb10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'cmmi10' (cmmi10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,804 [DEBUG]	findfont: score(<Font 'Noto Mono' (NotoMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Lohit Bengali' (Lohit-Bengali.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Samyak Gujarati' (Samyak-Gujarati.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Z003' (Z003-MediumItalic.otf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,805 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'Lohit Gujarati' (Lohit-Gujarati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,806 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'Chandas' (chandas1-2.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'KacstArt' (KacstArt.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-LI.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,807 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-MI.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'KacstPoster' (KacstPoster.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,808 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Sarai' (Sarai.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,809 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'Lohit Tamil Classical' (Lohit-Tamil-Classical.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'Mitra Mono' (mitra.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,810 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'DejaVu Math TeX Gyre' (DejaVuMathTeXGyre.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'aakar' (aakar-medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,811 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'Standard Symbols PS' (StandardSymbolsPS.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'KacstBook' (KacstBook.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-BoldOblique.otf) oblique normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,812 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'Meera' (Meera-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'ori1Uni' (utkal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'C059' (C059-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:42,813 [DEBUG]	findfont: score(<Font 'Navilu' (Navilu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-L.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,814 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBoldOblique.ttf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:42,815 [DEBUG]	findfont: score(<Font 'Gubbi' (Gubbi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'P052' (P052-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,816 [DEBUG]	findfont: score(<Font 'Vemana2000' (vemana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'Chilanka' (Chilanka-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'Lohit Telugu' (Lohit-Telugu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-DemiOblique.otf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:42,817 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Rekha' (Rekha.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Lato' (Lato-MediumItalic.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BlackItalic.ttf) italic normal 900 normal>) = 11.525
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,818 [DEBUG]	findfont: score(<Font 'Kalimati' (kalimati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Nakula' (nakula.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Lato' (Lato-ThinItalic.ttf) italic normal 200 normal>) = 11.24
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'P052' (P052-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Phetsarath OT' (Phetsarath_OT.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,819 [DEBUG]	findfont: score(<Font 'Jamrul' (JamrulNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Regular.otf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'Karumbi' (Karumbi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'C059' (C059-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,820 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-M.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'Pagul' (Pagul.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'Loma' (Loma.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,821 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Light.otf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Sahadeva' (sahadeva.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Heavy.ttf) normal normal 800 normal>) = 10.43
+2022-05-08 02:52:42,822 [DEBUG]	findfont: score(<Font 'Gargi' (Gargi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'KacstOffice' (KacstOffice.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'LKLUG' (lklug.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'Ubuntu Condensed' (Ubuntu-C.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,823 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,824 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'mry_KacstQurn' (mry_KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'Saab' (Saab.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-LightItalic.otf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'Loma' (Loma-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,825 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HairlineItalic.ttf) italic normal 100 normal>) = 11.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Waree' (Waree-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-Th.ttf) normal normal 250 normal>) = 10.1925
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,826 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Khmer OS System' (KhmerOSsys.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Lohit Kannada' (Lohit-Kannada.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Likhan' (LikhanNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,827 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-LightOblique.ttf) oblique normal 300 normal>) = 11.145
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Khmer OS' (KhmerOS.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,828 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'Lato' (Lato-SemiboldItalic.ttf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'P052' (P052-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'Abyssinica SIL' (AbyssinicaSIL-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'RaghuMalayalamSans' (RaghuMalayalamSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,829 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrowBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Book.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'KacstDecorative' (KacstDecorative.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,830 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Semibold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'P052' (P052-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrow.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,831 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Bold.ttf) normal normal 700 condensed>) = 0.5349999999999999
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'Tibetan Machine Uni' (TibetanMachineUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'Waree' (Waree.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Oblique.ttf) oblique normal 400 condensed>) = 1.25
+2022-05-08 02:52:42,832 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Dyuthi' (Dyuthi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Lohit Malayalam' (Lohit-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,833 [DEBUG]	findfont: score(<Font 'Lohit Odia' (Lohit-Odia.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'AnjaliOldLipi' (AnjaliOldLipi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'KacstPen' (KacstPen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'Uroob' (Uroob-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Black.ttf) normal normal 900 normal>) = 10.525
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'Pothana2000' (Pothana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,834 [DEBUG]	findfont: score(<Font 'Lohit Assamese' (Lohit-Assamese.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'KacstLetter' (KacstLetter.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,835 [DEBUG]	findfont: score(<Font 'C059' (C059-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'KacstQurn' (KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'KacstTitleL' (KacstTitleL.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,836 [DEBUG]	findfont: score(<Font 'padmaa-Bold.1.1' (padmaa-Bold.1.1.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'C059' (C059-BdIta.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'Kalapi' (Kalapi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'KacstTitle' (KacstTitle.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-BoldOblique.ttf) oblique normal 700 condensed>) = 1.535
+2022-05-08 02:52:42,837 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Thin.ttf) normal normal 200 normal>) = 10.24
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'OpenSymbol' (opens___.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'Suruma' (Suruma.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'Samyak Devanagari' (Samyak-Devanagari.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,838 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Lohit Tamil' (Lohit-Tamil.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-BookOblique.otf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,839 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'Lohit Devanagari' (Lohit-Devanagari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,840 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HeavyItalic.ttf) italic normal 800 normal>) = 11.43
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'D050000L' (D050000L.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'KacstScreen' (KacstScreen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed.ttf) normal normal 400 condensed>) = 0.25
+2022-05-08 02:52:42,841 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-DemiItalic.otf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa-Medium-0.5.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'Samyak Tamil' (Samyak-Tamil.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'Samyak Malayalam' (Samyak-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSans.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Oblique.otf) oblique normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,842 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'KacstDigital' (KacstDigital.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,843 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Droid Sans Fallback' (DroidSansFallbackFull.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Bold.otf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,844 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-ExtraLight.ttf) normal normal 200 normal>) = 0.24
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'Lohit Gurmukhi' (Lohit-Gurmukhi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,845 [DEBUG]	findfont: score(<Font 'Lato' (Lato-LightItalic.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'Ani' (ani.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,846 [DEBUG]	findfont: score(<Font 'Samanata' (samanata.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'KacstNaskh' (KacstNaskh.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'Keraleeyam' (Keraleeyam-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'KacstFarsi' (KacstFarsi.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,847 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Regular.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,848 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Hairline.ttf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,848 [DEBUG]	findfont: score(<Font 'GLYPHICONS Halflings' (glyphicons-halflings-regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,848 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=11.0 to DejaVu Sans ('/home/somayeh/miniconda3/envs/rgi/lib/python3.6/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
+2022-05-08 02:52:42,868 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0.
+2022-05-08 02:52:42,868 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:42,868 [DEBUG]	findfont: score(<Font 'STIXSizeFiveSym' (STIXSizFiveSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,868 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'cmex10' (cmex10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'cmss10' (cmss10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,869 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'DejaVu Serif Display' (DejaVuSerifDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'DejaVu Sans Display' (DejaVuSansDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,870 [DEBUG]	findfont: score(<Font 'cmr10' (cmr10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneral.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'cmsy10' (cmsy10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,871 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniIta.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,872 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'cmtt10' (cmtt10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'cmb10' (cmb10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,873 [DEBUG]	findfont: score(<Font 'cmmi10' (cmmi10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Noto Mono' (NotoMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Lohit Bengali' (Lohit-Bengali.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Samyak Gujarati' (Samyak-Gujarati.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Z003' (Z003-MediumItalic.otf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,874 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Lohit Gujarati' (Lohit-Gujarati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,875 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'Chandas' (chandas1-2.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'KacstArt' (KacstArt.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-LI.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,876 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-MI.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'KacstPoster' (KacstPoster.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,877 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Sarai' (Sarai.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Lohit Tamil Classical' (Lohit-Tamil-Classical.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,878 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Mitra Mono' (mitra.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,879 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'DejaVu Math TeX Gyre' (DejaVuMathTeXGyre.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'aakar' (aakar-medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'Standard Symbols PS' (StandardSymbolsPS.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'KacstBook' (KacstBook.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-BoldOblique.otf) oblique normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,880 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'Meera' (Meera-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'ori1Uni' (utkal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'C059' (C059-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,881 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Navilu' (Navilu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-L.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,882 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBoldOblique.ttf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:42,883 [DEBUG]	findfont: score(<Font 'Gubbi' (Gubbi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'P052' (P052-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,884 [DEBUG]	findfont: score(<Font 'Vemana2000' (vemana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Chilanka' (Chilanka-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Lohit Telugu' (Lohit-Telugu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-DemiOblique.otf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,885 [DEBUG]	findfont: score(<Font 'Rekha' (Rekha.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Lato' (Lato-MediumItalic.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BlackItalic.ttf) italic normal 900 normal>) = 11.525
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Kalimati' (kalimati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,886 [DEBUG]	findfont: score(<Font 'Nakula' (nakula.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Lato' (Lato-ThinItalic.ttf) italic normal 200 normal>) = 11.24
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'P052' (P052-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Phetsarath OT' (Phetsarath_OT.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Jamrul' (JamrulNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,887 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Regular.otf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'Karumbi' (Karumbi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'C059' (C059-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,888 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-M.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'Pagul' (Pagul.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'Loma' (Loma.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Light.otf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,889 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Sahadeva' (sahadeva.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Heavy.ttf) normal normal 800 normal>) = 10.43
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Gargi' (Gargi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,890 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'KacstOffice' (KacstOffice.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'LKLUG' (lklug.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'Ubuntu Condensed' (Ubuntu-C.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,891 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'mry_KacstQurn' (mry_KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,892 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Saab' (Saab.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-LightItalic.otf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Loma' (Loma-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HairlineItalic.ttf) italic normal 100 normal>) = 11.335
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Waree' (Waree-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-Th.ttf) normal normal 250 normal>) = 10.1925
+2022-05-08 02:52:42,893 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'Khmer OS System' (KhmerOSsys.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'Lohit Kannada' (Lohit-Kannada.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,894 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Likhan' (LikhanNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-LightOblique.ttf) oblique normal 300 normal>) = 11.145
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Khmer OS' (KhmerOS.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,895 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Lato' (Lato-SemiboldItalic.ttf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'P052' (P052-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,896 [DEBUG]	findfont: score(<Font 'Abyssinica SIL' (AbyssinicaSIL-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'RaghuMalayalamSans' (RaghuMalayalamSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrowBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Book.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,897 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'KacstDecorative' (KacstDecorative.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Semibold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'P052' (P052-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrow.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,898 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Bold.ttf) normal normal 700 condensed>) = 0.5349999999999999
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'Tibetan Machine Uni' (TibetanMachineUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'Waree' (Waree.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,899 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Oblique.ttf) oblique normal 400 condensed>) = 1.25
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Dyuthi' (Dyuthi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'Lohit Malayalam' (Lohit-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,900 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'Lohit Odia' (Lohit-Odia.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'AnjaliOldLipi' (AnjaliOldLipi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'KacstPen' (KacstPen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'Uroob' (Uroob-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Black.ttf) normal normal 900 normal>) = 10.525
+2022-05-08 02:52:42,901 [DEBUG]	findfont: score(<Font 'Pothana2000' (Pothana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'Lohit Assamese' (Lohit-Assamese.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'KacstLetter' (KacstLetter.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,902 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'C059' (C059-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'KacstQurn' (KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'KacstTitleL' (KacstTitleL.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,903 [DEBUG]	findfont: score(<Font 'padmaa-Bold.1.1' (padmaa-Bold.1.1.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'C059' (C059-BdIta.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'Kalapi' (Kalapi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'KacstTitle' (KacstTitle.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-BoldOblique.ttf) oblique normal 700 condensed>) = 1.535
+2022-05-08 02:52:42,904 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Thin.ttf) normal normal 200 normal>) = 10.24
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'OpenSymbol' (opens___.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Suruma' (Suruma.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Samyak Devanagari' (Samyak-Devanagari.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,905 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'Lohit Tamil' (Lohit-Tamil.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-BookOblique.otf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,906 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'Lohit Devanagari' (Lohit-Devanagari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,907 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HeavyItalic.ttf) italic normal 800 normal>) = 11.43
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'D050000L' (D050000L.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'KacstScreen' (KacstScreen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed.ttf) normal normal 400 condensed>) = 0.25
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-DemiItalic.otf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,908 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa-Medium-0.5.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'Samyak Tamil' (Samyak-Tamil.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'Samyak Malayalam' (Samyak-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSans.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Oblique.otf) oblique normal 400 condensed>) = 11.25
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,909 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'KacstDigital' (KacstDigital.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Droid Sans Fallback' (DroidSansFallbackFull.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,910 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Bold.otf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-ExtraLight.ttf) normal normal 200 normal>) = 0.24
+2022-05-08 02:52:42,911 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'Lohit Gurmukhi' (Lohit-Gurmukhi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'Lato' (Lato-LightItalic.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'Ani' (ani.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,912 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'Samanata' (samanata.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'KacstNaskh' (KacstNaskh.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'Keraleeyam' (Keraleeyam-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:42,913 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:42,914 [DEBUG]	findfont: score(<Font 'KacstFarsi' (KacstFarsi.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:42,914 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Regular.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:42,914 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Hairline.ttf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:42,914 [DEBUG]	findfont: score(<Font 'GLYPHICONS Halflings' (glyphicons-halflings-regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:42,914 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('/home/somayeh/miniconda3/envs/rgi/lib/python3.6/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
+2022-05-08 02:52:43,013 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0.
+2022-05-08 02:52:43,013 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'STIXSizeFiveSym' (STIXSizFiveSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'cmex10' (cmex10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,014 [DEBUG]	findfont: score(<Font 'cmss10' (cmss10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'DejaVu Serif Display' (DejaVuSerifDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'STIXSizeFourSym' (STIXSizFourSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'DejaVu Sans Display' (DejaVuSansDisplay.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,015 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'cmr10' (cmr10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'STIXSizeOneSym' (STIXSizOneSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneral.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'cmsy10' (cmsy10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,016 [DEBUG]	findfont: score(<Font 'STIXSizeThreeSym' (STIXSizThreeSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'STIXNonUnicode' (STIXNonUniIta.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymReg.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'STIXGeneral' (STIXGeneralBolIta.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,017 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'cmtt10' (cmtt10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'cmb10' (cmb10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'STIXSizeTwoSym' (STIXSizTwoSymBol.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'cmmi10' (cmmi10.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,018 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Noto Mono' (NotoMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Lohit Bengali' (Lohit-Bengali.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Samyak Gujarati' (Samyak-Gujarati.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Z003' (Z003-MediumItalic.otf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,019 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'Lohit Gujarati' (Lohit-Gujarati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'Chandas' (chandas1-2.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,020 [DEBUG]	findfont: score(<Font 'KacstArt' (KacstArt.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-LI.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Italic.ttf) italic normal 400 condensed>) = 11.25
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,021 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-MI.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'KacstPoster' (KacstPoster.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'Sarai' (Sarai.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,022 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-BoldOblique.ttf) oblique normal 700 normal>) = 1.335
+2022-05-08 02:52:43,023 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,023 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,023 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,023 [DEBUG]	findfont: score(<Font 'Lohit Tamil Classical' (Lohit-Tamil-Classical.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,023 [DEBUG]	findfont: score(<Font 'Waree' (Waree-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,024 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifItalic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,024 [DEBUG]	findfont: score(<Font 'Mitra Mono' (mitra.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,024 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,024 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,025 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,025 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,025 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,025 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,025 [DEBUG]	findfont: score(<Font 'DejaVu Math TeX Gyre' (DejaVuMathTeXGyre.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,026 [DEBUG]	findfont: score(<Font 'aakar' (aakar-medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,026 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,026 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,026 [DEBUG]	findfont: score(<Font 'Standard Symbols PS' (StandardSymbolsPS.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,027 [DEBUG]	findfont: score(<Font 'KacstBook' (KacstBook.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,027 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-BoldOblique.otf) oblique normal 700 condensed>) = 11.535
+2022-05-08 02:52:43,027 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,027 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,028 [DEBUG]	findfont: score(<Font 'Meera' (Meera-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,028 [DEBUG]	findfont: score(<Font 'ori1Uni' (utkal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,028 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:43,028 [DEBUG]	findfont: score(<Font 'C059' (C059-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,028 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,029 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Bold.ttf) normal normal 700 normal>) = 0.33499999999999996
+2022-05-08 02:52:43,029 [DEBUG]	findfont: score(<Font 'Navilu' (Navilu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,029 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,029 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,030 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-L.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,030 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,030 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,030 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,031 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:43,031 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,031 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,031 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,032 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-B.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,032 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBoldOblique.ttf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:43,032 [DEBUG]	findfont: score(<Font 'Gubbi' (Gubbi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,032 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,033 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,033 [DEBUG]	findfont: score(<Font 'P052' (P052-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,033 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Regular.ttc) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,033 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:43,034 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,034 [DEBUG]	findfont: score(<Font 'Vemana2000' (vemana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,034 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,035 [DEBUG]	findfont: score(<Font 'Chilanka' (Chilanka-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,035 [DEBUG]	findfont: score(<Font 'Lohit Telugu' (Lohit-Telugu.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,035 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,036 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-DemiOblique.otf) oblique normal 600 normal>) = 11.24
+2022-05-08 02:52:43,036 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,036 [DEBUG]	findfont: score(<Font 'Rekha' (Rekha.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,036 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,037 [DEBUG]	findfont: score(<Font 'Lato' (Lato-MediumItalic.ttf) italic normal 500 normal>) = 11.145
+2022-05-08 02:52:43,037 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,037 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BlackItalic.ttf) italic normal 900 normal>) = 11.525
+2022-05-08 02:52:43,037 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,038 [DEBUG]	findfont: score(<Font 'Kalimati' (kalimati.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,038 [DEBUG]	findfont: score(<Font 'Nakula' (nakula.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,038 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,039 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,039 [DEBUG]	findfont: score(<Font 'Lato' (Lato-ThinItalic.ttf) italic normal 200 normal>) = 11.24
+2022-05-08 02:52:43,039 [DEBUG]	findfont: score(<Font 'P052' (P052-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,039 [DEBUG]	findfont: score(<Font 'Phetsarath OT' (Phetsarath_OT.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,040 [DEBUG]	findfont: score(<Font 'Jamrul' (JamrulNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,040 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Regular.otf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:43,040 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,041 [DEBUG]	findfont: score(<Font 'Karumbi' (Karumbi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,041 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:43,041 [DEBUG]	findfont: score(<Font 'C059' (C059-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,042 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,042 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,042 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-M.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,042 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,043 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,043 [DEBUG]	findfont: score(<Font 'Pagul' (Pagul.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,043 [DEBUG]	findfont: score(<Font 'Loma' (Loma.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,043 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Thin.otf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:43,043 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Light.otf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Sahadeva' (sahadeva.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Heavy.ttf) normal normal 800 normal>) = 10.43
+2022-05-08 02:52:43,044 [DEBUG]	findfont: score(<Font 'Gargi' (Gargi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'KacstOffice' (KacstOffice.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'LKLUG' (lklug.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'Ubuntu Condensed' (Ubuntu-C.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,045 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoBoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Tlwg Typist' (TlwgTypist-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,046 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'mry_KacstQurn' (mry_KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerifBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'Saab' (Saab.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-LightItalic.otf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'Loma' (Loma-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,047 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HairlineItalic.ttf) italic normal 100 normal>) = 11.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Waree' (Waree-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-Th.ttf) normal normal 250 normal>) = 10.1925
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Loma' (Loma-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'Nimbus Sans' (NimbusSans-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,048 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'Khmer OS System' (KhmerOSsys.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'Lohit Kannada' (Lohit-Kannada.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-Oblique.ttf) oblique normal 400 normal>) = 1.05
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'Likhan' (LikhanNormal.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,049 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush-LightOblique.ttf) oblique normal 300 normal>) = 11.145
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Khmer OS' (KhmerOS.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Umpush' (Umpush.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Medium.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,050 [DEBUG]	findfont: score(<Font 'Manjari' (Manjari-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-R.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'Lato' (Lato-SemiboldItalic.ttf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'P052' (P052-Roman.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'Noto Serif CJK JP' (NotoSerifCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'Abyssinica SIL' (AbyssinicaSIL-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,051 [DEBUG]	findfont: score(<Font 'RaghuMalayalamSans' (RaghuMalayalamSans-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,052 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrowBold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,052 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerifCondensed-BoldItalic.ttf) italic normal 700 condensed>) = 11.535
+2022-05-08 02:52:43,052 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,052 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,052 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-Book.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,053 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,053 [DEBUG]	findfont: score(<Font 'KacstDecorative' (KacstDecorative.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,053 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,053 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Semibold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,054 [DEBUG]	findfont: score(<Font 'P052' (P052-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,054 [DEBUG]	findfont: score(<Font 'Mukti Narrow' (MuktiNarrow.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,054 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,055 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,055 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,055 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Bold.ttf) normal normal 700 condensed>) = 0.5349999999999999
+2022-05-08 02:52:43,055 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,056 [DEBUG]	findfont: score(<Font 'Tibetan Machine Uni' (TibetanMachineUni.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,056 [DEBUG]	findfont: score(<Font 'Waree' (Waree.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,056 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,056 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-Oblique.ttf) oblique normal 400 condensed>) = 1.25
+2022-05-08 02:52:43,057 [DEBUG]	findfont: score(<Font 'Tlwg Typo' (TlwgTypo.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,057 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,057 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,057 [DEBUG]	findfont: score(<Font 'Ubuntu Mono' (UbuntuMono-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,058 [DEBUG]	findfont: score(<Font 'Dyuthi' (Dyuthi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,058 [DEBUG]	findfont: score(<Font 'Lohit Malayalam' (Lohit-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,058 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,058 [DEBUG]	findfont: score(<Font 'Lohit Odia' (Lohit-Odia.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,059 [DEBUG]	findfont: score(<Font 'AnjaliOldLipi' (AnjaliOldLipi-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,059 [DEBUG]	findfont: score(<Font 'KacstPen' (KacstPen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,059 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-BI.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,059 [DEBUG]	findfont: score(<Font 'Uroob' (Uroob-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,060 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Black.ttf) normal normal 900 normal>) = 10.525
+2022-05-08 02:52:43,060 [DEBUG]	findfont: score(<Font 'Pothana2000' (Pothana2000.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,060 [DEBUG]	findfont: score(<Font 'Lohit Assamese' (Lohit-Assamese.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,060 [DEBUG]	findfont: score(<Font 'Lato' (Lato-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,061 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSansBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,061 [DEBUG]	findfont: score(<Font 'Gayathri' (Gayathri-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,061 [DEBUG]	findfont: score(<Font 'KacstLetter' (KacstLetter.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,062 [DEBUG]	findfont: score(<Font 'Laksaman' (Laksaman-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,062 [DEBUG]	findfont: score(<Font 'Padauk' (Padauk-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,062 [DEBUG]	findfont: score(<Font 'C059' (C059-Bold.otf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,062 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Regular.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,063 [DEBUG]	findfont: score(<Font 'KacstQurn' (KacstQurn.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,063 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,063 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,063 [DEBUG]	findfont: score(<Font 'KacstTitleL' (KacstTitleL.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,064 [DEBUG]	findfont: score(<Font 'padmaa-Bold.1.1' (padmaa-Bold.1.1.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,064 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,064 [DEBUG]	findfont: score(<Font 'C059' (C059-BdIta.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,064 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,065 [DEBUG]	findfont: score(<Font 'Kalapi' (Kalapi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,065 [DEBUG]	findfont: score(<Font 'KacstTitle' (KacstTitle.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,065 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed-BoldOblique.ttf) oblique normal 700 condensed>) = 1.535
+2022-05-08 02:52:43,065 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Thin.ttf) normal normal 200 normal>) = 10.24
+2022-05-08 02:52:43,066 [DEBUG]	findfont: score(<Font 'OpenSymbol' (opens___.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,066 [DEBUG]	findfont: score(<Font 'Rachana' (Rachana-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,066 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Bold.ttf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:43,066 [DEBUG]	findfont: score(<Font 'FreeSerif' (FreeSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,067 [DEBUG]	findfont: score(<Font 'Suruma' (Suruma.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,067 [DEBUG]	findfont: score(<Font 'Samyak Devanagari' (Samyak-Devanagari.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,067 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-BoldItalic.otf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,067 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,068 [DEBUG]	findfont: score(<Font 'Lohit Tamil' (Lohit-Tamil.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,068 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,068 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,068 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,069 [DEBUG]	findfont: score(<Font 'URW Gothic' (URWGothic-BookOblique.otf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,069 [DEBUG]	findfont: score(<Font 'Tlwg Mono' (TlwgMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,069 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,069 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,070 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans.ttf) normal normal 400 normal>) = 0.05
+2022-05-08 02:52:43,070 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,070 [DEBUG]	findfont: score(<Font 'Lohit Devanagari' (Lohit-Devanagari.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,070 [DEBUG]	findfont: score(<Font 'Liberation Serif' (LiberationSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,071 [DEBUG]	findfont: score(<Font 'Lato' (Lato-HeavyItalic.ttf) italic normal 800 normal>) = 11.43
+2022-05-08 02:52:43,071 [DEBUG]	findfont: score(<Font 'D050000L' (D050000L.otf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,071 [DEBUG]	findfont: score(<Font 'Kinnari' (Kinnari-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,071 [DEBUG]	findfont: score(<Font 'Garuda' (Garuda-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'KacstScreen' (KacstScreen.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSansCondensed.ttf) normal normal 400 condensed>) = 0.25
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-DemiItalic.otf) italic normal 600 normal>) = 11.24
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'Liberation Mono' (LiberationMono-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa-Medium-0.5.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,072 [DEBUG]	findfont: score(<Font 'Samyak Tamil' (Samyak-Tamil.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'Samyak Malayalam' (Samyak-Malayalam.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'FreeSans' (FreeSans.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Oblique.otf) oblique normal 400 condensed>) = 11.25
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'KacstOne' (KacstOne.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'Padauk Book' (PadaukBook-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,073 [DEBUG]	findfont: score(<Font 'Purisa' (Purisa.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Italic.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'KacstDigital' (KacstDigital.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-BoldItalic.ttf) italic normal 700 normal>) = 11.335
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'Liberation Sans' (LiberationSans-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'Yrsa' (Yrsa-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,074 [DEBUG]	findfont: score(<Font 'Droid Sans Fallback' (DroidSansFallbackFull.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'Nimbus Sans Narrow' (NimbusSansNarrow-Bold.otf) normal normal 700 condensed>) = 10.535
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'Sawasdee' (Sawasdee-Oblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-Light.ttf) normal normal 300 normal>) = 10.145
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'Ubuntu' (Ubuntu-RI.ttf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'Noto Sans CJK JP' (NotoSansCJK-Bold.ttc) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,075 [DEBUG]	findfont: score(<Font 'FreeMono' (FreeMonoOblique.ttf) oblique normal 400 normal>) = 11.05
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'DejaVu Sans' (DejaVuSans-ExtraLight.ttf) normal normal 200 normal>) = 0.24
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'padmaa' (padmaa.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'DejaVu Serif' (DejaVuSerif-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'Lohit Gurmukhi' (Lohit-Gurmukhi.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'Lato' (Lato-LightItalic.ttf) italic normal 300 normal>) = 11.145
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'Ani' (ani.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,076 [DEBUG]	findfont: score(<Font 'Tlwg Typewriter' (TlwgTypewriter-BoldOblique.ttf) oblique normal 700 normal>) = 11.335
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'URW Bookman' (URWBookman-Demi.otf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'Rasa' (Rasa-SemiBold.ttf) normal normal 600 normal>) = 10.24
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'DejaVu Sans Mono' (DejaVuSansMono.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'Nimbus Mono PS' (NimbusMonoPS-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'Samanata' (samanata.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,077 [DEBUG]	findfont: score(<Font 'KacstNaskh' (KacstNaskh.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'Keraleeyam' (Keraleeyam-Regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'Norasi' (Norasi-Bold.ttf) normal normal 700 normal>) = 10.335
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'Nimbus Roman' (NimbusRoman-Italic.otf) italic normal 400 normal>) = 11.05
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'KacstFarsi' (KacstFarsi.ttf) normal normal 500 normal>) = 10.145
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'Liberation Sans Narrow' (LiberationSansNarrow-Regular.ttf) normal normal 400 condensed>) = 10.25
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'Lato' (Lato-Hairline.ttf) normal normal 100 normal>) = 10.335
+2022-05-08 02:52:43,078 [DEBUG]	findfont: score(<Font 'GLYPHICONS Halflings' (glyphicons-halflings-regular.ttf) normal normal 400 normal>) = 10.05
+2022-05-08 02:52:43,079 [DEBUG]	findfont: Matching sans\-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=12.0 to DejaVu Sans ('/home/somayeh/miniconda3/envs/rgi/lib/python3.6/site-packages/matplotlib/mpl-data/fonts/ttf/DejaVuSans.ttf') with score of 0.050000.
+2022-05-08 02:52:43,444 [INFO ]	Run complete

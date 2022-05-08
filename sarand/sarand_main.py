@@ -139,9 +139,8 @@ def main():
     # check dependencies work
     cwd = os.getcwd()
     PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    #dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
-    dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",
-       PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
+    dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
+    #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
     if not args.no_rgi:
         dependencies.append("rgi main --version")
     check_dependencies(dependencies)

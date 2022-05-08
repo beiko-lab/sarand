@@ -1147,8 +1147,8 @@ def full_pipeline_main(params):
         params.input_gfa,
         params.output_dir,
         params.target_genes,
-	"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",
-	#"Bandage",
+	#"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",
+	"Bandage",
         params.min_target_identity,
         params.num_cores,
     )
@@ -1176,8 +1176,8 @@ def full_pipeline_main(params):
 
     seq_files, path_info_files = sequence_neighborhood_main(
         params,
-	"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",
-	#"Bandage",
+	#"/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage",
+	"Bandage",
 	params.input_gfa,
 	amr_seq_align_info
     )

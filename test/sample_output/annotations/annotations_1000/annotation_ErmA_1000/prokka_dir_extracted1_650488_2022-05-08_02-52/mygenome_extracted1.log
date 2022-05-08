@@ -1,0 +1,122 @@
+[05:52:32] This is prokka 1.14.5
+[05:52:32] Written by Torsten Seemann <torsten.seemann@gmail.com>
+[05:52:32] Homepage is https://github.com/tseemann/prokka
+[05:52:32] Local time is Sun May  8 05:52:32 2022
+[05:52:32] You are not telling me who you are!
+[05:52:32] Operating system is linux
+[05:52:32] You have BioPerl 1.006924
+[05:52:32] System has 4 cores.
+[05:52:32] Option --cpu asked for 8 cores, but system only has 4
+[05:52:32] Will use maximum of 4 cores.
+[05:52:32] Annotating as >>> Bacteria <<<
+[05:52:32] Generating locus_tag from 'temp_2022-05-08_02-52-31extracted1.fasta' contents.
+[05:52:32] Setting --locustag ECADEPCO from MD5 ecade9c8550036e60d77cea7f9fe133e
+[05:52:32] Creating new output folder: prokka_dir_extracted1_650488_2022-05-08_02-52
+[05:52:32] Running: mkdir -p prokka_dir_extracted1_650488_2022\-05\-08_02\-52
+[05:52:32] Using filename prefix: mygenome_extracted1.XXX
+[05:52:32] Setting HMMER_NCPU=1
+[05:52:32] Writing log to: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.log
+[05:52:32] Command: /prokka-1.14.5/bin/prokka --metagenome --outdir prokka_dir_extracted1_650488_2022-05-08_02-52 --prefix mygenome_extracted1 --fast --notrna temp_2022-05-08_02-52-31extracted1.fasta
+[05:52:32] Appending to PATH: /prokka-1.14.5/bin/../binaries/linux
+[05:52:32] Appending to PATH: /prokka-1.14.5/bin/../binaries/linux/../common
+[05:52:32] Appending to PATH: /prokka-1.14.5/bin
+[05:52:32] Looking for 'aragorn' - found /prokka-1.14.5/bin/../binaries/linux/aragorn
+[05:52:32] Determined aragorn version is 001002 from 'ARAGORN v1.2.38 Dean Laslett'
+[05:52:32] Looking for 'barrnap' - found /barrnap-0.9/bin/barrnap
+[05:52:32] Determined barrnap version is 000009 from 'barrnap 0.9'
+[05:52:32] Looking for 'blastp' - found /prokka-1.14.5/bin/../binaries/linux/blastp
+[05:52:32] Determined blastp version is 002009 from 'blastp: 2.9.0+'
+[05:52:32] Looking for 'cmpress' - found /prokka-1.14.5/bin/../binaries/linux/cmpress
+[05:52:32] Determined cmpress version is 001001 from '# INFERNAL 1.1.2 (July 2016)'
+[05:52:32] Looking for 'cmscan' - found /prokka-1.14.5/bin/../binaries/linux/cmscan
+[05:52:32] Determined cmscan version is 001001 from '# INFERNAL 1.1.2 (July 2016)'
+[05:52:32] Looking for 'egrep' - found /bin/egrep
+[05:52:32] Looking for 'find' - found /usr/bin/find
+[05:52:32] Looking for 'grep' - found /bin/grep
+[05:52:32] Looking for 'hmmpress' - found /usr/bin/hmmpress
+[05:52:32] Determined hmmpress version is 003001 from '# HMMER 3.1b2 (February 2015); http://hmmer.org/'
+[05:52:32] Looking for 'hmmscan' - found /usr/bin/hmmscan
+[05:52:32] Determined hmmscan version is 003001 from '# HMMER 3.1b2 (February 2015); http://hmmer.org/'
+[05:52:32] Looking for 'java' - found /usr/bin/java
+[05:52:32] Looking for 'makeblastdb' - found /prokka-1.14.5/bin/../binaries/linux/makeblastdb
+[05:52:32] Determined makeblastdb version is 002009 from 'makeblastdb: 2.9.0+'
+[05:52:32] Looking for 'minced' - found /prokka-1.14.5/binaries/common/minced
+[05:52:32] Determined minced version is 002000 from 'minced 0.2.0'
+[05:52:32] Looking for 'parallel' - found /prokka-1.14.5/binaries/common/parallel
+[05:52:32] Determined parallel version is 20150122 from 'GNU parallel 20150122'
+[05:52:32] Looking for 'prodigal' - found /prokka-1.14.5/bin/../binaries/linux/prodigal
+[05:52:32] Determined prodigal version is 002006 from 'Prodigal V2.6.3: February, 2016'
+[05:52:32] Looking for 'prokka-genbank_to_fasta_db' - found /prokka-1.14.5/bin/prokka-genbank_to_fasta_db
+[05:52:32] Looking for 'sed' - found /bin/sed
+[05:52:32] Looking for 'tbl2asn' - found /usr/bin/tbl2asn
+[05:52:32] Determined tbl2asn version is 025008 from 'tbl2asn 25.8   arguments:'
+[05:52:32] Using genetic code table 11.
+[05:52:32] Loading and checking input file: temp_2022-05-08_02-52-31extracted1.fasta
+[05:52:32] Wrote 1 contigs totalling 2732 bp.
+[05:52:32] Skipping tRNA search at user request.
+[05:52:32] Predicting Ribosomal RNAs
+[05:52:32] Running Barrnap with 4 threads
+[05:52:32] Found 0 rRNAs
+[05:52:32] Skipping ncRNA search, enable with --rfam if desired.
+[05:52:32] Total of 0 tRNA + rRNA features
+[05:52:32] Searching for CRISPR repeats
+[05:52:33] Found 0 CRISPRs
+[05:52:33] Predicting coding sequences
+[05:52:33] Contigs total 2732 bp, so using meta mode
+[05:52:33] Running: prodigal -i prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.fna -c -m -g 11 -p meta -f sco -q
+[05:52:33] Found 2 CDS
+[05:52:33] Connecting features back to sequences
+[05:52:33] Not using genus-specific database. Try --usegenus to enable it.
+[05:52:33] Annotating CDS, please be patient.
+[05:52:33] Will use 4 CPUs for similarity searching.
+[05:52:33] There are still 2 unannotated CDS left (started with 2)
+[05:52:33] Will use blast to search against /prokka-1.14.5/db/kingdom/Bacteria/IS with 4 CPUs
+[05:52:33] Running: cat prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.IS\.tmp\.1\.faa | parallel --gnu --plain -j 4 --block 63 --recstart '>' --pipe blastp -query - -db /prokka-1.14.5/db/kingdom/Bacteria/IS -evalue 1e-30 -qcov_hsp_perc 90 -num_threads 1 -num_descriptions 1 -num_alignments 1 -seg no > prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.IS\.tmp\.1\.blast 2> /dev/null
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.IS.tmp.1.faa
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.IS.tmp.1.blast
+[05:52:33] There are still 2 unannotated CDS left (started with 2)
+[05:52:33] Will use blast to search against /prokka-1.14.5/db/kingdom/Bacteria/AMR with 4 CPUs
+[05:52:33] Running: cat prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.AMR\.tmp\.1\.faa | parallel --gnu --plain -j 4 --block 63 --recstart '>' --pipe blastp -query - -db /prokka-1.14.5/db/kingdom/Bacteria/AMR -evalue 9.99999999999999e-301 -qcov_hsp_perc 90 -num_threads 1 -num_descriptions 1 -num_alignments 1 -seg no > prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.AMR\.tmp\.1\.blast 2> /dev/null
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.AMR.tmp.1.faa
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.AMR.tmp.1.blast
+[05:52:33] There are still 2 unannotated CDS left (started with 2)
+[05:52:33] Will use blast to search against /prokka-1.14.5/db/kingdom/Bacteria/sprot with 4 CPUs
+[05:52:33] Running: cat prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.sprot\.tmp\.1\.faa | parallel --gnu --plain -j 4 --block 63 --recstart '>' --pipe blastp -query - -db /prokka-1.14.5/db/kingdom/Bacteria/sprot -evalue 1e-09 -qcov_hsp_perc 80 -num_threads 1 -num_descriptions 1 -num_alignments 1 -seg no > prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.sprot\.tmp\.1\.blast 2> /dev/null
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.sprot.tmp.1.faa
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.sprot.tmp.1.blast
+[05:52:33] In --fast mode so skipping non-BLAST search against /prokka-1.14.5/db/hmm/HAMAP.hmm
+[05:52:33] Found 2 unique /gene codes.
+[05:52:33] Fixed 0 colliding /gene names.
+[05:52:33] Adding /locus_tag identifiers
+[05:52:33] Assigned 2 locus_tags to CDS and RNA features.
+[05:52:33] Writing outputs to prokka_dir_extracted1_650488_2022-05-08_02-52/
+[05:52:33] Generating annotation statistics file
+[05:52:33] Generating Genbank and Sequin files
+[05:52:33] Running: tbl2asn -V b -a r10k -l paired-ends -M n -N 1 -y 'Annotated using prokka 1.14.5 from https://github.com/tseemann/prokka' -Z prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.err -i prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.fsa 2> /dev/null
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/errorsummary.val
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.dr
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.fixedproducts
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.ecn
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.val
+[05:52:33] Repairing broken .GBK output that tbl2asn produces...
+[05:52:33] Running: sed 's/COORDINATES: profile/COORDINATES:profile/' < prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.gbf > prokka_dir_extracted1_650488_2022\-05\-08_02\-52\/mygenome_extracted1\.gbk
+[05:52:33] Deleting unwanted file: prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.gbf
+[05:52:33] Output files:
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.err
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.faa
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.ffn
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.fna
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.fsa
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.gbk
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.gff
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.log
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.sqn
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.tbl
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.tsv
+[05:52:33] prokka_dir_extracted1_650488_2022-05-08_02-52/mygenome_extracted1.txt
+[05:52:33] Annotation finished successfully.
+[05:52:33] Walltime used: 0.02 minutes
+[05:52:33] If you use this result please cite the Prokka paper:
+[05:52:33] Seemann T (2014) Prokka: rapid prokaryotic genome annotation. Bioinformatics. 30(14):2068-9.
+[05:52:33] Type 'prokka --citation' for more details.
+[05:52:33] Share and enjoy!

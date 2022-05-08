@@ -331,7 +331,7 @@ def annotate_sequence(
     cwd = os.getcwd()
     PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
-    arg_list = pre_list + arg_list    
+    #arg_list = pre_list + arg_list    
     prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
     logging.info(prokka_command.stdout.decode("utf-8"))
     # move prokka directory to the right address
@@ -811,16 +811,20 @@ def check_dependencies(programs):
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
             )
-            logging.debug(f"Tool {program_name} is installed: {output.stdout.strip()}")
+            #logging.debug(f"Tool {program_name} is installed: {output.stdout.strip()}")
+            print(f"Tool {program_name} is installed: {output.stdout.strip()}")
         except:
-            logging.error(f"Tool {program_name} is not installed")
+            #logging.error(f"Tool {program_name} is not installed")
+            print(f"Tool {program_name} is not installed")
             missing = True
 
     if missing:
-        logging.error("One or more dependencies are missing please install")
+        #logging.error("One or more dependencies are missing please install")
+        print("One or more dependencies are missing, please install")
         sys.exit(1)
     else:
-        logging.debug("All dependencies found")
+        #logging.debug("All dependencies found")
+        print("All dependencies found")
 
 
 def validate_range(value_type, minimum, maximum):
