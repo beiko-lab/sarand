@@ -17,8 +17,6 @@ jobs:
           mamba-version: "*"
           channels: conda-forge,bioconda,defaults
           channel-priority: true
-          activate-environment: anaconda-client-env
-          environment-file: etc/example-environment.yml
       - name: "Install bioconda dependencies"
         shell: bash -l {0}
         run: mamba env create -f conda_env.yaml
