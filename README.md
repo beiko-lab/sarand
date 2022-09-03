@@ -29,11 +29,10 @@ These can be installed most easily using bioconda.
 
 ### Testing
 
-You can test your install has worked by...
+You can test your install has worked by running the test script via `bash test/test.sh` 
+This will execute sarand on a test dataset (using the following command) and check all the expected outputs are created correctly.
 
-This will execute sarand on a test dataset and check all the expected outputs are created correctly.
-
-
+    `sarand -i test/spade_output/assembly_graph_with_scaffolds.gfa -o test/test_output -a metaspades -k 55`
 
 ## Usage
 
