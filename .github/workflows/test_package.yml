@@ -19,8 +19,8 @@ jobs:
           channel-priority: true
       - name: "Install bioconda dependencies"
         shell: bash -l {0}
-        run: mamba env create -f conda_env.yaml
-             mamba activate sarand
+        run: conda env create -f conda_env.yaml
+             conda activate sarand
       - name: "Install sarand"
         shell: bash -l {0}
         run: pip install .
