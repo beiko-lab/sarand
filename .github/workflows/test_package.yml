@@ -17,12 +17,12 @@ jobs:
           conda config --show
           printenv | sort
       - name: "Install bioconda dependencies"
-		shell: bash -l {0}
+        shell: bash -l {0}
         run: mamba env create -f conda_env.yaml
-			 mamba activate sarand
-	  - name: "Install sarand"
-		shell: bash -l {0}
+             mamba activate sarand
+      - name: "Install sarand"
+        shell: bash -l {0}
         run: pip install .
-	  - name: "Run test"
-		shell: bash -l {0}
+      - name: "Run test"
+        shell: bash -l {0}
         run: bash test/test.sh
