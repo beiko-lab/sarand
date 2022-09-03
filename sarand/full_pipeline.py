@@ -17,40 +17,29 @@ NOTE: if use_RGI = TRUE, make sure either RGI has been installed system-wide or
 
 import sys
 import os
-import errno
 import copy
 import datetime
 import csv
 import collections
 import subprocess
 import shutil
-import matplotlib.pyplot as plt
 import logging
 from functools import partial
 from multiprocessing.pool import Pool
-import seaborn as sns
-import pandas as pd
 
 from sarand.extract_neighborhood import neighborhood_sequence_extraction
 from sarand.annotation_visualization import visualize_annotation
 from sarand.utils import (
     retrieve_AMR,
-    extract_files,
     create_fasta_file,
     annotate_sequence,
     split_up_down_info,
     seqs_annotation_are_identical,
     similar_seq_annotation_already_exist,
     amr_name_from_comment,
-    amr_name_from_title,
-    retreive_original_amr_name,
     extract_name_from_file_name,
     restricted_amr_name_from_modified_name,
-    extract_info_from_overlap_file,
-    read_path_info_from_align_file,
     read_path_info_from_align_file_with_multiple_amrs,
-    extract_path_info_for_amrs,
-    compare_two_sequences,
     delete_lines_started_with,
 )
 
@@ -1160,6 +1149,7 @@ def full_pipeline_main(params):
         pdb.set_trace()
         sys.exit(1)
 
+    # not used anywhere? @Somayeh
     send_amr_align_info = False
     if unique_amr_path_list and len(unique_amr_path_list) == len(unique_amr_files):
         send_amr_align_info = True
@@ -1182,11 +1172,10 @@ def full_pipeline_main(params):
 	amr_seq_align_info
     )
 
-    coverage_annotation_list = []
     all_seq_info_lists, annotation_file_list = seq_annotation_main(
         params, seq_files, path_info_files, unique_amr_files
     )
-
+    # never used? @Somayeh
     coverage_annotation_list = seq_annotation_trim_main(
         params, unique_amr_files, all_seq_info_lists, annotation_file_list, True
     )

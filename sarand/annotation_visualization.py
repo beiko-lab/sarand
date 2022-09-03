@@ -14,9 +14,9 @@ from dna_features_viewer import GraphicFeature, GraphicRecord
 import matplotlib.pyplot as plt
 import numpy as np
 import math
+import sys
 from PIL import Image
 import argparse
-import csv
 from csv import DictReader
 import logging
 import shutil
@@ -41,7 +41,7 @@ def show_images(image_list, main_title, output, cols=1, title_list=None):
         title_list = ["Image (%d)" % i for i in range(1, n_images + 1)]
     fig = plt.figure()
     for n, (image, title) in enumerate(zip(image_list, title_list)):
-        a = fig.add_subplot(math.ceil(n_images / float(cols)), cols, n + 1)
+        _ = fig.add_subplot(math.ceil(n_images / float(cols)), cols, n + 1)
         plt.imshow(image)
         ax = plt.gca()
         ax.axes.xaxis.set_ticks([])

@@ -8,7 +8,6 @@ import shutil
 import pkg_resources
 from pathlib import Path
 
-from sarand import full_pipeline, utils
 from sarand.__init__ import __version__
 from sarand.full_pipeline import full_pipeline_main
 from sarand.utils import (
@@ -105,12 +104,12 @@ def main():
         "--neighbourhood_length",
         default=1000,
         type=validate_range(int, 0, 100000),
-        help="Size of gene neighbourhood to extract from the " "assembly graph",
+        help="Size of gene neighbourhood to extract from the assembly graph",
     )
     parser.add_argument(
         "-o",
         "--output_dir",
-        help="Output folder for current " "run of sarand",
+        help="Output folder for current run of sarand",
         default=Path(f"sarand_results_{run_time}"),
     )
     parser.add_argument(
@@ -137,9 +136,9 @@ def main():
 
     args = parser.parse_args()
     # check dependencies work
-    cwd = os.getcwd()
-    PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
+    #cwd = os.getcwd()
+    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
     if not args.no_rgi:
         dependencies.append("rgi main --version")
