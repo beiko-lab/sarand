@@ -2,3 +2,4 @@
 sarand.egg-info
 *.fasta
 *.csv
+.DS_Store
