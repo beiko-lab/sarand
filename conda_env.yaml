@@ -8,12 +8,10 @@ dependencies:
   - rgi
   - prokka
   - blast
-  - biopython
   - numpy
   - pandas
   - matplotlib
   - gfapy
-  - bandage
   - pillow
   - dna_features_viewer
-  - pyyaml
+  - bandage
