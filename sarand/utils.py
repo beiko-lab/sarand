@@ -320,7 +320,7 @@ def annotate_sequence(
         + "_"
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     )
-    prefix_name = "mygenome_" + seq_description
+    prefix_name = "neighbourhood_" + seq_description
     arg_list = [
         "prokka",
         "--metagenome",
