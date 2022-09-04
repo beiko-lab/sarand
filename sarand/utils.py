@@ -809,11 +809,16 @@ def check_dependencies(programs):
                 shell=True,
                 check=True,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
                 encoding="utf-8",
             )
             #logging.debug(f"Tool {program_name} is installed: {output.stdout.strip()}")
-            print(f"Tool {program_name} is installed: {output.stdout.strip()}")
+            version = output.stdout.strip().split()
+            if len(version) == 1:
+                version = version[0]
+            else:
+                version = version[1]
+            print(f"Tool {program_name} is installed: v{version}")
         except:
             #logging.error(f"Tool {program_name} is not installed")
             print(f"Tool {program_name} is not installed")
