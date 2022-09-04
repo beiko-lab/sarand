@@ -81,21 +81,23 @@ def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"
     return myfile_name
 
 
-def initialize_logger(log_file_path):
+def initialize_logger(log_file_path, verbose):
     """
     Initialise the log handler using a specific log_file_path
     """
-    logging.basicConfig(level=logging.DEBUG)
-    # logging.basicConfig()
-    log_formatter = logging.Formatter("%(asctime)s [%(levelname)-5.5s]	%(message)s")
-    root_logger = logging.getLogger()
-    file_handler = logging.FileHandler(log_file_path)
-    file_handler.setFormatter(log_formatter)
-    root_logger.addHandler(file_handler)
-    console_handler = logging.StreamHandler(sys.stderr)
-    console_handler.setFormatter(log_formatter)
-    root_logger.addHandler(console_handler)
+    if verbose:
+        logging_level = logging.DEBUG
+    else:
+        logging_level = logging.INFO
 
+    logging.basicConfig(
+    level=logging_level,
+    format="%(asctime)s [%(levelname)-5.5s]	%(message)s",
+    handlers=[
+        logging.FileHandler(log_file_path),
+        logging.StreamHandler()
+    ]
+    )
 
 def retrieve_AMR(file_path):
     """
@@ -252,8 +254,10 @@ def run_RGI(
     ]
     if include_loose:
         arg_list.append("--include_loose")
-    rgi_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
-    logging.info(rgi_command.stdout.decode("utf-8"))
+
+    rgi_command = subprocess.run(arg_list, stdout=subprocess.PIPE,
+                                 stderr=subprocess.STDOUT, check=True)
+    logging.debug(rgi_command.stdout.decode("utf-8"))
     seq_info_list = []
     if os.path.isfile(output_file_name + ".txt"):
         with open(output_file_name + ".txt", newline="") as rgi_file:
@@ -332,8 +336,10 @@ def annotate_sequence(
     #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     #pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
     #arg_list = pre_list + arg_list
-    prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
-    logging.info(prokka_command.stdout.decode("utf-8"))
+
+    prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT, check=True)
+    logging.debug(prokka_command.stdout.decode("utf-8"))
     # move prokka directory to the right address
     shutil.move(prokka_dir, os.path.join(output_dir, prokka_dir))
     prokka_dir = os.path.join(output_dir, prokka_dir)
@@ -675,7 +681,7 @@ def read_path_info_from_align_file(align_file, threshold=95):
                 }
                 paths_info.append(path_info)
     if not found:
-        logging.info("ERROR: no path info was found in " + align_file)
+        logging.error("No path info was found in " + align_file)
     return found, paths_info
 
 
@@ -818,19 +824,19 @@ def check_dependencies(programs):
                 version = version[0]
             else:
                 version = version[1]
-            print(f"Tool {program_name} is installed: v{version}")
+            logging.info(f"Tool {program_name} is installed: v{version}")
         except:
             #logging.error(f"Tool {program_name} is not installed")
-            print(f"Tool {program_name} is not installed")
+            logging.error(f"Tool {program_name} is not installed")
             missing = True
 
     if missing:
         #logging.error("One or more dependencies are missing please install")
-        print("One or more dependencies are missing, please install")
+        logging.error("One or more dependencies are missing, please install")
         sys.exit(1)
     else:
         #logging.debug("All dependencies found")
-        print("All dependencies found")
+        logging.info("All dependencies found")
 
 
 def validate_range(value_type, minimum, maximum):
