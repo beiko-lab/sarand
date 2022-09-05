@@ -1,28 +1,28 @@
-name: test_package
-
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
-jobs:
-  build:
-    runs-on: "ubuntu-latest"
-    steps:
-      - uses: actions/checkout@v2
-      - name: "Install Conda environment with Micromamba"
-        uses: mamba-org/provision-with-micromamba@main
-        with:
-          environment-file: conda_env.yaml
-          environment-name: sarand
-          cache-env: true
-      - name: "Install bandage 0.9.0"
-        shell: bash -l {0}
-        run: wget https://github.com/rrwick/Bandage/releases/download/v0.9.0/Bandage_Ubuntu-x86-64_v0.9.0_AppDir.zip && unzip Bandage_Ubuntu-x86-64_v0.9.0_AppDir.zip && cp Bandage_Ubuntu-x86-64_v0.9.0/usr/bin/bandage Bandage_Ubuntu-x86-64_v0.9.0/usr/bin/Bandage
-      - name: "Install sarand"
-        shell: bash -l {0}
-        run: pip install .
-      - name: "Run test"
-        shell: bash -l {0}
-        run: echo "$GITHUB_WORKSPACE/Bandage_Ubuntu-x86-64_v0.9.0/usr/bin:$GITHUB_PATH" > $GITHUB_PATH && bash test/test.sh
+#name: test_package
+#
+#on:
+#  push:
+#    branches: [ master ]
+#  pull_request:
+#    branches: [ master ]
+#
+#jobs:
+#  build:
+#    runs-on: "ubuntu-latest"
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: "Install Conda environment with Micromamba"
+#        uses: mamba-org/provision-with-micromamba@main
+#        with:
+#          environment-file: conda_env.yaml
+#          environment-name: sarand
+#          cache-env: true
+#      - name: "Install bandage 0.9.0"
+#        shell: bash -l {0}
+#        run: wget https://github.com/rrwick/Bandage/releases/download/v0.9.0/Bandage_Ubuntu-x86-64_v0.9.0_AppDir.zip && unzip Bandage_Ubuntu-x86-64_v0.9.0_AppDir.zip && cp Bandage_Ubuntu-x86-64_v0.9.0/usr/bin/bandage Bandage_Ubuntu-x86-64_v0.9.0/usr/bin/Bandage
+#      - name: "Install sarand"
+#        shell: bash -l {0}
+#        run: pip install .
+#      - name: "Run test"
+#        shell: bash -l {0}
+#        run: echo "$GITHUB_WORKSPACE/Bandage_Ubuntu-x86-64_v0.9.0/usr/bin:$GITHUB_PATH" > $GITHUB_PATH && bash test/test.sh
