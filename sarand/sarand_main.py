@@ -158,7 +158,8 @@ def main():
     initialize_logger(os.path.join(args.output_dir, f"run_{run_time}.log"), args.verbose)
 
     # check dependencies work
-    dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
+    # annoyingly Bandage --version requires X but Bandage --help does not
+    dependencies = ["Bandage --help", "prokka --version", "blastn -version"]
     #cwd = os.getcwd()
     #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
     #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]

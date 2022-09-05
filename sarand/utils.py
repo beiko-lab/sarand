@@ -822,6 +822,8 @@ def check_dependencies(programs):
             version = output.stdout.strip().split()
             if len(version) == 1:
                 version = version[0]
+            elif len(version) > 100:
+                version = version[version.index("Version:")+1]
             else:
                 version = version[1]
             logging.info(f"Tool {program_name} is installed: v{version}")
