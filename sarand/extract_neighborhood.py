@@ -18,26 +18,18 @@ import sys
 import os
 import errno
 import gfapy
-import re
-import argparse
-import difflib
 import datetime
 import csv
-import collections
 import subprocess
-from Bio import SeqIO
 from gfapy.sequence import rc
 import shutil
 import logging
-import enum
 import multiprocessing
 from csv import DictReader
 
 from sarand.utils import (
     reverse_sign,
-    find_node_orient,
     find_node_name,
-    find_node_name_orient,
     exist_in_path,
     compare_two_sequences,
     read_path_info_from_align_file,
@@ -1534,7 +1526,7 @@ def check_if_similar_ng_extractions_exist(
             and new_end_pos == end_pos
         ):
             similar_path["down_stream"] = i
-            found_dwon_stream = True
+            found_down_stream = True
 
     if found_up_stream and found_down_stream:
         return similar_path
@@ -1568,7 +1560,7 @@ def check_if_similar_ng_extractions_exist(
                 new_last_node == second_last_node or new_second_last_node == last_node
             ):
                 similar_path["down_stream"] = i
-                found_dwon_stream = True
+                found_down_stream = True
             if found_up_stream and found_down_stream:
                 return similar_path
 
@@ -1600,7 +1592,7 @@ def order_path_nodes(path_nodes, amr_file, out_dir, threshold=90):
         # run blast query for alignement
         blast_file_name = os.path.join(out_dir, "blast.csv")
         blast_file = open(blast_file_name, "w")
-        blast_command = subprocess.run(
+        subprocess.run(
             [
                 "blastn",
                 "-query",

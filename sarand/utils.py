@@ -251,7 +251,7 @@ def run_RGI(
         "--exclude_nudge",
     ]
     if include_loose:
-        carg_list.append("--include_loose")
+        arg_list.append("--include_loose")
     rgi_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
     logging.info(rgi_command.stdout.decode("utf-8"))
     seq_info_list = []
@@ -317,7 +317,7 @@ def annotate_sequence(
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     )
     prefix_name = "mygenome_" + seq_description
-    arg_list = [            
+    arg_list = [
         "prokka",
         "--metagenome",
         "--outdir",
@@ -328,10 +328,10 @@ def annotate_sequence(
         "--notrna",
         seq_file_name,
     ]
-    cwd = os.getcwd()
-    PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
-    #arg_list = pre_list + arg_list    
+    #cwd = os.getcwd()
+    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
+    #pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
+    #arg_list = pre_list + arg_list
     prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE, check=True)
     logging.info(prokka_command.stdout.decode("utf-8"))
     # move prokka directory to the right address
@@ -484,7 +484,7 @@ def compare_two_sequences(
     # run blast query for alignement
     blast_file_name = os.path.join(output_dir, "blast" + blast_ext + ".csv")
     blast_file = open(blast_file_name, "w")
-    blast_command = subprocess.run(
+    subprocess.run(
         [
             "blastn",
             "-query",
@@ -709,6 +709,7 @@ def read_path_info_from_align_file_with_multiple_amrs(align_file, threshold=99):
 
 def extract_path_info_for_amrs(all_align_files, unique_amr_files, amr_count, threshold):
     """ """
+    unique_amr_path_list = []
     if len(all_align_files) == amr_count:
         amr_align_files = extract_unique_align_files(all_align_files, unique_amr_files)
         for align_file in amr_align_files:
@@ -802,7 +803,7 @@ def check_dependencies(programs):
     missing = False
     for program in programs:
         try:
-            program_name = program.split()[0]            
+            program_name = program.split()[0]
             output = subprocess.run(
                 program,
                 shell=True,
