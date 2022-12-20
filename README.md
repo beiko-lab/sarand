@@ -2,7 +2,8 @@
 
 Sarand is a tool to identify genes within an assembly graph and extract the local graph neighbourhood.
 It has primarily been developed for the analysis of Antimicrobial Resistance (AMR) genes within metagenomic assembly graphs.
-Currently this is fixed to using the [CARD](card.mcmaster.ca) database but will be expanded in the near future to support any user-supplied nucleotide fasta file of target genes.
+[CARD](card.mcmaster.ca) database is the default set of genes used for which neighborhoods are found but Sarand can support any user-supplied nucleotide fasta file of target genes.
+<!--- Currently this is fixed to using the [CARD](card.mcmaster.ca) database but will be expanded in the near future to support any user-supplied nucleotide fasta file of target genes.-->
 
 ![sarand](sarand/docs/sarand.png)
 
@@ -29,7 +30,10 @@ These can be installed most easily using bioconda.
 
 ### Testing
 
-You can test your install has worked by...
+You can test your install has worked by running
+```
+sarand -i test/spade_output/assembly_graph_with_scaffolds.gfa -a metaspades -k 55 -o test/output_dir --force
+```
 
 This will execute sarand on a test dataset and check all the expected outputs are created correctly.
 
@@ -44,7 +48,9 @@ This can be generated using metagenomic (or genomic) de-novo assembly tools
 such as [metaSPAdes](https://github.com/ablab/spades) or [megahit](https://github.com/voutcn/megahit).
 If your chosen assembly tool generates a `fastg` formatted graph utilities such as `fastg2gfa` can be used to convert them.
 
-```usage: sarand [-h] [-v] -i INPUT_GFA [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
+```
+usage: sarand [-h] [-v] -i INPUT_GFA -a ASSEMBLER
+              -k MAX_KMER_SIZE [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
               [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
               [-l NEIGHBOURHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
               [--no_rgi | --rgi_include_loose]
@@ -58,6 +64,10 @@ optional arguments:
   -i INPUT_GFA, --input_gfa INPUT_GFA
                         Path to assembly graph (in GFA format) that you wish
                         to analyse
+  -a ASSEMBLER, --assembler ASSEMBLER
+                        Assembler used to generate input GFA (required to correctly parse coverage information). It can be one of the following options: metaspades, bcalm and megahit
+  -k MAX_KMER_SIZE, --max_kmer_size MAX_KMER_SIZE
+                        The (maximum) k-mer sized used by assembler to generate input GFA
   -j NUM_CORES, --num_cores NUM_CORES
                         Number of cores to use
   -c COVERAGE_DIFFERENCE, --coverage_difference COVERAGE_DIFFERENCE
@@ -73,14 +83,14 @@ optional arguments:
                         Minimum identity/coverage to identify presence of
                         target gene in assembly graph
   -l NEIGHBOURHOOD_LENGTH, --neighbourhood_length NEIGHBOURHOOD_LENGTH
-                        Size of gene neighbourhood to extract from the
+                        Size of gene neighbourhood (in terms of nucleotides) to extract from the
                         assembly graph
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
                         Output folder for current run of sarand
   -f, --force           Force overwrite any previous files/output directories
   --no_rgi              Disable RGI based annotation of graph neighbourhoods
-  --rgi_include_loose   Include loose criteria hits if using RGI to annotate
-                        graph neighbourhoods
+  --rgi_include_loose   Include loose criteria hits if using RGI to annotate graph neighbourhoods
+  --extraction_timeout  Maximum time to extract neighbourhood sequences of a given gene with default value being -1 indicating no limit
 ```
 
 ### Output
