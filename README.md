@@ -20,7 +20,7 @@ These can be installed most easily using bioconda.
 
 1. Clone and enter the sarand repository: `git clone https://github.com/beiko-lab/sarand; cd sarand`
 
-2. Install conda and configure the bioconda channel (detailed instructions can be found [here](https://bioconda.github.io/user/install.html)).
+2. Install conda and configure the bioconda channel (detailed instructions can be found [here](https://bioconda.github.io)).
 
 3. Create the `sarand` conda environment with required dependencies: `conda env create -f conda_env.yaml`
 
