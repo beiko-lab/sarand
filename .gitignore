@@ -2,3 +2,6 @@
 sarand.egg-info
 *.fasta
 .DS_Store
+!ANT9-Ia.fasta
+!AAC6SS-Ie-APH2SSSS-Ia.fasta
+!ErmA.fasta
