@@ -1285,10 +1285,10 @@ def extract_neighborhood_sequence(
                     and their info as well as modified seq_info
     """
     try:
-        logging.debug(f"Loading the graph from {gfa_file}...")
+        logging.info(f"loading the graph from {gfa_file}...")
         myGraph = gfapy.Gfa.from_file(gfa_file)
     except Exception as e:
-        logging.error("Graph not loaded successfully: " + str(e))
+        logging.error("Not loading the graph successfully: " + str(e))
         if assembler == "metacherchant":
             return [], [], [], []
         else:
@@ -1918,7 +1918,9 @@ def neighborhood_sequence_extraction(
         # 	continue
         write_sequences_to_file(sequence_list, path_list, seq_file)
         logging.info(
-            "Extracted neighborhoods written to " + seq_file
+            "NOTE: The list of neighborhood sequences (extracted from assembly graph)\
+	 		has been stroed in "
+            + seq_file
         )
         seq_counter = write_paths_info_to_file(
             path_info_list, paths_info_file, seq_counter

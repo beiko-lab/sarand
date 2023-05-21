@@ -119,12 +119,6 @@ def main():
         action="store_true",
         help="Force overwrite any previous files/output directories",
     )
-    parser.add_argument(
-        "--verbose",
-        default=False,
-        action='store_true',
-        help='Provide verbose debugging output when logging',
-    )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
         "--no_rgi",
@@ -141,6 +135,14 @@ def main():
     )
 
     args = parser.parse_args()
+    # check dependencies work
+    dependencies = ["Bandage --version", "prokka --version", "blastn -version"]
+    #cwd = os.getcwd()
+    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
+    #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
+    if not args.no_rgi:
+        dependencies.append("rgi main --version")
+    check_dependencies(dependencies)
 
     if os.path.exists(args.output_dir):
         if not args.force:
@@ -155,24 +157,12 @@ def main():
     else:
         os.makedirs(args.output_dir)
 
-    initialize_logger(os.path.join(args.output_dir, f"run_{run_time}.log"), args.verbose)
-
-    # check dependencies work
-    # annoyingly Bandage --version requires X but Bandage --help does not
-    dependencies = ["Bandage --help", "prokka --version", "blastn -version"]
-    #cwd = os.getcwd()
-    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
-    if not args.no_rgi:
-        dependencies.append("rgi main --version")
-    check_dependencies(dependencies)
-
-
     # convert argparse to config dictionary
     args.run_time = run_time
 
     # logging file
-    logging.info(f"Sarand initialised: output={args.output_dir}")
+    initialize_logger(os.path.join(args.output_dir, f"run_{run_time}.log"))
+    logging.info("Sarand initialised...")
 
     # execute main workflow
     full_pipeline_main(args)
