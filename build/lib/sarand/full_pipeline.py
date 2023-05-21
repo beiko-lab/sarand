@@ -354,8 +354,8 @@ def check_coverage_consistency_remove_rest_seq(
                 error,
             ) = find_target_amr_in_seqvalue_and_return_coverage(seq_info)
             if error:
-                logging.error(
-                    "No target amr was found for "
+                logging.info(
+                    "ERROR: no target amr was found for "
                     + str(seq_info)
                     + " regarding "
                     + amr_name
@@ -369,7 +369,7 @@ def check_coverage_consistency_remove_rest_seq(
                 amr_indeces.append(amr_index)
     if len(amr_coverages) != len(seq_info_list):
         logging.error(
-            "Inconsistency between the number of sequences and found amr-coverages!"
+            "ERROR: inconsistency between the number of sequences and found amr-coverages!"
         )
         import pdb
 
@@ -499,7 +499,7 @@ def extract_graph_seqs_annotation(
     if path_info_file != -1:
         path_info_list = read_path_info_file(path_info_file)
     # find the list of all extracted sequences
-    logging.debug("Reading " + neighborhood_seq_file + " for " + amr_name)
+    logging.info("Reading " + neighborhood_seq_file + " for " + amr_name)
     sequence_list = []
     counter = 1
     with open(neighborhood_seq_file, "r") as read_obj:
@@ -599,7 +599,7 @@ def neighborhood_annotation(
         the address of files stroing annotation information (annotation_detail_name,
             trimmed_annotation_info, gene_file_name, visual_annotation)
     """
-    logging.info("Annotating " + amr_name)
+    logging.debug("Started annotation for " + amr_name)
     # initializing required files and directories
     annotate_dir = os.path.join(
         output_dir,
@@ -670,8 +670,8 @@ def neighborhood_annotation(
         gene_file,
         error_file,
     )
-    logging.debug(
-        "The comparison of neighborhood sequences are available in "
+    logging.info(
+        "NOTE: The comparison of neighborhood sequences are available in "
         + annotation_detail_name
         + ", "
         + gene_file_name
@@ -738,8 +738,8 @@ def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_o
     """
     cat_file, amr_files = amr_object
     amr_names = [extract_name_from_file_name(e) for e in amr_files]
-    logging.debug(
-        'Checking if AMR gene "' + str(amr_names) + '" exists in the assembly graph...'
+    logging.info(
+        'Checking if AMRs "' + str(amr_names) + '" exists in the assembly graph...'
     )
     output_name = os.path.join(
         output_dir,
@@ -766,10 +766,9 @@ def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_o
             str((threshold - 1) / 100.0),
         ],
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
         check=True,
     )
-    logging.debug(bandage_command.stdout.decode("utf-8"))
+    logging.info(bandage_command.stdout.decode("utf-8"))
 
     paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
         output_name + ".tsv", threshold
@@ -1019,7 +1018,7 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files):
     Return:
 
     """
-    logging.info("Neighborhood Annotation...")
+    logging.info("Neighborhood Annotation ...")
     if seq_files:
         neighborhood_files = seq_files
     else:
@@ -1131,7 +1130,7 @@ def full_pipeline_main(params):
     seq_files = []
 
     # extract AMR and alignment information
-    logging.info(f"Finding AMR genes in the assembly graph: {params.input_gfa}")
+    logging.info("Finding AMR genes in the assembly graph ...")
     #not_found_amr_names = []  # Somayeh this is never added to?
     unique_amr_files, unique_amr_path_list = find_all_amr_in_graph(
         params.input_gfa,
@@ -1144,7 +1143,7 @@ def full_pipeline_main(params):
     )
 
     if not unique_amr_files:
-        logging.warning("No AMR genes were found in graph!")
+        logging.info("No AMR genes were found in graph!")
         import pdb
 
         pdb.set_trace()
@@ -1181,7 +1180,7 @@ def full_pipeline_main(params):
         params, unique_amr_files, all_seq_info_lists, annotation_file_list, True
     )
 
-    logging.info("Sarand ran successfully")
+    logging.info("Run complete")
 
 
 if __name__ == "__main__":
