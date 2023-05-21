@@ -1,11 +1,14 @@
 # Sarand
 
+![sarand](sarand/docs/sarand.png)
+
 Sarand is a tool to identify genes within an assembly graph and extract the local graph neighbourhood.
 It has primarily been developed for the analysis of Antimicrobial Resistance (AMR) genes within metagenomic assembly graphs.
 [CARD](card.mcmaster.ca) database is the default set of genes used for which neighborhoods are found but Sarand can support any user-supplied nucleotide fasta file of target genes.
 <!--- Currently this is fixed to using the [CARD](card.mcmaster.ca) database but will be expanded in the near future to support any user-supplied nucleotide fasta file of target genes.-->
 
-![sarand](sarand/docs/sarand.png)
+
+![sarand overview](sarand/docs/sarand_summary.png)
 
 ## Installation
 
