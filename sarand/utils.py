@@ -17,6 +17,10 @@ import collections
 import shutil
 import subprocess
 from pathlib import Path
+from typing import List, Dict, Any
+
+from sarand.external.bakta import Bakta
+from sarand.external.graph_aligner import GraphAligner, GraphAlignerResult
 
 
 def extract_name_from_file_name(file_name):
@@ -255,6 +259,8 @@ def run_RGI(
     if include_loose:
         arg_list.append("--include_loose")
 
+    print(' '.join(map(str, arg_list)))
+
     rgi_command = subprocess.run(arg_list, stdout=subprocess.PIPE,
                                  stderr=subprocess.STDOUT, check=True)
     logging.debug(rgi_command.stdout.decode("utf-8"))
@@ -282,6 +288,94 @@ def run_RGI(
         os.remove(output_file_name + ".json")
 
     return seq_info_list
+
+def annotate_sequence_new(
+        seq,
+        seq_description,
+        output_dir,
+        no_RGI=False,
+        RGI_include_loose=False,
+        delete_prokka_dir=False,
+):
+    """
+    To run Prokka for a sequence and extract required information from its
+        generated output files
+    Parameters:
+        seq:	the sequence to be annotated
+        seq_description: a small description of the sequence used for naming
+        output_dir:  the path for the output directory
+        no_RGI:	RGI annotations incorporated for AMR annotation
+    Return:
+        the list of extracted annotation information for the sequence
+    """
+    # write the sequence into a temporary file
+    seq_file_name = create_fasta_file(
+        seq,
+        "",
+        file_name="temp_"
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        + seq_description,
+    )
+    pid = os.getpid()
+    prokka_dir = (
+        "prokka_dir_"
+        + seq_description
+        + "_"
+        + str(pid)
+        + "_"
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+    )
+    prefix_name = "neighbourhood_" + seq_description
+
+
+    # Run Bakta
+    # TODO: Update params
+    ba = Bakta.run_sarand(
+        genome=Path(seq_file_name),
+        prefix=prefix_name,
+        out_dir=Path(output_dir) / prokka_dir,
+        db=Path('/Users/aaron/git/sarand/test/aaron/bakta/db-light')
+    )
+
+    # This re-appends the sequence as per the original implementation, however
+    # this could be extracted from the JSON
+    seq_info = ba.result.get_for_sarand()
+    for seq_info_new_item in seq_info:
+        seq_info_new_item['seq_value'] = seq[:-1]
+
+    # shutil.move(prokka_dir, os.path.join(output_dir, prokka_dir))
+    # prokka_dir = os.path.join(output_dir, prokka_dir)
+    RGI_output_list = None
+    if not no_RGI:
+        RGI_output_list = run_RGI(
+            str(ba.params.path_faa.absolute()),
+            output_dir,
+            seq_description,
+            RGI_include_loose,
+            delete_prokka_dir,
+        )
+
+    # incorporate RGI findings into Prokka's
+    if RGI_output_list:
+        for item in RGI_output_list:
+            for gene_info in seq_info:
+                if item["ORF_ID"].split(" ")[0] == gene_info["locus_tag"]:
+                    gene_info["gene"] = item["gene"]
+                    gene_info["RGI_prediction_type"] = item["prediction_type"]
+                    gene_info["family"] = item["family"]
+                    break
+
+    # remove temporary files and folder
+    if os.path.isfile(seq_file_name):
+        os.remove(seq_file_name)
+    if delete_prokka_dir:
+        try:
+            shutil.rmtree(prokka_dir)
+        except OSError as e:
+            logging.error("Error: %s - %s." % (e.filename, e.strerror))
+
+    return seq_info
+
 
 
 def annotate_sequence(
@@ -332,14 +426,13 @@ def annotate_sequence(
         "--notrna",
         seq_file_name,
     ]
-    #cwd = os.getcwd()
-    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    #pre_list = PROKKA_COMMAND_PREFIX.strip().split(" ")
-    #arg_list = pre_list + arg_list
+    print('Run this in: /Users/aaron/git/sarand/sarand')
+    print(' '.join(map(str, arg_list)))
+    input('\nPress enter to continue')
 
-    prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT, check=True)
-    logging.debug(prokka_command.stdout.decode("utf-8"))
+    # prokka_command = subprocess.run(arg_list, stdout=subprocess.PIPE,
+    #                                 stderr=subprocess.STDOUT, check=True)
+    # logging.debug(prokka_command.stdout.decode("utf-8"))
     # move prokka directory to the right address
     shutil.move(prokka_dir, os.path.join(output_dir, prokka_dir))
     prokka_dir = os.path.join(output_dir, prokka_dir)
@@ -710,6 +803,28 @@ def read_path_info_from_align_file_with_multiple_amrs(align_file, threshold=99):
                     "end_pos": end_pos,
                 }
                 paths_info_list[amr_name].append(path_info)
+    return paths_info_list
+
+def read_path_info_from_align_file_with_multiple_amrs_ga(ga: List[GraphAlignerResult], threshold=99) -> Dict[str, List[Dict[str, Any]]]:
+    paths_info_list = collections.defaultdict(list)
+    for result in ga:
+        amr_name = restricted_amr_name_from_modified_name(
+            result.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
+        )
+        coverage = result.coverage_pct
+        identity = result.identity_pct
+        if int(coverage) >= threshold and int(identity) >= threshold:
+            # TODO: Here I assume that the GAF path shows > as + and < as -
+            nodes, orientation_list = result.path_to_sarand
+            start_pos = result.path_start + 1  # TODO: This always seems to be 1 less, maybe due to exclusive bounds
+            end_pos = result.path_end
+            path_info = {
+                "nodes": nodes,
+                "orientations": orientation_list,
+                "start_pos": start_pos,
+                "end_pos": end_pos,
+            }
+            paths_info_list[amr_name].append(path_info)
     return paths_info_list
 
 

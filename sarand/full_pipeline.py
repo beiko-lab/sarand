@@ -26,7 +26,9 @@ import shutil
 import logging
 from functools import partial
 from multiprocessing.pool import Pool
+from typing import Dict, List, Any
 
+from sarand.external.graph_aligner import GraphAligner
 from sarand.extract_neighborhood import neighborhood_sequence_extraction
 from sarand.annotation_visualization import visualize_annotation
 from sarand.utils import (
@@ -40,7 +42,7 @@ from sarand.utils import (
     extract_name_from_file_name,
     restricted_amr_name_from_modified_name,
     read_path_info_from_align_file_with_multiple_amrs,
-    delete_lines_started_with,
+    delete_lines_started_with, read_path_info_from_align_file_with_multiple_amrs_ga, annotate_sequence_new,
 )
 
 # globals are discouraged in python quite a bit
@@ -453,14 +455,21 @@ def extract_seq_annotation(annotate_dir, no_RGI, RGI_include_loose, seq_pair):
     """
     counter, ext_seq = seq_pair
     seq_description = "extracted" + str(counter)
-    seq_info_list = annotate_sequence(
+    # seq_info_list = annotate_sequence(
+    #     ext_seq,
+    #     seq_description,
+    #     annotate_dir,
+    #     no_RGI,
+    #     RGI_include_loose,
+    # )
+    seq_info_list_new = annotate_sequence_new(
         ext_seq,
         seq_description,
         annotate_dir,
         no_RGI,
         RGI_include_loose,
     )
-    return seq_info_list
+    return seq_info_list_new
 
 
 def extract_graph_seqs_annotation(
@@ -516,8 +525,12 @@ def extract_graph_seqs_annotation(
     p_annotation = partial(
         extract_seq_annotation, annotate_dir, no_RGI, RGI_include_loose
     )
-    with Pool(core_num) as p:
-        seq_info_list = p.map(p_annotation, sequence_list)
+    seq_info_list = list()
+    for x in sequence_list:
+        seq_info_list.append(extract_seq_annotation(annotate_dir, no_RGI, RGI_include_loose, x))
+
+    # with Pool(core_num) as p:
+    #     seq_info_list = p.map(p_annotation, sequence_list)
     # Further processing of result of parallel annotation
     all_seq_info_list = []
     # if amr_name=='GES-4' or amr_name=='GES-21':
@@ -721,7 +734,7 @@ def amr_path_overlap(found_amr_paths, new_paths, new_amr_len, overlap_percent=95
     return False, None
 
 
-def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_object):
+def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_object) -> Dict[str, List[Dict[str, Any]]]:
     """
     To call bandage+blast and check if the amr sequence can be found in the assembly graph
     Parameters:
@@ -749,30 +762,62 @@ def are_there_amrs_in_graph(gfa_file, output_dir, bandage_path, threshold, amr_o
     )
     if os.path.isfile(output_name + ".tsv"):
         os.remove(output_name + ".tsv")
-    bandage_command = subprocess.run(
-        [
-            bandage_path,
-            "querypaths",
-            gfa_file,
-            cat_file,
-            output_name,
-            "--pathnodes",
-            "50",
-            "--minpatcov",
-            str((threshold - 1) / 100.0),
-            "--minmeanid",
-            str((threshold - 1) / 100.0),
-            "--minhitcov",
-            str((threshold - 1) / 100.0),
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        check=True,
-    )
-    logging.debug(bandage_command.stdout.decode("utf-8"))
+    try:
 
-    paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
-        output_name + ".tsv", threshold
+        # Run GraphAligner
+        ga = GraphAligner.run_for_sarand(gfa_file, cat_file, threshold)
+
+        # print('Run the following command then press enter:')
+        # bdg_cmd = [
+        #         bandage_path,
+        #         "querypaths",
+        #         gfa_file,
+        #         cat_file,
+        #         output_name,
+        #         "--pathnodes",
+        #         "50",
+        #         "--minpatcov",
+        #         str((threshold - 1) / 100.0),
+        #         "--minmeanid",
+        #         str((threshold - 1) / 100.0),
+        #         "--minhitcov",
+        #         str((threshold - 1) / 100.0),
+        #     ]
+        # cmd_str = ' '.join(map(str, bdg_cmd))
+        # print(cmd_str)
+        # input("\nPress Enter to continue...")
+        # print('Proceeding...')
+
+        # bandage_command = subprocess.run(
+        #     [
+        #         bandage_path,
+        #         "querypaths",
+        #         gfa_file,
+        #         cat_file,
+        #         output_name,
+        #         "--pathnodes",
+        #         "50",
+        #         "--minpatcov",
+        #         str((threshold - 1) / 100.0),
+        #         "--minmeanid",
+        #         str((threshold - 1) / 100.0),
+        #         "--minhitcov",
+        #         str((threshold - 1) / 100.0),
+        #     ],
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.STDOUT,
+        #     check=True,
+        #     shell=True,
+        # )
+    except Exception as e:
+        raise
+    # logging.debug(bandage_command.stdout.decode("utf-8"))
+
+    # paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
+    #     output_name + ".tsv", threshold
+    # )
+    paths_info_list = read_path_info_from_align_file_with_multiple_amrs_ga(
+        ga.results, threshold
     )
 
     return paths_info_list
@@ -869,12 +914,23 @@ def find_all_amr_in_graph(
         bandage_path,
         amr_threshold,
     )
-    with Pool(core_num) as p:
-        paths_info_group_list = p.map(p_find_amr, amr_objects)
+
+    paths_info_group_list: List[Dict[str, List[Dict[str, Any]]]] = list()
+    for amr_object in amr_objects:
+        paths_info_group_list.append(process_amr_group_and_find(
+            gfa_file,
+            align_dir,
+            output_dir,
+            bandage_path,
+            amr_threshold,
+            amr_object
+        ))
+    # with Pool(core_num) as p:
+    #     paths_info_group_list = p.map(p_find_amr, amr_objects)
 
     unique_amr_seqs = []
     unique_amr_infos = []
-    unique_amr_paths = []
+    unique_amr_paths: List[List[Dict[str, Any]]] = []
     # process the result of parallel processes
     for i, amr_object in enumerate(amr_seq_title_list):
         amr_name = amr_name_from_comment(amr_object[1])
@@ -1115,8 +1171,22 @@ def sequence_neighborhood_main(params, bandage_path, gfa_file, amr_seq_align_inf
         params.assembler
     )
 
-    with Pool(params.num_cores) as p:
-        lists = p.map(p_extraction, amr_seq_align_info)
+
+    lists = list()
+    for x in amr_seq_align_info:
+        lists.append(neighborhood_sequence_extraction(gfa_file,
+		bandage_path,
+        params.neighbourhood_length,
+        sequence_dir,
+        params.min_target_identity,
+        SEQ_NAME_PREFIX,
+        1000,  # should this really be an option? path_node_threshold
+        params.max_kmer_size,
+        params.extraction_timeout,
+        params.assembler, x))
+
+    # with Pool(params.num_cores) as p:
+    #     lists = p.map(p_extraction, amr_seq_align_info)
     seq_files, path_info_files = zip(*lists)
 
     return seq_files, path_info_files

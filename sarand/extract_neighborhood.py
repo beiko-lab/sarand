@@ -1745,6 +1745,7 @@ def neighborhood_sequence_extraction(
                 pass
         # remained_len_thr = length - (length*path_seq_len_percent_threshod/100.0)
         # find all AMR paths in the assembly graph
+        # TODO: How do we get to this branch?
         found, amr_paths_info = find_amr_related_nodes(
             amr_file,
             gfa_file,
