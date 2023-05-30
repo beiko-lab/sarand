@@ -1,18 +1,16 @@
-#!/usr/bin/env python
 import sys
 import os
 import argparse
 import datetime
-import logging
 import shutil
-import pkg_resources
 from pathlib import Path
 
 from sarand.__init__ import __version__
 from sarand.full_pipeline import full_pipeline_main
+from sarand.util.logger import create_logger, get_logger
+from sarand.util.pkg import get_pkg_card_fasta_path
 from sarand.utils import (
-    initialize_logger,
-    check_dependencies,
+    assert_dependencies_exist,
     check_file,
     validate_range,
 )
@@ -83,9 +81,7 @@ def main():
     parser.add_argument(
         "-t",
         "--target_genes",
-        default=Path(
-            pkg_resources.resource_filename(__name__, "data/CARD_AMR_seq.fasta")
-        ),
+        default=get_pkg_card_fasta_path(),
         type=check_file,
         help="Target genes to "
         "search for in the assembly graph (fasta formatted). "
@@ -123,7 +119,7 @@ def main():
         "--verbose",
         default=False,
         action='store_true',
-        help='Provide verbose debugging output when logging',
+        help='Provide verbose debugging output when logging, and keep intermediate files',
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument(
@@ -140,39 +136,67 @@ def main():
         " graph neighbourhoods",
     )
 
+    # GraphAligner options
+    parser.add_argument(
+        '--ga',
+        default=None,
+        action='append',
+        nargs='*',
+        help='Additional arguments to supply to graph aligner in the form of --ga key value, e.g. --ga E-cutoff 0.1'
+    )
+    parser.add_argument(
+        "--keep_intermediate_files",
+        default=False,
+        action="store_true",
+        help="Do not delete intermediate files.",
+    )
+    parser.add_argument(
+        '--debug',
+        default=False,
+        action='store_true',
+        help='Creates additional files for debugging purposes.',
+    )
+
+    # Parse arguments
     args = parser.parse_args()
 
+    # Override the keep intermediate files option if debug is set
+    if args.debug:
+        args.keep_intermediate_files = True
+
+    # Setup the output logger path
+    logger_output_path = os.path.join(args.output_dir, f"run_{run_time}.log")
+
+    # Check if the output directory exists
     if os.path.exists(args.output_dir):
         if not args.force:
-            parser.error(
+            log = create_logger(verbose=args.verbose)
+            log.error(
                 f"{args.output_dir} already exists, please use a different "
                 "--output_dir or use --force to overwrite this directory"
             )
+            sys.exit(1)
         else:
-            print(f"Overwriting previously created {args.output_dir}", file=sys.stderr)
             shutil.rmtree(args.output_dir)
             os.makedirs(args.output_dir)
+            log = create_logger(output=logger_output_path, verbose=args.verbose)
+            log.info(f"Overwriting previously created {args.output_dir}")
+
     else:
         os.makedirs(args.output_dir)
+        create_logger(output=logger_output_path, verbose=args.verbose)
 
-    initialize_logger(os.path.join(args.output_dir, f"run_{run_time}.log"), args.verbose)
+    # Get the logger
+    log = get_logger()
 
     # check dependencies work
-    # annoyingly Bandage --version requires X but Bandage --help does not
-    dependencies = ["Bandage --help", "prokka --version", "blastn -version"]
-    #cwd = os.getcwd()
-    #PROKKA_COMMAND_PREFIX = 'docker run -v '+cwd+':/data staphb/prokka:latest '
-    #dependencies = ["/media/Data/tools/Bandage_Ubuntu_dynamic_v0_8_1/Bandage --version",PROKKA_COMMAND_PREFIX+ "prokka --version", "blastn -version"]
-    if not args.no_rgi:
-        dependencies.append("rgi main --version")
-    check_dependencies(dependencies)
-
+    assert_dependencies_exist(rgi=not args.no_rgi)
 
     # convert argparse to config dictionary
     args.run_time = run_time
 
     # logging file
-    logging.info(f"Sarand initialised: output={args.output_dir}")
+    log.info(f"Sarand initialized: output={args.output_dir}")
 
     # execute main workflow
     full_pipeline_main(args)

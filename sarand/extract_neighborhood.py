@@ -16,17 +16,18 @@ To run:
 
 import sys
 import os
-import errno
+import tempfile
+
 import gfapy
 import datetime
 import csv
 import subprocess
 from gfapy.sequence import rc
 import shutil
-import logging
 import multiprocessing
 from csv import DictReader
 
+from sarand.util.logger import LOG
 from sarand.utils import (
     reverse_sign,
     find_node_name,
@@ -40,19 +41,22 @@ OUT_DIR = "output"
 TEMP_DIR = "temp"
 
 
-def retrieve_AMR(file_path):
-    """
-    To read the AMR gene from the fasta file.
-    Parameters:
-            file_path:	the address of the file containing the AMR gene
-    Return:
-            the sequence of the AMR gene in lower case
-    """
-    with open(file_path) as fp:
-        for line in fp:
-            if line.startswith(">"):
-                continue
-            return line.lower()
+"""
+AM: This is never used.
+"""
+# def retrieve_AMR(file_path):
+#     """
+#     To read the AMR gene from the fasta file.
+#     Parameters:
+#             file_path:	the address of the file containing the AMR gene
+#     Return:
+#             the sequence of the AMR gene in lower case
+#     """
+#     with open(file_path) as fp:
+#         for line in fp:
+#             if line.startswith(">"):
+#                 continue
+#             return line.lower()
 
 
 def similar_sequence_exits(seq_list, query_seq, output_dir):
@@ -145,11 +149,11 @@ def find_overlap(
                         edge.to_segment.sequence, edge.to_orient
                     )
                     if seq1[len(seq1) - size :] != seq2[:size]:
-                        logging.info("WARNING: the overlap doesn't match: " + str(edge))
-                        logging.info("first sequence: " + seq1)
-                        logging.info("second sequence: " + seq2)
+                        LOG.info("WARNING: the overlap doesn't match: " + str(edge))
+                        LOG.info("first sequence: " + seq1)
+                        LOG.info("second sequence: " + seq2)
             else:
-                logging.info(
+                LOG.info(
                     "WARNING: the sequence from node "
                     + from_node.name
                     + " to node "
@@ -177,11 +181,11 @@ def find_overlap(
                         edge.from_segment.sequence, reverse_sign(edge.from_orient)
                     )
                     if seq1[len(seq1) - size :] != seq2[:size]:
-                        logging.info("WARNING: the overlap doesn't match: " + str(edge))
-                        logging.info("first sequence: " + seq1)
-                        logging.info("second sequence: " + seq2)
+                        LOG.info("WARNING: the overlap doesn't match: " + str(edge))
+                        LOG.info("first sequence: " + seq1)
+                        LOG.info("second sequence: " + seq2)
             else:
-                logging.info(
+                LOG.info(
                     "WARNING: the sequence from node "
                     + from_node.name
                     + " to node "
@@ -194,32 +198,35 @@ def find_overlap(
     return size
 
 
-def remove_identical_sub_sequences(sequence_list, path_list):
-    """
-    To keep only one instance in case of multiple identical extracted sequences or
-    when a sequence is a subsequence of another one
-    Parameters:
-            sequence_list:	list of extracted sequences
-            path_list:		list of extracted paths
-    Return sequence_list and path_list in which every sequence/path is unique and
-            none of them is subssequence/subpath of another one
-    """
-    # In case two sequences are identical keep the one with the lower index in the list
-    identical_sub_set = set()
-    for i, seq1 in enumerate(sequence_list):
-        for j, seq2 in enumerate(sequence_list):
-            if i < j:
-                if seq1 == seq2 or seq2 in seq1:
-                    identical_sub_set.add(j)
-                elif seq1 in seq2:
-                    identical_sub_set.add(i)
-
-    identical_sub_list = sorted(identical_sub_set)
-    for index in reversed(identical_sub_list):
-        del sequence_list[index]
-        del path_list[index]
-
-    return sequence_list, path_list
+"""
+AM: This is never used.
+"""
+# def remove_identical_sub_sequences(sequence_list, path_list):
+#     """
+#     To keep only one instance in case of multiple identical extracted sequences or
+#     when a sequence is a subsequence of another one
+#     Parameters:
+#             sequence_list:	list of extracted sequences
+#             path_list:		list of extracted paths
+#     Return sequence_list and path_list in which every sequence/path is unique and
+#             none of them is subssequence/subpath of another one
+#     """
+#     # In case two sequences are identical keep the one with the lower index in the list
+#     identical_sub_set = set()
+#     for i, seq1 in enumerate(sequence_list):
+#         for j, seq2 in enumerate(sequence_list):
+#             if i < j:
+#                 if seq1 == seq2 or seq2 in seq1:
+#                     identical_sub_set.add(j)
+#                 elif seq1 in seq2:
+#                     identical_sub_set.add(i)
+#
+#     identical_sub_list = sorted(identical_sub_set)
+#     for index in reversed(identical_sub_list):
+#         del sequence_list[index]
+#         del path_list[index]
+#
+#     return sequence_list, path_list
 
 
 def reverse_path(path):
@@ -261,7 +268,7 @@ def extract_found_amr(myGraph, node_list, orientation_list, start_pos, end_pos):
                     the sequence of the AMR gene extracted from the path presented by node_list
     """
     if not node_list:
-        logging.error("ERROR: There is no node in node_list representing the AMR gene!")
+        LOG.error("ERROR: There is no node in node_list representing the AMR gene!")
         import pdb
 
         pdb.set_trace()
@@ -364,62 +371,49 @@ def generate_sequence_path(
         myGraph, node_list, orientation_list, start_pos, end_pos
     )
     # create a temporaty directory
-    temp_dir = "temp_comparison2_" + output_name
-    if not os.path.exists(temp_dir):
-        try:
-            os.makedirs(temp_dir)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
-            pass
-    # to be able to go over both 'for' loops make lists non-empty
-    if not pre_path_list:
-        pre_path_list = [[]]
-    if not post_path_list:
-        post_path_list = [[]]
-    if not pre_sequence_list:
-        pre_sequence_list = [""]
-    if not post_sequence_list:
-        post_sequence_list = [""]
-    # add direction to nodes representing AMR gene
-    node_orient_list = [
-        node + orient for node, orient in zip(node_list, orientation_list)
-    ]
-    # annotate the path representing AMR gene
-    node_orient_list[0] = "[" + node_orient_list[0]
-    node_orient_list[-1] = node_orient_list[-1] + "]"
-    # Generating all found sequences	and paths
-    path_list = []
-    sequence_list = []
-    counter = 0
-    path_info_list = []
-    for pre_seq, pre_path in zip(pre_sequence_list, pre_path_list):
-        for post_seq, post_path in zip(post_sequence_list, post_path_list):
-            if path_dir == "same":
-                sequence = pre_seq.upper() + found_amr_seq.lower() + post_seq.upper()
-                path = pre_path + node_orient_list + post_path
-            elif path_dir == "reverse":
-                sequence = rc(
-                    pre_seq.upper() + found_amr_seq.lower() + post_seq.upper()
-                )
-                path = reverse_path(pre_path + node_orient_list + post_path)
-            index, found = similar_sequence_exits(sequence_list, sequence, temp_dir)
-            if not found:
-                sequence_list.append(sequence)
-                path_list.append(path)
-                path_info_list.append(path_length_list[counter])
-            elif index >= 0:
-                sequence_list[index] = sequence
-                path_list[index] = path
-                path_info_list[index] = path_length_list[counter]
-            counter += 1
+    with tempfile.TemporaryDirectory() as temp_dir:
 
-    # delete the temp folder
-    if os.path.exists(temp_dir):
-        try:
-            shutil.rmtree(temp_dir)
-        except OSError as e:
-            logging.error("Error: %s - %s." % (e.filename, e.strerror))
+        # to be able to go over both 'for' loops make lists non-empty
+        if not pre_path_list:
+            pre_path_list = [[]]
+        if not post_path_list:
+            post_path_list = [[]]
+        if not pre_sequence_list:
+            pre_sequence_list = [""]
+        if not post_sequence_list:
+            post_sequence_list = [""]
+        # add direction to nodes representing AMR gene
+        node_orient_list = [
+            node + orient for node, orient in zip(node_list, orientation_list)
+        ]
+        # annotate the path representing AMR gene
+        node_orient_list[0] = "[" + node_orient_list[0]
+        node_orient_list[-1] = node_orient_list[-1] + "]"
+        # Generating all found sequences	and paths
+        path_list = []
+        sequence_list = []
+        counter = 0
+        path_info_list = []
+        for pre_seq, pre_path in zip(pre_sequence_list, pre_path_list):
+            for post_seq, post_path in zip(post_sequence_list, post_path_list):
+                if path_dir == "same":
+                    sequence = pre_seq.upper() + found_amr_seq.lower() + post_seq.upper()
+                    path = pre_path + node_orient_list + post_path
+                elif path_dir == "reverse":
+                    sequence = rc(
+                        pre_seq.upper() + found_amr_seq.lower() + post_seq.upper()
+                    )
+                    path = reverse_path(pre_path + node_orient_list + post_path)
+                index, found = similar_sequence_exits(sequence_list, sequence, temp_dir)
+                if not found:
+                    sequence_list.append(sequence)
+                    path_list.append(path)
+                    path_info_list.append(path_length_list[counter])
+                elif index >= 0:
+                    sequence_list[index] = sequence
+                    path_list[index] = path
+                    path_info_list[index] = path_length_list[counter]
+                counter += 1
 
     return sequence_list, path_list, path_info_list
 
@@ -644,13 +638,7 @@ def extract_post_sequence(
     else:
         # create a temporaty directory
         compare_dir = os.path.join(output_dir, "temp_comparison_" + output_name)
-        if not os.path.exists(compare_dir):
-            try:
-                os.makedirs(compare_dir)
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-                pass
+        os.makedirs(compare_dir, exist_ok=True)
         # File to store pre_sequence results in case we need to stop the task by time-out before it completes
         temp_result = os.path.join(
             output_dir,
@@ -706,7 +694,7 @@ def extract_post_sequence(
             p.join(time_out_counter)
 
         if p != "" and p.is_alive():
-            logging.info("extract_post_sequence is still running... let's kill it...")
+            LOG.info("extract_post_sequence is still running... let's kill it...")
             # Terminate - may not work if process is stuck for good
             p.terminate()
             # OR Kill - will work for sure, no chance for process to finish nicely however
@@ -736,7 +724,7 @@ def extract_post_sequence(
             try:
                 shutil.rmtree(compare_dir)
             except OSError as e:
-                logging.error("Error: %s - %s." % (e.filename, e.strerror))
+                LOG.error("Error: %s - %s." % (e.filename, e.strerror))
 
     return post_sequence_list, post_path_list, path_length_list
 
@@ -928,13 +916,8 @@ def extract_pre_sequence(
     else:
         # create a temporaty directory
         compare_dir = os.path.join(output_dir, "temp_comparison_" + output_name)
-        if not os.path.exists(compare_dir):
-            try:
-                os.makedirs(compare_dir)
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-                pass
+        os.makedirs(compare_dir, exist_ok=True)
+
         # File to store pre_sequence results in case we need to stop the task by time-out before it completes
         temp_result = os.path.join(
             output_dir,
@@ -989,7 +972,7 @@ def extract_pre_sequence(
             # Wait for time_out_counter seconds or until process finishes
             p.join(time_out_counter)
         if p != "" and p.is_alive():
-            logging.info("extract_pre_sequence is still running... let's kill it...")
+            LOG.info("extract_pre_sequence is still running... let's kill it...")
             # Terminate - may not work if process is stuck for good
             p.terminate()
             # OR Kill - will work for sure, no chance for process to finish nicely however
@@ -1019,7 +1002,7 @@ def extract_pre_sequence(
             try:
                 shutil.rmtree(compare_dir)
             except OSError as e:
-                logging.error("Error: %s - %s." % (e.filename, e.strerror))
+                LOG.error("Error: %s - %s." % (e.filename, e.strerror))
 
     return pre_sequence_list, pre_path_list, path_length_list
 
@@ -1061,7 +1044,7 @@ def calculate_coverage(segment, max_kmer_size, node, assembler):
     elif assembler == "metacherchant" or assembler == "spacegraphcats":
         coverage = -1
     else:
-        logging.error(
+        LOG.error(
             "no way of calculating node coverage has been defined for this assembler!"
         )
         import pdb
@@ -1285,10 +1268,10 @@ def extract_neighborhood_sequence(
                     and their info as well as modified seq_info
     """
     try:
-        logging.debug(f"Loading the graph from {gfa_file}...")
+        LOG.debug(f"Loading the graph from {gfa_file}...")
         myGraph = gfapy.Gfa.from_file(gfa_file)
     except Exception as e:
-        logging.error("Graph not loaded successfully: " + str(e))
+        LOG.error("Graph not loaded successfully: " + str(e))
         if assembler == "metacherchant":
             return [], [], [], []
         else:
@@ -1306,7 +1289,7 @@ def extract_neighborhood_sequence(
     if end_pos == 0:
         end_pos = len(str(last_segment.sequence))
 
-    logging.debug(
+    LOG.debug(
         "last_segment = "
         + last_segment.name
         + " start_pos = "
@@ -1318,7 +1301,7 @@ def extract_neighborhood_sequence(
     # Find the sequences and paths for the path provided by bandage+blast for AMR gene
     if not seq_info["pre_seq"]:
         # Find the sequence before the AMR gene
-        logging.debug("Running extract_pre_sequence " + output_name + " ...")
+        LOG.debug("Running extract_pre_sequence " + output_name + " ...")
         pre_sequence_list, pre_path_list, pre_path_length_list = extract_pre_sequence(
             myGraph.segment(node_list[0]),
             orientation_list[0],
@@ -1341,7 +1324,7 @@ def extract_neighborhood_sequence(
 
     if not seq_info["post_seq"]:
         # Find the sequence after the AMR gene
-        logging.debug("Running extract_post_sequence " + output_name + " ...")
+        LOG.debug("Running extract_post_sequence " + output_name + " ...")
         (
             post_sequence_list,
             post_path_list,
@@ -1367,7 +1350,7 @@ def extract_neighborhood_sequence(
         post_path_length_list = seq_info["post_len"]
 
     # combine path_info from pre and post
-    logging.debug("Running generate_node_range_coverage " + output_name + " ...")
+    LOG.debug("Running generate_node_range_coverage " + output_name + " ...")
     path_length_list = generate_node_range_coverage(
         myGraph,
         node_list,
@@ -1382,7 +1365,7 @@ def extract_neighborhood_sequence(
         assembler,
     )
     # Combine pre_ and post_ sequences and paths
-    logging.debug("Running generate_sequence_path " + output_name + " ...")
+    LOG.debug("Running generate_sequence_path " + output_name + " ...")
     sequence_list, path_list, path_info_list = generate_sequence_path(
         myGraph,
         node_list,
@@ -1402,7 +1385,7 @@ def extract_neighborhood_sequence(
 
 
 def find_amr_related_nodes(
-    amr_file, gfa_file, output_dir, bandage_path, threshold=95, output_pre="", align_file=""
+    amr_file, gfa_file, output_dir, threshold=95, output_pre="", align_file=""
 ):
     """
     Run bandage+blast to find the sequence in amr_file (as the query) in the assembly
@@ -1418,7 +1401,6 @@ def find_amr_related_nodes(
             amr_file: the FASTA file containing the AMR sequence (our query)
             gfa_file: the GFA file containing the assembly graph (our DB)
             output_dir: the output directory to store files
-            bandage_path: the address of bandage executation file
             threshold: threshold for identity and coverage
             output_pre: used for naming output file
     Return:
@@ -1437,7 +1419,7 @@ def find_amr_related_nodes(
             os.remove(output_name + ".tsv")
         bandage_command = subprocess.run(
             [
-				bandage_path,
+				"Bandage",
                 "querypaths",
                 gfa_file,
                 amr_file,
@@ -1454,7 +1436,7 @@ def find_amr_related_nodes(
             stdout=subprocess.PIPE,
             check=True,
         )
-        logging.info(bandage_command.stdout.decode("utf-8"))
+        LOG.info(bandage_command.stdout.decode("utf-8"))
 
         align_file = output_name + ".tsv"
     # Process the output tsv file
@@ -1500,7 +1482,7 @@ def check_if_similar_ng_extractions_exist(
             and len(amr_path_info) == 1
             and new_first_node == first_node
         ):
-            logging.error(
+            LOG.error(
                 "there shouldnt be two separate amr paths with the same single node!"
             )
             import pdb
@@ -1567,119 +1549,123 @@ def check_if_similar_ng_extractions_exist(
     return similar_path
 
 
-def order_path_nodes(path_nodes, amr_file, out_dir, threshold=90):
-    """
-    Given that we have a list of nodes that are supposed to represent a given AMR
-    (i.e., AMR path), this method returns their right order to represent the AMR
-    sequence.
-    Curretly, this method is only used for Metacherchant
-    Parameters:
-            path_nodes: the list of nodes representing AMR
-            amr_file: the file containing AMR sequence
-            out_dir: the dir to store some temporary files
-            threshold: used for identity and coverage in bandage+blast
-    Returns:
-            the lists of sorted nodes and their corresponding orientation
-    """
-    path_nodes_info = []
-    no_path_nodes = []
-    for i, node in enumerate(path_nodes):
-        node_info_list = []
-        # write the sequence into a fasta file
-        query_file = create_fasta_file(
-            node.sequence, out_dir, comment=">" + node.name + "\n", file_name="query"
-        )
-        # run blast query for alignement
-        blast_file_name = os.path.join(out_dir, "blast.csv")
-        blast_file = open(blast_file_name, "w")
-        subprocess.run(
-            [
-                "blastn",
-                "-query",
-                query_file,
-                "-subject",
-                amr_file,
-                "-task",
-                "blastn",
-                "-outfmt",
-                "10",
-                "-max_target_seqs",
-                "10",
-                "-evalue",
-                "0.5",
-                "-perc_identity",
-                str(threshold - 1),
-            ],
-            stdout=blast_file,
-            check=True,
-        )
-        blast_file.close()
-        # command = 'blastn -query '+query_file+' -subject '+amr_file+\
-        # 	' -task blastn -outfmt 10 -max_target_seqs 10 -evalue 0.5 -perc_identity '+\
-        # 	str(threshold)+' > '+ blast_file_name
-        # os.system(command)
-        with open(blast_file_name, "r") as file1:
-            myfile = csv.reader(file1)
-            for row in myfile:
-                identity = int(float(row[2]))
-                coverage = int(float(row[3]) / len(node.sequence) * 100)
-                if identity >= threshold and coverage >= threshold:
-                    node_info = {
-                        "name": node.name,
-                        "c_start": int(row[8]),
-                        "c_end": int(row[9]),
-                    }
-                    node_info_list.append(node_info)
-        if not node_info_list:
-            no_path_nodes.append(i)
-            logging.error(node.name + " was not found in the sequence of " + amr_file)
-        path_nodes_info.append(node_info_list)
-    # order nodes
-    start_list = []
-    orientations = []
-    for path_info in path_nodes_info:
-        if len(path_info) > 0:
-            if path_info[0]["c_start"] < path_info[0]["c_end"]:
-                start_list.append(path_info[0]["c_start"])
-                orientations.append("+")
-            else:
-                start_list.append(path_info[0]["c_end"])
-                orientations.append("-")
-        else:
-            start_list.append(-1)
-            orientations.append("/")
-    # start_list =[e[0]['c_start'] if len(e)>0 else -1 for e in path_nodes_info ]
-    sorted_indeces = sorted(range(len(start_list)), key=lambda k: start_list[k])
-    sorted_path_nodes = []
-    sorted_orientations = []
-    for index in sorted_indeces:
-        if index not in no_path_nodes:
-            sorted_path_nodes.append(path_nodes[index])
-            sorted_orientations.append(orientations[index])
+"""
+AM: This method is not used anywhere.
+"""
+# def order_path_nodes(path_nodes, amr_file, out_dir, threshold=90):
+#     """
+#     Given that we have a list of nodes that are supposed to represent a given AMR
+#     (i.e., AMR path), this method returns their right order to represent the AMR
+#     sequence.
+#     Curretly, this method is only used for Metacherchant
+#     Parameters:
+#             path_nodes: the list of nodes representing AMR
+#             amr_file: the file containing AMR sequence
+#             out_dir: the dir to store some temporary files
+#             threshold: used for identity and coverage in bandage+blast
+#     Returns:
+#             the lists of sorted nodes and their corresponding orientation
+#     """
+#     path_nodes_info = []
+#     no_path_nodes = []
+#     for i, node in enumerate(path_nodes):
+#         node_info_list = []
+#         # write the sequence into a fasta file
+#         query_file = create_fasta_file(
+#             node.sequence, out_dir, comment=">" + node.name + "\n", file_name="query"
+#         )
+#         # run blast query for alignement
+#         blast_file_name = os.path.join(out_dir, "blast.csv")
+#         blast_file = open(blast_file_name, "w")
+#         subprocess.run(
+#             [
+#                 "blastn",
+#                 "-query",
+#                 query_file,
+#                 "-subject",
+#                 amr_file,
+#                 "-task",
+#                 "blastn",
+#                 "-outfmt",
+#                 "10",
+#                 "-max_target_seqs",
+#                 "10",
+#                 "-evalue",
+#                 "0.5",
+#                 "-perc_identity",
+#                 str(threshold - 1),
+#             ],
+#             stdout=blast_file,
+#             check=True,
+#         )
+#         blast_file.close()
+#         # command = 'blastn -query '+query_file+' -subject '+amr_file+\
+#         # 	' -task blastn -outfmt 10 -max_target_seqs 10 -evalue 0.5 -perc_identity '+\
+#         # 	str(threshold)+' > '+ blast_file_name
+#         # os.system(command)
+#         with open(blast_file_name, "r") as file1:
+#             myfile = csv.reader(file1)
+#             for row in myfile:
+#                 identity = int(float(row[2]))
+#                 coverage = int(float(row[3]) / len(node.sequence) * 100)
+#                 if identity >= threshold and coverage >= threshold:
+#                     node_info = {
+#                         "name": node.name,
+#                         "c_start": int(row[8]),
+#                         "c_end": int(row[9]),
+#                     }
+#                     node_info_list.append(node_info)
+#         if not node_info_list:
+#             no_path_nodes.append(i)
+#             LOG.error(node.name + " was not found in the sequence of " + amr_file)
+#         path_nodes_info.append(node_info_list)
+#     # order nodes
+#     start_list = []
+#     orientations = []
+#     for path_info in path_nodes_info:
+#         if len(path_info) > 0:
+#             if path_info[0]["c_start"] < path_info[0]["c_end"]:
+#                 start_list.append(path_info[0]["c_start"])
+#                 orientations.append("+")
+#             else:
+#                 start_list.append(path_info[0]["c_end"])
+#                 orientations.append("-")
+#         else:
+#             start_list.append(-1)
+#             orientations.append("/")
+#     # start_list =[e[0]['c_start'] if len(e)>0 else -1 for e in path_nodes_info ]
+#     sorted_indeces = sorted(range(len(start_list)), key=lambda k: start_list[k])
+#     sorted_path_nodes = []
+#     sorted_orientations = []
+#     for index in sorted_indeces:
+#         if index not in no_path_nodes:
+#             sorted_path_nodes.append(path_nodes[index])
+#             sorted_orientations.append(orientations[index])
+#
+#     return sorted_path_nodes, sorted_orientations
 
-    return sorted_path_nodes, sorted_orientations
-
-
-def extract_amr_align_from_file(gfa_file):
-    """
-    Retrieve the list of segments that represent AMR path
-    This method is use for Metacherchant in which such nodes ends with '_start'
-    Parameters:
-            gfa_file: the assembly graph file
-    Return:
-            the list of graph segments representing the AMR path
-    """
-    myGraph = gfapy.Gfa.from_file(gfa_file)
-    path_nodes = []
-    for segment in myGraph.segments:
-        if segment.name.endswith("_start"):
-            path_nodes.append(segment)
-    return path_nodes
+"""
+AM: This method is not used anywhere.
+"""
+# def extract_amr_align_from_file(gfa_file):
+#     """
+#     Retrieve the list of segments that represent AMR path
+#     This method is use for Metacherchant in which such nodes ends with '_start'
+#     Parameters:
+#             gfa_file: the assembly graph file
+#     Return:
+#             the list of graph segments representing the AMR path
+#     """
+#     myGraph = gfapy.Gfa.from_file(gfa_file)
+#     path_nodes = []
+#     for segment in myGraph.segments:
+#         if segment.name.endswith("_start"):
+#             path_nodes.append(segment)
+#     return path_nodes
 
 
 def neighborhood_sequence_extraction(
     gfa_file,
-	bandage_path,
     length,
     output_dir,
     threshold=95,
@@ -1696,7 +1682,6 @@ def neighborhood_sequence_extraction(
     in the assembly graph
     Parameters:
             gfa_file:	the GFA file containing the assembly graph
-			bandage_path: the path to bandage executable file
             length:		the length of all sequences around the AMR gene to be extracted
             output_dir: the output directory to store files
             threshold: 	threshold for identity and coverage
@@ -1715,16 +1700,11 @@ def neighborhood_sequence_extraction(
 	# the method is called: lists = p.map(p_extraction, amr_seq_align_info)
     # function
     amr_file, amr_paths_info = amr_seq_align_info
-    logging.debug("amr_file = " + amr_file)
+    LOG.debug("amr_file = " + amr_file)
     output_name = seq_name_prefix + os.path.splitext(os.path.basename(amr_file))[0]
     seq_output_dir = os.path.join(output_dir, "sequences")
-    if not os.path.exists(seq_output_dir):
-        try:
-            os.makedirs(seq_output_dir)
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
-            pass
+    os.makedirs(seq_output_dir, exist_ok=True)
+
     seq_file = os.path.join(
         seq_output_dir,
         output_name
@@ -1736,37 +1716,27 @@ def neighborhood_sequence_extraction(
     )
 
     if not amr_paths_info:
-        if not os.path.exists(os.path.join(output_dir, "alignment_files")):
-            try:
-                os.makedirs(os.path.join(output_dir, "alignment_files"))
-            except OSError as exc:
-                if exc.errno != errno.EEXIST:
-                    raise
-                pass
+        os.makedirs(os.path.join(output_dir, "alignment_files"), exist_ok=True)
         # remained_len_thr = length - (length*path_seq_len_percent_threshod/100.0)
         # find all AMR paths in the assembly graph
+        """
+        AM: I'm certain this branch is impossible to reach.
+        """
         found, amr_paths_info = find_amr_related_nodes(
             amr_file,
             gfa_file,
             os.path.join(output_dir, "alignment_files"),
-			bandage_path,
             threshold,
             output_name,
             ""
         )
         if not found:
-            logging.error("no alignment was found for " + amr_file)
+            LOG.error("no alignment was found for " + amr_file)
             # import pdb; pdb.set_trace()
             return "", ""
 
     # csv file for path_info
-    if not os.path.exists(os.path.join(output_dir, "paths_info")):
-        try:
-            os.makedirs(os.path.join(output_dir, "paths_info"))
-        except OSError as exc:
-            if exc.errno != errno.EEXIST:
-                raise
-            pass
+    os.makedirs(os.path.join(output_dir, "paths_info"), exist_ok=True)
     paths_info_file = os.path.join(
         output_dir,
         "paths_info",
@@ -1780,12 +1750,9 @@ def neighborhood_sequence_extraction(
     with open(paths_info_file, "a") as fd:
         writer = csv.writer(fd)
         writer.writerow(["sequence", "node", "coverage", "start", "end"])
-    logging.debug(
-        "Calling extract_neighborhood_sequence for "
-        + os.path.basename(amr_file)
-        + " ..."
-    )
+
     # Extract the sequenc of AMR neighborhood
+    LOG.debug(f"Calling extract_neighborhood_sequence for {os.path.basename(amr_file)}...")
     seq_counter = 0
     sequence_lists = []
     #path_lists = []
@@ -1804,7 +1771,7 @@ def neighborhood_sequence_extraction(
         similar_path = check_if_similar_ng_extractions_exist(
             amr_path_info, checked_amr_paths_info
         )
-        # logging.info('amr_path_info: '+str(amr_path_info)+' checked_amr_paths_info: '+str(checked_amr_paths_info)+' similar_path'+str(similar_path))
+        # LOG.info('amr_path_info: '+str(amr_path_info)+' checked_amr_paths_info: '+str(checked_amr_paths_info)+' similar_path'+str(similar_path))
         if (
             similar_path["up_stream"] > -1
             and similar_path["up_stream"] == similar_path["down_stream"]
@@ -1917,7 +1884,7 @@ def neighborhood_sequence_extraction(
         # if not sequence_list:
         # 	continue
         write_sequences_to_file(sequence_list, path_list, seq_file)
-        logging.info(
+        LOG.info(
             "Extracted neighborhoods written to " + seq_file
         )
         seq_counter = write_paths_info_to_file(

@@ -1,0 +1,31 @@
+{% set name = "sarand-dev" %}
+{% set version = "0.0.0" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  git_url: https://github.com/aaronmussig/sarand.git
+
+build:
+  noarch: python
+  number: 0
+
+requirements:
+  host:
+    - python >=3.8
+    - pip
+  run:
+    - python >=3.8
+
+
+test:
+  imports:
+    - sarand
+  commands:
+    - sarand -h
+
+#about:
+#  home: https://github.com/biocore/tax2tree
+#  summary: 'Automated taxonomy decoration onto a tree'

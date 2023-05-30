@@ -1,3 +1,2 @@
-#!/usr/bin/env python
-
 __version__ = "1.0.1"
+__program_name__ = 'sarand'
