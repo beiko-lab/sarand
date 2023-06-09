@@ -5,8 +5,9 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Optional, List
 
+from sarand.config import PROGRAM_VERSION_NA, CONDA_EXE_NAME, \
+    CONDA_RGI_NAME
 from sarand.util.logger import LOG
-from sarand.config import IS_DOCKER_CONTAINER, DOCKER_RGI_ENV, DOCKER_CONDA_EXE, PROGRAM_VERSION_NA
 
 
 class RgiParams:
@@ -132,8 +133,8 @@ class Rgi:
         cmd = params.as_cmd()
 
         # If this is being run in the Docker container, then activate the env first
-        if IS_DOCKER_CONTAINER:
-            cmd = [DOCKER_CONDA_EXE, 'run', '-n', DOCKER_RGI_ENV] + cmd
+        if CONDA_RGI_NAME:
+            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_RGI_NAME] + cmd
 
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(cmd, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -164,8 +165,8 @@ class Rgi:
     @lru_cache(maxsize=1)
     def version() -> str:
         cmd = ['rgi', '-h']
-        if IS_DOCKER_CONTAINER:
-            cmd = [DOCKER_CONDA_EXE, 'run', '-n', DOCKER_RGI_ENV] + cmd
+        if CONDA_RGI_NAME:
+            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_RGI_NAME] + cmd
         proc = subprocess.Popen(cmd, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
         if proc.returncode != 0:

@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
-from sarand.config import PROGRAM_VERSION_NA
+from sarand.config import PROGRAM_VERSION_NA, CONDA_BLAST_NAME, CONDA_EXE_NAME
 from sarand.util.logger import LOG
 
 _RE_VERSION = re.compile(r'blastn: ([\d.]+)')
@@ -12,7 +12,6 @@ _RE_VERSION = re.compile(r'blastn: ([\d.]+)')
 
 class BlastnOutFmt(Enum):
     """Enumerable class of all supported output formats."""
-
     FMT_1 = "10 pident length qcovhsp"
 
 
@@ -110,9 +109,16 @@ class Blastn:
 
         # Generate the command
         cmd = params.as_cmd()
-        LOG.debug(' '.join(map(str, cmd)))
 
         # Run blastn
+        if CONDA_BLAST_NAME:
+            cmd = [
+                      CONDA_EXE_NAME,
+                      'run',
+                      '-n',
+                      CONDA_BLAST_NAME,
+                  ] + cmd
+        LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -154,6 +160,13 @@ class Blastn:
     def version() -> str:
         """Returns the version of blastn on the path."""
         cmd = ['blastn', '-version']
+        if CONDA_BLAST_NAME:
+            cmd = [
+                      CONDA_EXE_NAME,
+                      'run',
+                      '-n',
+                      CONDA_BLAST_NAME,
+                  ] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE

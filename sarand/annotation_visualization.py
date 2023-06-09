@@ -19,7 +19,6 @@ import sys
 from PIL import Image
 import argparse
 from csv import DictReader
-import shutil
 import os
 
 from sarand.util.logger import LOG

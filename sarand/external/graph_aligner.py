@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional, List, Union, Dict
 
-from sarand.config import IS_DOCKER_CONTAINER, DOCKER_GRAPH_ALIGNER_ENV, DOCKER_CONDA_EXE, PROGRAM_VERSION_NA
+from sarand.config import PROGRAM_VERSION_NA, CONDA_GRAPH_ALIGNER_NAME, CONDA_EXE_NAME
 from sarand.util.logger import LOG
 
 _RE_VERSION = re.compile(r'(\d+\.\d+\.\d+[-\w]*)')
@@ -95,12 +95,6 @@ class GraphAlignerParams:
                     preset: Parameters optimized for de Bruijn or variation graphs: dbg, or vg respectively
                 """
 
-        # Limit the available options as not all methods have been implemented
-        # if corrected_clipped_out is None or corrected_clipped_out.suffix != '.fa':
-        #     raise NotImplemented("corrected_clipped_out must be specified with a .fa suffix")
-        # if align_out is None or align_out.suffix != '.gaf':
-        #     raise NotImplemented("align_out must be specified with a .gaf suffix")
-
         # Store the parameters
         self.graph = graph
         self.reads = reads
@@ -131,6 +125,7 @@ class GraphAlignerParams:
         self.preset = preset
 
     def as_cmd(self) -> List[str]:
+        """Return the GraphAligner command for use in subprocess."""
         cmd = [
             'GraphAligner',
             '--graph', self.graph.absolute(),
@@ -275,7 +270,10 @@ class GraphAlignerParams:
 
 class GraphAlignerResult:
     """
-    https://github.com/lh3/gfatools/blob/master/doc/rGFA.md#the-graph-alignment-format-gaf
+    A single entry in the GraphAligner GAF file.
+
+    GAF format: https://github.com/lh3/gfatools/blob/master/doc/rGFA.md#the-graph-alignment-format-gaf
+    GAF custom tags: https://github.com/maickrau/GraphAligner/blob/master/src/GraphAlignerGAFAlignment.h#LL193C3-L193C3
     """
     __slots__ = (
         'name', 'len', 'start', 'end', 'strand', 'path', 'path_len',
@@ -313,17 +311,6 @@ class GraphAlignerResult:
         self.map_quality: float = map_quality
         self.custom_tags: Dict[str, Union[float, str, int]] = custom_tags
 
-        """
-        Custom tags:
-        https://github.com/maickrau/GraphAligner/blob/master/src/GraphAlignerGAFAlignment.h#LL193C3-L193C3
-      sstr << "\t" << "NM:i:" << (mismatches + deletions + insertions);
-		if (alignmentXScore != -1) sstr << "\t" << "AS:f:" << alignmentXScore;
-		sstr << "\t" << "dv:f:" << 1.0-((double)matches / (double)(matches + mismatches + deletions + insertions));
-		sstr << "\t" << "id:f:" << ((double)matches / (double)(matches + mismatches + deletions + insertions));
-		if (includecigar) sstr << "\t" << "cg:Z:" << cigar.str();
-		return sstr.str();
-        """
-
     def __repr__(self):
         return self.name
 
@@ -333,7 +320,9 @@ class GraphAlignerResult:
 
     @property
     def path_to_sarand(self):
-        # TODO: Here I assume that the GAF path shows > as + and < as -
+        """
+        AM: GAF files from GraphAligner displays > as + and < as -
+        """
         hits = re.findall(r'([><])(\d+)', self.path)
         if len(hits) == 0:
             raise Exception('??')
@@ -400,8 +389,8 @@ class GraphAligner:
         cmd = params.as_cmd()
 
         # If this is being run in the Docker container, then activate the env first
-        if IS_DOCKER_CONTAINER:
-            cmd = [DOCKER_CONDA_EXE, 'run', '-n', DOCKER_GRAPH_ALIGNER_ENV] + cmd
+        if CONDA_GRAPH_ALIGNER_NAME:
+            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_GRAPH_ALIGNER_NAME] + cmd
         LOG.info(' '.join(map(str, cmd)))
 
         # Run the command
@@ -467,7 +456,7 @@ class GraphAligner:
                     precise_clipping=0.9,
                 )
                 if ga_extra_args:
-                    params.update_from_dictionary(ga_extra_args)
+                    params.update_from_object(ga_extra_args)
                 return GraphAligner.run(params)
 
     @staticmethod
@@ -512,8 +501,8 @@ class GraphAligner:
     def version() -> str:
         """Returns the version of GraphAligner on the path."""
         cmd = ['GraphAligner', '--version']
-        if IS_DOCKER_CONTAINER:
-            cmd = [DOCKER_CONDA_EXE, 'run', '-n', DOCKER_GRAPH_ALIGNER_ENV] + cmd
+        if CONDA_GRAPH_ALIGNER_NAME:
+            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_GRAPH_ALIGNER_NAME] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,

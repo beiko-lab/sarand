@@ -61,3 +61,6 @@ coverage.xml
 !ErmA.fasta
 
 testing/
+test/
+tmp/
+db-light.tar.gz

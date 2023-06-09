@@ -4,12 +4,14 @@ import subprocess
 from pathlib import Path
 from typing import Optional, List
 
-from sarand.config import IS_DOCKER_CONTAINER, DOCKER_BAKTA_ENV, DOCKER_CONDA_EXE, PROGRAM_VERSION_NA
+from sarand.config import DOCKER_BAKTA_ENV, PROGRAM_VERSION_NA, CONDA_BAKTA_NAME, \
+    CONDA_EXE_NAME
 from sarand.util.logger import LOG
 
 
 class BaktaParams:
-    """Interface to the available options when executing Bakta.
+    """
+    Interface to the available options when executing Bakta.
     https://github.com/oschwengers/bakta
     """
     __slots__ = (
@@ -260,25 +262,27 @@ class BaktaResult:
 
     def get_for_sarand(self):
         out = list()
-        # TODO: Maybe get the sequence from the json too?
 
+        """
+        AM: The sequence can also be obtained from the self.data method if needed.
+        """
         for feature in self.data['features']:
             """
             AM:
             - The Locus tag is different from Prokka
             - Length is off by 1, this is either due to exclusive bounds, or from Bandage?
             - Product name is different (more verbose than prokka)
-            - Remove prokka_gene_name once implemented
             - The stop/start are flipped for reverse strand as per the previous implementation
             """
             out.append({
                 "locus_tag": feature.get('locus'),
                 "gene": feature.get('gene') or '',  # AM: This matches the expected output
-                "length": str((feature['stop'] - feature['start']) + 1), # AM: This matches the expected output but should probably remain int
+                "length": str((feature['stop'] - feature['start']) + 1),
+                # AM: This matches the expected output but should probably remain int
                 "product": feature['product'],
                 "start_pos": feature['start'] if feature['strand'] == '+' else feature['stop'],
                 "end_pos": feature['stop'] if feature['strand'] == '+' else feature['start'],
-                "prokka_gene_name": 'TO REMOVE',
+                # "prokka_gene_name": 'TO REMOVE',
                 "RGI_prediction_type": None,
                 "coverage": None,
                 "family": None,
@@ -300,9 +304,9 @@ class Bakta:
         cmd = params.as_cmd()
 
         # If this is being run in the Docker container, then activate the env first
-        if IS_DOCKER_CONTAINER:
+        if CONDA_BAKTA_NAME:
             cmd = [
-                      DOCKER_CONDA_EXE,
+                      CONDA_EXE_NAME,
                       'run',
                       '-n',
                       DOCKER_BAKTA_ENV,
@@ -334,12 +338,12 @@ class Bakta:
     @staticmethod
     def version() -> str:
         cmd = ['bakta', '--version']
-        if IS_DOCKER_CONTAINER:
+        if CONDA_BAKTA_NAME:
             cmd = [
-                      DOCKER_CONDA_EXE,
+                      CONDA_EXE_NAME,
                       'run',
                       '-n',
-                      DOCKER_BAKTA_ENV,
+                      CONDA_BAKTA_NAME,
                   ] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(

@@ -33,8 +33,7 @@ from sarand.utils import (
     find_node_name,
     exist_in_path,
     compare_two_sequences,
-    read_path_info_from_align_file,
-    create_fasta_file,
+    read_path_info_from_align_file
 )
 
 OUT_DIR = "output"

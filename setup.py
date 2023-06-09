@@ -6,8 +6,7 @@ with open('README.md') as fh:
 
 with open('sarand/__init__.py') as fh:
     info = fh.read()
-    version = re.search('^__version__\s*=\s*"(.*)"',
-                        info, re.M).group(1)
+    version = re.search('^__version__\s*=\s*"(.*)"', info, re.M).group(1)
 
 setup(
     name='sarand',
@@ -20,12 +19,11 @@ setup(
     url="https://github.com/somayeh-aut/AMR_context",
     # download_url=f"https://github.com/pha4ge/archive/v{version}.tar.gz",
     keywords=["Metagenomic Assembly graph", "Antimicrobial resistance", "Context extraction"],
-    python_requires='>=3.6.10',
+    python_requires='>=3.7',
     long_description=long_description,
     long_description_content_type="text/markdown",
     # what about the ones in the requirement file?????? should I include them here?????
-    install_requires=['dna_features_viewer', 'numpy',
-                      'matplotlib', 'gfapy', 'pandas', 'biopython', 'tqdm'],
+    install_requires=['dna_features_viewer', 'numpy', 'pillow', 'matplotlib', 'gfapy', 'pandas', 'biopython'],
     # not sure how to set this correctly???????????????????
     # package_data={
     #     'sarand': ['data/CARD_AMR_seq.fasta'],
@@ -50,7 +48,6 @@ setup(
         "Operating System :: POSIX",
         "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",

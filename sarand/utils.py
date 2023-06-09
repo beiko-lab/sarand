@@ -14,7 +14,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 
 from Bio import SeqIO
 

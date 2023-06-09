@@ -1,19 +1,15 @@
-import sys
-import os
 import argparse
 import datetime
+import os
 import shutil
+import sys
 from pathlib import Path
 
 from sarand.__init__ import __version__
 from sarand.full_pipeline import full_pipeline_main
 from sarand.util.logger import create_logger, get_logger
 from sarand.util.pkg import get_pkg_card_fasta_path
-from sarand.utils import (
-    assert_dependencies_exist,
-    check_file,
-    validate_range,
-)
+from sarand.utils import assert_dependencies_exist, check_file, validate_range
 
 
 def main():
@@ -23,9 +19,9 @@ def main():
     run_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     parser = argparse.ArgumentParser(
         description="Identify and extract the "
-        "local neighbourhood of target genes "
-        " (such as AMR) from a GFA formatted "
-        " assembly graph",
+                    "local neighbourhood of target genes "
+                    " (such as AMR) from a GFA formatted "
+                    " assembly graph",
         prog="sarand",
     )
     parser.add_argument(
@@ -45,7 +41,7 @@ def main():
         choices=["metaspades", "bcalm", "megahit"],
         required=True,
         help="Assembler used to generate input GFA (required to correctly parse "
-        "coverage information)",
+             "coverage information)",
     )
     parser.add_argument(
         "-k",
@@ -73,10 +69,10 @@ def main():
         default=30,
         type=validate_range(int, -1, 500),
         help="Maximum coverage difference to include "
-        "when filtering graph neighbourhood. Use "
-        "-1 to indicate no coverage threshold "
-        "(although this will likely lead to false "
-        "positive neighbourhoods).",
+             "when filtering graph neighbourhood. Use "
+             "-1 to indicate no coverage threshold "
+             "(although this will likely lead to false "
+             "positive neighbourhoods).",
     )
     parser.add_argument(
         "-t",
@@ -84,8 +80,8 @@ def main():
         default=get_pkg_card_fasta_path(),
         type=check_file,
         help="Target genes to "
-        "search for in the assembly graph (fasta formatted). "
-        " Default is the pre-installed CARD database",
+             "search for in the assembly graph (fasta formatted). "
+             " Default is the pre-installed CARD database",
     )
     parser.add_argument(
         "-x",
@@ -93,7 +89,7 @@ def main():
         default=95,
         type=validate_range(float, 0.1, 100),
         help="Minimum identity/coverage to identify presence "
-        "of target gene in assembly graph",
+             "of target gene in assembly graph",
     )
     parser.add_argument(
         "-l",
@@ -133,7 +129,7 @@ def main():
         default=False,
         action="store_true",
         help="Include loose criteria hits if using RGI to annotate"
-        " graph neighbourhoods",
+             " graph neighbourhoods",
     )
 
     # GraphAligner options

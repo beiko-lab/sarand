@@ -24,8 +24,6 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Dict, List, Any
 
-from tqdm import tqdm
-
 from sarand.annotation_visualization import visualize_annotation
 from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_DIR_NAME, SEQ_NAME_PREFIX, \
     ANNOTATION_DIR
@@ -76,7 +74,7 @@ def write_info_in_annotation_file(
                 seq,
                 len_seq,
                 gene_info["gene"],
-                gene_info["prokka_gene_name"],
+                # gene_info["prokka_gene_name"],
                 gene_info["product"],
                 gene_info["length"],
                 gene_info["start_pos"],
@@ -94,7 +92,7 @@ def write_info_in_annotation_file(
                     seq,
                     len_seq,
                     gene_info["gene"],
-                    gene_info["prokka_gene_name"],
+                    # gene_info["prokka_gene_name"],
                     gene_info["product"],
                     gene_info["length"],
                     gene_info["start_pos"],
@@ -637,7 +635,7 @@ def neighborhood_annotation(
     gene_info = {
         "seq_value": "seq_value",
         "gene": "gene",
-        "prokka_gene_name": "prokka_gene_name",
+        # "prokka_gene_name": "prokka_gene_name",
         "product": "product",
         "length": "length",
         "start_pos": "start_pos",
@@ -1062,7 +1060,7 @@ def sequence_neighborhood_main(
             params.assembler
         )
         with Pool(params.num_cores) as p:
-            lists = list(tqdm(p.imap(p_extraction, amr_seq_align_info), total=len(amr_seq_align_info)))
+            lists = list(p.imap(p_extraction, amr_seq_align_info))
     seq_files, path_info_files = zip(*lists)
 
     # AM: To clean up the file we created earlier
