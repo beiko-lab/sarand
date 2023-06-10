@@ -646,7 +646,8 @@ def read_path_info_from_align_file_with_multiple_amrs(
                 'identity': identity
             })
 
-        if int(coverage) >= threshold and int(identity) >= threshold:
+        # AM: Removed the cast to integer before comparison
+        if coverage >= threshold and identity >= threshold:
             nodes, orientation_list = result.path_to_sarand
             """
             AM: start_pos has been incremented by one to compensate for exclusive bounds
