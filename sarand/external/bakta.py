@@ -4,8 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional, List
 
-from sarand.config import DOCKER_BAKTA_ENV, PROGRAM_VERSION_NA, CONDA_BAKTA_NAME, \
-    CONDA_EXE_NAME
+from sarand.config import PROGRAM_VERSION_NA, CONDA_BAKTA_NAME, CONDA_EXE_NAME
 from sarand.util.logger import LOG
 
 
@@ -309,7 +308,7 @@ class Bakta:
                       CONDA_EXE_NAME,
                       'run',
                       '-n',
-                      DOCKER_BAKTA_ENV,
+                      CONDA_BAKTA_NAME,
                   ] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
