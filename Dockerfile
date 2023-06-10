@@ -45,10 +45,9 @@ RUN apt-get update -y -m && \
 # Install the bakta database
 RUN mkdir -p /bakta
 WORKDIR /bakta
-RUN wget https://zenodo.org/record/7669534/files/db-light.tar.gz?download=1
-#COPY db-light.tar.gz /bakta/db-light.tar.gz
-RUN tar -xzvf db-light.tar.gz && \
-    rm db-light.tar.gz && \
+RUN wget https://zenodo.org/record/7669534/files/db-light.tar.gz?download=1 &&  \
+    tar -xzvf db-light.tar.gz?download=1 && \
+    rm db-light.tar.gz?download=1 && \
     micromamba run -n ${CONDA_BAKTA_NAME} amrfinder_update --force_update --database ${BAKTA_DB}/amrfinderplus-db
 
 # Copy across the sarand files and install
