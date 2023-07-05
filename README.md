@@ -81,7 +81,7 @@ Here you will specify environment variables that are specific to the `sarand-1.0
 these will be automatically used when the environment is active.
 
 ```shell
-conda activate -n sarand-1.0.1
+conda activate sarand-1.0.1
 conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
 conda env config vars set CONDA_GRAPH_ALIGNER_NAME=graphaligner-1.0.17b 
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
@@ -94,7 +94,7 @@ conda env config vars set CONDA_EXE_NAME=conda
 **Installing sarand:**
 
 ```shell
-conda activate -n sarand-1.0.1
+conda activate sarand-1.0.1
 python -m pip install sarand==1.0.1
 ```
 

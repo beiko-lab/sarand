@@ -1,0 +1,8 @@
+# Annotated with Bakta
+# Software: v1.8.1
+# Database: v5.0, light
+# DOI: 10.1099/mgen.0.000685
+# URL: github.com/oschwengers/bakta
+#Sequence Id	Type	Start	Stop	Strand	Locus Tag	Gene	Product	DbXrefs
+contig_1	cds	554	1000	+	FKBKAJ_00005		N-acetyltransferase domain-containing protein	SO:0001217, UniRef:UniRef50_Q7WTB9
+contig_1	cds	1001	2440	+	FKBKAJ_00010	aac(6')-Ie	bifunctional aminoglycoside N-acetyltransferase AAC(6')-Ie/aminoglycoside O-phosphotransferase APH(2'')-Ia	NCBIProtein:WP_001028144.1, SO:0001217, UniRef:UniRef50_P0A0C2
