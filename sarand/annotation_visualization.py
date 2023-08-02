@@ -9,6 +9,7 @@ To run:
     --title <the image title> --output <the output image name>
 
 """
+import tempfile
 
 from dna_features_viewer import GraphicFeature, GraphicRecord
 import matplotlib.pyplot as plt
@@ -18,9 +19,9 @@ import sys
 from PIL import Image
 import argparse
 from csv import DictReader
-import logging
-import shutil
 import os
+
+from sarand.util.logger import LOG
 
 
 def show_images(image_list, main_title, output, cols=1, title_list=None):
@@ -50,6 +51,10 @@ def show_images(image_list, main_title, output, cols=1, title_list=None):
     fig.suptitle(main_title, size=18)
     fig.set_size_inches(np.array(fig.get_size_inches()) * n_images)
     plt.savefig(output)
+    """
+    AM: Plots must be closed otherwise matplotlib will throw an error.
+    """
+    plt.close()
 
 
 def extract_annotation_from_csv(input_csv_file):
@@ -90,11 +95,12 @@ def extract_annotation_from_csv(input_csv_file):
                 seq_length_list.append(int(row["seq_length"]))
             seq_info.append(gene_info)
         seq_info_list.append(seq_info)
+
     if not has_row:
-        logging.error("there is no sequence to visualize!")
+        LOG.error("there is no sequence to visualize!")
         return [], [], []
     if len(seq_info_list) > 20:
-        logging.error("there are more than 20 sequences to visualize!")
+        LOG.error("there are more than 20 sequences to visualize!")
         return [], [], []
     return seq_info_list, seq_length_list, title_list
 
@@ -114,42 +120,38 @@ def visualize_annotation(input_csv_file, output, title=""):
     if not seq_info_list:
         return
     # create a temporary folder to store tmporary images
-    temp_dir = "tmp_image/"
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-    image_list = []
-    for counter, seq_info in enumerate(seq_info_list):
-        if not seq_info:
-            break
-        features = []
-        for gene_info in seq_info:
-            features.append(
-                GraphicFeature(
-                    start=gene_info["start_pos"],
-                    end=gene_info["end_pos"],
-                    strand=+1,
-                    color="#ffd700",
-                    label=gene_info["name"] + gene_info["coverage"],
+    with tempfile.TemporaryDirectory() as temp_dir:
+        image_list = []
+        for counter, seq_info in enumerate(seq_info_list):
+            if not seq_info:
+                break
+            features = []
+            for gene_info in seq_info:
+                features.append(
+                    GraphicFeature(
+                        start=gene_info["start_pos"],
+                        end=gene_info["end_pos"],
+                        strand=+1,
+                        color="#ffd700",
+                        label=gene_info["name"] + gene_info["coverage"],
+                    )
                 )
+            record = GraphicRecord(
+                sequence_length=seq_length_list[counter], features=features
             )
-        record = GraphicRecord(
-            sequence_length=seq_length_list[counter], features=features
+            ax, _ = record.plot(figure_width=10)
+            ax.figure.savefig(
+                os.path.join(temp_dir, "temp" + str(counter) + ".jpg"), bbox_inches="tight"
+            )
+            """
+            AM: Plots must be closed otherwise matplotlib will throw an error.
+            """
+            plt.close()
+            img = Image.open(os.path.join(temp_dir, "temp" + str(counter) + ".jpg"))
+            image_list.append(img)
+        show_images(
+            image_list=image_list, main_title=title, output=output, title_list=title_list
         )
-        ax, _ = record.plot(figure_width=10)
-        ax.figure.savefig(
-            os.path.join(temp_dir, "temp" + str(counter) + ".jpg"), bbox_inches="tight"
-        )
-        img = Image.open(os.path.join(temp_dir, "temp" + str(counter) + ".jpg"))
-        image_list.append(img)
-    show_images(
-        image_list=image_list, main_title=title, output=output, title_list=title_list
-    )
-    # delete temporary directory
-    if os.path.exists(temp_dir):
-        try:
-            shutil.rmtree(temp_dir)
-        except OSError as e:
-            logging.error("Error: %s - %s." % (e.filename, e.strerror))
 
 
 def main(args):
@@ -157,7 +159,7 @@ def main(args):
     if args.csvfile:
         visualize_annotation(args.csvfile, args.output, args.title)
     else:
-        logging.error(
+        LOG.error(
             "please enter the path for the csv file containing the sequences annotation"
         )
         sys.exit()
