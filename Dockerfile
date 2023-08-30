@@ -1,69 +1,37 @@
-# To build this image run the following commands:
-# docker build --no-cache -t sarand-dev .
+FROM condaforge/mambaforge
+ARG MAMBA_DOCKERFILE_ACTIVATE=1 
 
-# To run the image:
-# docker run -v /tmp/sarand:/tmp/sarand -v -it sarand-dev bash
+# metadata
+LABEL base.image="miniconda3"
+LABEL version="0.0.1"
+LABEL software="sarand"
+LABEL description="Tool to extract AMR neighbourhoods from metagenomic graphs"
+LABEL website="https://github.com/maguire-lab/sarand"
+LABEL documentation="https://github.com/maguire-lab/sarand/blob/master/README.rst"
+LABEL license="https://github.com/maguire-lab/sarand/blob/master/LICENSE"
+LABEL tags="Genomics"
 
-FROM mambaorg/micromamba:1.4-bullseye-slim
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-ARG VER
+# maintainer
+MAINTAINER Finlay Maguire <finlaymaguire@gmail.com>
 
-USER root
+#ADD . /
+RUN git clone https://github.com/maguire-lab/sarand
+WORKDIR sarand
 
-# Set the conda environment names to run dependencies
-ENV CONDA_BAKTA_NAME='bakta'
-ENV CONDA_GRAPH_ALIGNER_NAME='graphaligner'
-ENV CONDA_RGI_NAME='rgi'
-ENV CONDA_EXE_NAME='micromamba'
+RUN mamba env create -f conda_env.yaml 
+RUN conda run -n sarand pip install .
+RUN apt-get update 
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y libglu1-mesa-dev build-essential mesa-common-dev libfontconfig1 software-properties-common zip
 
-# Configure the bakta database
-ENV BAKTA_DB='/bakta/db-light'
+RUN wget https://github.com/rrwick/Bandage/releases/download/v0.9.0/Bandage_Ubuntu-x86-64_v0.9.0_AppImage.zip && unzip Bandage_Ubuntu-x86-64_v0.9.0_AppImage.zip && chmod +x Bandage_Ubuntu-x86-64_v0.9.0.AppImage && cp Bandage_Ubuntu-x86-64_v0.9.0.AppImage /opt/conda/envs/sarand/bin/Bandage
 
-# Install wget and create the conda environments
-RUN apt-get update -y -m && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --no-install-suggests -y \
-        wget && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    micromamba create -n ${CONDA_RGI_NAME} -c conda-forge -c bioconda -c defaults -y  \
-        rgi=5.2.0 && \
-    micromamba create -n ${CONDA_GRAPH_ALIGNER_NAME} -c conda-forge -c bioconda -c defaults -y  \
-        graphaligner=1.0.17 && \
-    micromamba create -n ${CONDA_BAKTA_NAME} -c conda-forge -c bioconda -c defaults -y \
-        bakta=1.8.1 && \
-    micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
-        blast=2.14.0 \
-        dna_features_viewer=3.1.2 \
-        numpy \
-        matplotlib-base \
-        gfapy=1.2.3 \
-        pandas \
-        python \
-        pillow \
-        biopython
+# BandageNG altermative
+#RUN wget https://github.com/asl/BandageNG/releases/download/v2022.08/BandageNG-b05263d-x86_64.AppImage && chmod +x BandageNG-b05263d-x86_64.AppImage && cp BandageNG-b05263d-x86_64.AppImage /opt/conda/envs/sarand/bin/Bandage
+#RUN apt-get update && apt-get install -y libglx0 libopengl0  libegl1
 
-# Install the bakta database
-RUN mkdir -p /bakta
-WORKDIR /bakta
-RUN wget https://zenodo.org/record/7669534/files/db-light.tar.gz?download=1 &&  \
-    tar -xzvf db-light.tar.gz?download=1 && \
-    rm db-light.tar.gz?download=1 && \
-    micromamba run -n ${CONDA_BAKTA_NAME} amrfinder_update --force_update --database ${BAKTA_DB}/amrfinderplus-db
-
-# Copy across the sarand files and install
-# Comment this out and replace it with the commented section below once in PyPI
-RUN mkdir -p /tmp/sarand
-COPY ./sarand /tmp/sarand/sarand
-COPY ./setup.py /tmp/sarand/setup.py
-COPY ./README.md /tmp/sarand/README.md
-RUN micromamba run -n sarand pip install /tmp/sarand && \
-    micromamba clean --all --yes && \
-    rm -rf /tmp/sarand
-
-# Uncomment when sarand is in PyPI
-#RUN micromamba run -n sarand pip install sarand==${VER} && \
-#    micromamba clean --all --yes
-
-# Prefix all docker commands with sarand, the user will only need to start from -i
-ENTRYPOINT ["/usr/local/bin/_entrypoint.sh", "micromamba", "run", "-n", "sarand", "sarand"]
-CMD ["-h"]
+SHELL ["conda", "run", "-n", "sarand", "/bin/bash", "-c"]
+ARG APPIMAGE_EXTRACT_AND_RUN=1
+RUN prokka --setupdb
+RUN /bin/bash test/test.sh 
+ENTRYPOINT ["conda", "run", "-n", "sarand"]

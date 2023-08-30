@@ -1,0 +1,253 @@
+Seq-entry ::= set {
+  class genbank ,
+  seq-set {
+    set {
+      class nuc-prot ,
+      descr {
+        source {
+          org {
+            taxname "Genus species" ,
+            orgname {
+              mod {
+                {
+                  subtype strain ,
+                  subname "strain" } } ,
+              gcode 11 } } } ,
+        comment "Annotated using prokka 1.14.5 from
+ https://github.com/tseemann/prokka" ,
+        user {
+          type
+            str "NcbiCleanup" ,
+          data {
+            {
+              label
+                str "method" ,
+              data
+                str "SeriousSeqEntryCleanup" } ,
+            {
+              label
+                str "version" ,
+              data
+                int 8 } ,
+            {
+              label
+                str "month" ,
+              data
+                int 5 } ,
+            {
+              label
+                str "day" ,
+              data
+                int 8 } ,
+            {
+              label
+                str "year" ,
+              data
+                int 2022 } } } ,
+        create-date
+          std {
+            year 2022 ,
+            month 5 ,
+            day 8 } } ,
+      seq-set {
+        seq {
+          id {
+            local
+              str "sequence:" } ,
+          descr {
+            molinfo {
+              biomol genomic } } ,
+          inst {
+            repr raw ,
+            mol dna ,
+            length 3440 ,
+            seq-data
+              iupacna "AAAATACACTCAAAGGCATTGAATGTATTTACGCTCTATATAAAAAGAACCGCAG
+ATCTCTTCAGATCTACGGATTTTCGCCATGCCACGAAATTAGGGATATGTTAGCCAGTTAAGGGAACAACGACATGAT
+AAAATGGTAGTTAGCTATATTTTTCTAACTTTGCAACAGAACCCCTAAAAAAAATTCAAAATCTTTCAGAGAAGCTGT
+TAAAGGAATTTTTAAGTTCACAGATATTAACTTAGCGCGTGAGGCTAAAAATCGATTGATTCATGATTATATCGATCA
+ACCAAAATATTCAAAAGCTTGCGCATCATTGGATGATGGATTCGAAGACGCCTTTCAATATACCGTACAAGGAAATTC
+CCACAATCGACTAAAGAGTACCAATCTAATTGAACGACTGAATCAAGAAGTACGCAGAAGAGAAAAGATTATTCGCAT
+CTTCCCCAATCAAACATCAGCCAATCGCTTAATTGGAGCCGTTCTTATGGACCTACATGATGAATGGATTTATTCTTC
+AAGAAAATACATCAATTTTGATAAGTAGAAATGGTAAAAACATTGTATAGCATTTTACACAGGAGTCTGGACTTGACT
+GAGTTTATGGAAGAAGTTTTAATTGATGATAATATGGTTTTTGATATTGATAATTTAAAAGGATTTCTTAATGATACC
+AGTTCATTTGGGTTTATAGCTAAAGAAAATAATAAAATTATAGGATTTGCATATTGCTATACACTTTTAAGACCTGAT
+GGAAAAACAATGTTTTATTTACACTCAATAGGAATGTTACCTAACTATCAAGACAAAGGTTATGGTTCAAAATTATTA
+TCTTTTATTAAGGAATATTCTAAAGAGATTGGTTGTTCTGAAATGTTTTTAATAACTGATAAAGGTAATCCTAGAGCT
+TGCCATGTATATGAAAAATTAGGTGGTAAAAATGATTATAAAGATGAAATAGTATATGTATATGATTATGAAAAAGGT
+GATAAATAAATGAATATAGTTGAAAATGAAATATGTATAAGAACTTTAATAGATGATGATTTTCCTTTGATGTTAAAA
+TGGTTAACTGATGAAAGAGTATTAGAATTTTATGGTGGTAGAGATAAAAAATATACATTAGAATCATTAAAAAAACAT
+TATACAGAGCCTTGGGAAGATGAAGTTTTTAGAGTAATTATTGAATATAACAATGTTCCTATTGGATATGGACAAATA
+TATAAAATGTATGATGAGTTATATACTGATTATCATTATCCAAAAACTGATGAGATAGTCTATGGTATGGATCAATTT
+ATAGGAGAGCCAAATTATTGGAGTAAAGGAATTGGTACAAGATATATTAAATTGATTTTTGAATTTTTGAAAAAAGAA
+AGAAATGCTAATGCAGTTATTTTAGACCCTCATAAAAATAATCCAAGAGCAATAAGGGCATACCAAAAATCTGGTTTT
+AGAATTATTGAAGATTTGCCAGAACATGAATTACACGAGGGCAAAAAAGAAGATTGTTATTTAATGGAATATAGATAT
+GATGATAATGCCACAAATGTTAAGGCAATGAAATATTTAATTGAGCATTACTTTGATAATTTCAAAGTAGATAGTATT
+GAAATAATCGGTAGTGGTTATGATAGTGTGGCATATTTAGTTAATAATGAATACATTTTTAAAACAAAATTTAGTACT
+AATAAGAAAAAAGGTTATGCAAAAGAAAAAGCAATATATAATTTTTTAAATACAAATTTAGAAACTAATGTAAAAATT
+CCTAATATTGAATATTCGTATATTAGTGATGAATTATCTATACTAGGTTATAAAGAAATTAAAGGAACTTTTTTAACA
+CCAGAAATTTATTCTACTATGTCAGAAGAAGAACAAAATTTGTTAAAACGAGATATTGCCAGTTTTTTAAGACAAATG
+CACGGTTTAGATTATACAGATATTAGTGAATGTACTATTGATAATAAACAAAATGTATTAGAAGAGTATATATTGTTG
+CGTGAAACTATTTATAATGATTTAACTGATATAGAAAAAGATTATATAGAAAGTTTTATGGAAAGACTAAATGCAACA
+ACAGTTTTTGAGGGTAAAAAGTGTTTATGCCATAATGATTTTAGTTGTAATCATCTATTGTTAGATGGCAATAATAGA
+TTAACTGGAATAATTGATTTTGGAGATTCTGGAATTATAGATGAATATTGTGATTTTATATACTTACTTGAAGATAGT
+GAAGAAGAAATAGGAACAAATTTTGGAGAAGATATATTAAGAATGTATGGAAATATAGATATTGAGAAAGCAAAAGAA
+TATCAAGATATAGTTGAAGAATATTATCCTATTGAAACTATTGTTTATGGAATTAAAAATATTAAACAGGAATTTATC
+GAAAATGGTAGAAAAGAAATTTATAAAAGGACTTATAAAGATTGATTATATAATATATGAAAAGCTATTATAAAAGAC
+ATTAGTATTAAATAGTTTAAAAAAATGAAAAATAATAAAGGAAGTGAGTCAAGTCCAGACTCCTGTGTAAAATGCTAT
+ACAATGTTTTTACCATTTCTACTTATCAAAATTGATGTATTTTCTTGAAGAATAAATCCATTCATCATGTAGGTCCAT
+AAGAACGGCTCCAATTAAGCGATTGGCTGATGTTTGATTGGGGAAGATGCGAATAATCTTTTCTCTTCTGCGTACTTC
+TTGATTCAGTCGTTCAATTAGATTGGTACTCTTTAGTCGATTGTGGGAATTTCCTTGTACGGTATATTGAAAGGCGTC
+TTCGAATCCATCATCCAATGATGCGCAAGCTTTTGAATATTTTGGTTGATCGATATAATCATGAATCAATCGATTTTT
+AGCCTCACGCGCTAAGTTAATATCTGTGAACTTAAAAATTCCTTTAACAGCTTCTCTGAAAGATTTTGAATTTTTTTT
+AGGGGTTCTGTTGCAAAGTTAGAAAAATATAGCTAACTACCATTTTATCATGTCGTTGTTCCCTTAACTGGCTAACAT
+ATCCCTAATTTCGTGGCATGGCGAAAATCCGTAGATCTGAAGAGATCTGCGGTTCTTTTTATATAGAGCGTAAATACA
+TTCAATGCCTTTGAGTGTATTTTTTGCCGTATTGATACTTTGATATCTTGTCTTTCTTACTTTAATATGACGGTGATC
+TTGCTCAATGAGGTTATTCAGATATTTCGATGTACAATGACAGTCAGGTTTAAGTTTAAAAGCTTTAATTACTTTAGC
+TATTGCTACTTTCGTTGAAGGTGCCTGATCTGTAATTACCTTTTGAGGTTTACCAAATTGTTTAATGAGACGTTTGAT
+AAACGCATATGCTGAATGATTATCTCGTTGCTTACGCAACCAAATATCTAATGTATGTCCCTCTGCATCAATGGCACG
+ATATAAATAGCTCCATTTTCCTTTTATTTTG" } } ,
+        seq {
+          id {
+            local
+              str "sequence:_1" } ,
+          descr {
+            title "hypothetical protein ODDCGJJD_00001 [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 148 ,
+            seq-data
+              ncbieaa "MVKTLYSILHRSLDLTEFMEEVLIDDNMVFDIDNLKGFLNDTSSFGFIAKENNKI
+IGFAYCYTLLRPDGKTMFYLHSIGMLPNYQDKGYGSKLLSFIKEYSKEIGCSEMFLITDKGNPRACHVYEKLGGKNDY
+KDEIVYVYDYEKGDK" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 3 ,
+                    data
+                      prot {
+                        name {
+                          "hypothetical protein" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 147 ,
+                        id
+                          local
+                            str "sequence:_1" } } } } } } ,
+        seq {
+          id {
+            local
+              str "sequence:_2" } ,
+          descr {
+            title "Bifunctional AAC/APH [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 479 ,
+            seq-data
+              ncbieaa "MNIVENEICIRTLIDDDFPLMLKWLTDERVLEFYGGRDKKYTLESLKKHYTEPWE
+DEVFRVIIEYNNVPIGYGQIYKMYDELYTDYHYPKTDEIVYGMDQFIGEPNYWSKGIGTRYIKLIFEFLKKERNANAV
+ILDPHKNNPRAIRAYQKSGFRIIEDLPEHELHEGKKEDCYLMEYRYDDNATNVKAMKYLIEHYFDNFKVDSIEIIGSG
+YDSVAYLVNNEYIFKTKFSTNKKKGYAKEKAIYNFLNTNLETNVKIPNIEYSYISDELSILGYKEIKGTFLTPEIYST
+MSEEEQNLLKRDIASFLRQMHGLDYTDISECTIDNKQNVLEEYILLRETIYNDLTDIEKDYIESFMERLNATTVFEGK
+KCLCHNDFSCNHLLLDGNNRLTGIIDFGDSGIIDEYCDFIYLLEDSEEEIGTNFGEDILRMYGNIDIEKAKEYQDIVE
+EYYPIETIVYGIKNIKQEFIENGRKEIYKRTYKD" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 4 ,
+                    data
+                      prot {
+                        name {
+                          "Bifunctional AAC/APH" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 478 ,
+                        id
+                          local
+                            str "sequence:_2" } } } } } } } ,
+      annot {
+        {
+          data
+            ftable {
+              {
+                id
+                  local
+                    id 1 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_1" ,
+                location
+                  int {
+                    from 553 ,
+                    to 999 ,
+                    strand plus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus-tag "ODDCGJJD_00001" } } } } ,
+              {
+                id
+                  local
+                    id 2 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_2" ,
+                location
+                  int {
+                    from 1000 ,
+                    to 2439 ,
+                    strand plus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } ,
+                  {
+                    qual "inference" ,
+                    val "similar to AA sequence:UniProtKB:Q7ATH7" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus "aacA-aphD" ,
+                        locus-tag "ODDCGJJD_00002" } } } } } } } } } }

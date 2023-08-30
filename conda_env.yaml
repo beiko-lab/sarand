@@ -1,0 +1,17 @@
+name: sarand
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - pip
+  - rgi
+  - prokka
+  - blast
+  - numpy
+  - pandas
+  - matplotlib
+  - gfapy
+  - pillow
+  - dna_features_viewer
+  - bandage

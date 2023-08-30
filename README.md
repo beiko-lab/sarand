@@ -1,4 +1,7 @@
-# Sarand
+# Sarand Version 0.9
+
+# PLEASE NOTE this branch is no longer in active development. The pre-release Version 1 is accessible at https://github.com/beiko-lab/sarand
+# This repository will become private on or before Septmber 1, 2023.
 
 ![sarand](sarand/docs/sarand.png)
 
@@ -10,95 +13,56 @@ It has primarily been developed for the analysis of Antimicrobial Resistance (AM
 
 ![sarand overview](sarand/docs/sarand_summary.png)
 
-## 1. Installation
+## Installation
 
-Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires 4 key dependencies:
+Sarand requires 4 key dependencies:
 
-- [Bakta](https://github.com/oschwengers/bakta)
+- [Prokka](https://github.com/tseemann/prokka)
 - [RGI](https://github.com/arpcard/rgi)
 - [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-- [GraphAligner](https://github.com/maickrau/GraphAligner)
+- [Bandage](https://rrwick.github.io/Bandage/)
 
-### 1a. Docker
+These can be installed using bioconda.
 
-This is the easiest way to run Sarand, note that the `-v` argument maps a host directory to the Docker container.
-You need to replace `/host/path` and `/container/path` in the command below with the path to the directory containing your input GFA. 
-Note that this will also be the location that the output is written to.
+1. Clone and enter the sarand repository: `git clone https://github.com/beiko-lab/sarand; cd sarand`
 
-The most simple way to approach this is by mapping `/host/path` and `/container/path` to the same directory to keep paths consistent.
+2. Install conda and configure the bioconda channel (detailed instructions can be found [here](https://bioconda.github.io)).
 
-```shell
-docker run -v /host/path:/container/path -it beiko-lab/sarand:1.0.1 -i /container/path/input.gfa -o /container/path/output
-```
-
-### 1b. Singularity
-
-As singularity will automatically map paths, you simply need to run it in the format of:
-
-```shell
-singularity run docker://beiko-lab/sarand:1.0.1 -i input.gfa -o output
-```
-
-
-### 1c. Conda
-
-As there are dependency conflicts between the tools used by sarand, you will need to create multiple conda environments.
+3. As there are dependency conflicts between the tools used by sarand, you will need to create multiple conda environments.
 
 **Creating environments:**
 
 ```shell
 # 1. Create the sarand environment
-conda create -n sarand-1.0.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 pandas python pillow biopython
+conda create -n sarand -c conda-forge -c bioconda -c defaults -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 pandas python pillow biopython
 
-# 2. Create the bakta environment
-conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
+# 2. Create the Prokka environment
+conda create -n prokka-1.14.6 -c conda-forge -c bioconda -c defaults -y prokka=1.14.6
 
-# 3. Create the GraphAligner environment
-conda create -n graphaligner-1.0.17b -c conda-forge -c bioconda -y graphaligner=1.0.17b
+# 3. Create the Bandage environment
+conda create -n bandage-0.8.1 -c conda-forge -c bioconda -c defaults -y bandage=0.8.1
 
 # 4. Create the RGI environment
 conda create -n rgi-5.2.0 -c conda-forge -c bioconda -c defaults -y rgi=5.2.0
 ```
 
-**Downloading and updating the Bakta database:**
-
-```shell
-cd /tmp
-wget https://zenodo.org/record/7669534/files/db-light.tar.gz
-tar -xzvf db-light.tar.gz
-rm db-light.tar.gz
-
-# Note: Here you will need to specify a path to keep the Bakta database
-# This example uses /db/bakta but you can use any path you like
-mkdir -p /db/bakta
-mv db-light /db/bakta
-conda run -n bakta-1.8.1 amrfinder_update --force_update --database /db/bakta/db-light/amrfinderplus-db
-```
+4. Here you will specify environment variables that are specific to the `sarand` environment; these will be automatically used when the environment is active.
 
 **Configuring conda environments:**
 
-Here you will specify environment variables that are specific to the `sarand-1.0.1` environment, 
-these will be automatically used when the environment is active.
-
 ```shell
-conda activate sarand-1.0.1
-conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
-conda env config vars set CONDA_GRAPH_ALIGNER_NAME=graphaligner-1.0.17b 
+conda activate sarand
+conda env config vars set CONDA_PROKKA_NAME=prokka-1.14.6
+conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1 
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
-conda env config vars set BAKTA_DB=/db/bakta/db-light
 
 # Note: Here you can specify an alternate exe (e.g. micromamba, mamba).
 conda env config vars set CONDA_EXE_NAME=conda
 ```
 
-**Installing sarand:**
+5. Install the sarand package into this environment `pip install .` or `python -m pip install .`
 
-```shell
-conda activate sarand-1.0.1
-python -m pip install sarand==1.0.1
-```
-
-## 2. Testing
+### Testing
 
 You can test your install has worked by running the test script via `bash test/test.sh` 
 This will execute sarand on a test dataset (using the following command) and check all the expected outputs are created correctly.
@@ -107,7 +71,7 @@ This will execute sarand on a test dataset (using the following command) and che
 
 
 
-## 3. Usage
+## Usage
 
 All of sarand's parameters can be set using the command line flags.
 The only required input file is an assembly graph in `.gfa` format.
@@ -161,7 +125,7 @@ optional arguments:
   --extraction_timeout  Maximum time to extract neighbourhood sequences of a given gene with default value being -1 indicating no limit
 ```
 
-### 3a. Output
+### Output
 All results will be available in specified output directory (default is `sarand_results_` followed by a timestamp).
 Here is the list of important directories and files that can be seen there and a short description of their content:
 * `AMR_info`: this directory contains the list of identified AMR sequences.

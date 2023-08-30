@@ -1,0 +1,381 @@
+Seq-entry ::= set {
+  class genbank ,
+  seq-set {
+    set {
+      class nuc-prot ,
+      descr {
+        source {
+          org {
+            taxname "Genus species" ,
+            orgname {
+              mod {
+                {
+                  subtype strain ,
+                  subname "strain" } } ,
+              gcode 11 } } } ,
+        comment "Annotated using prokka 1.14.5 from
+ https://github.com/tseemann/prokka" ,
+        user {
+          type
+            str "NcbiCleanup" ,
+          data {
+            {
+              label
+                str "method" ,
+              data
+                str "SeriousSeqEntryCleanup" } ,
+            {
+              label
+                str "version" ,
+              data
+                int 8 } ,
+            {
+              label
+                str "month" ,
+              data
+                int 5 } ,
+            {
+              label
+                str "day" ,
+              data
+                int 8 } ,
+            {
+              label
+                str "year" ,
+              data
+                int 2022 } } } ,
+        create-date
+          std {
+            year 2022 ,
+            month 5 ,
+            day 8 } } ,
+      seq-set {
+        seq {
+          id {
+            local
+              str "sequence:" } ,
+          descr {
+            molinfo {
+              biomol genomic } } ,
+          inst {
+            repr raw ,
+            mol dna ,
+            length 2783 ,
+            seq-data
+              iupacna "TAACAACGGGATGCCCCAGCATATTGTGCAGAAATTTTTGGGGCATGAAAGCCCA
+GAAATGACAAGCAGATACGCTCATATCTTTGATGAAACTCTAAAAAATGAATTTACTAAATTTCAGGAAAAACTGGTT
+ACCAATAATGGAGATGTGCTTGATCTAGATGAAGATAATGAAGTCGATGATGTAGAGCTTCAATGGTTCAAGAAAAAT
+ATAAATGCACAAGTGCTTCCAAATGGTTATTGTAGATTGCCAGTAGTAGCAGGTGGTTGTCCACATGCGAATGCATGC
+TTAGATTGCACTCACTTCTGTACCAGTAAGCAATTCTTACCACAGCACGAAGAACAGTTAGAGCGTACAGAAGAGTTA
+TTAGCCATAGCTAAGGATAAACAATGGCAAAGACAAGTAGAGACTAATAGCCGTGTTAAAGAGCGTTTAGAACAAATC
+ATTGGAAGTTTGACGGGGTAATTATCAATGGATAAACAAGTTAGAAATACAACAGAAATTGTACGTTTGGCGAAGCAG
+AAATCAAAAAAGACAAGGGAAAAAGTAGACAAAGCGATTTCTAAATTTTCGATTGAAGGTAAAGTTATTAATTTTAAT
+TCAATAGCAAAGGAAGCTAATGTTTCTAAATCATGGCTTTATAAGGAACACGATATTAGGCAAAGAATCGAATCCCTT
+CGTGAGCGTCAAATAACAGCAAATGTAGTCTCAAAACCCAAGAAAAGTTCTCGTTCGGAGGAAATCCTTATTAAAACC
+TTAAAAAGAAGAGTAATGGAATTAGAAAAAGAAAATAAAAAATTACAGAACCAAATTCAAAAATTATATGGAGATCTG
+TATAATAAAGAATAATTATTAATCTGTAGACAAATTGTGAAAGGATGTACTTAAACGCTAACGGTCAGCTTTATTGAA
+CAGTAATTTAAGTATATGTCCAATCTAGGGTAAGTAAATTGAGTATCAATATAAACTTTATATGAACATAATCAACGA
+GGTGAAATCATGAGCAATTTGATTAACGGAAAAATACCAAATCAAGCGATTCAAACATTAAAAATCGTAAAAGATTTA
+TTTGGAAGTTCAATAGTTGGAGTATATCTATTTGGTTCAGCAGTAAATGGTGGTTTACGCATTAACAGCGATGTAGAT
+GTTCTAGTCGTCGTGAATCATAGTTTACCTCAATTAACTCGAAAAAAACTAACAGAAAGACTAATGACTATATCAGGA
+AAGATTGGAAATACGGATTCTGTTAGACCACTTGAAGTTACGGTTATAAATAGGAGTGAAGTTGTCCCTTGGCAATAT
+CCTCCAAAAAGAGAATTTATATACGGTGAGTGGCTCAGGGGTGAATTTGAGAATGGACAAATTCAGGAACCAAGCTAT
+GATCCTGATTTGGCTATTGTTTTAGCACAAGCAAGAAAGAATAGTATTTCTCTATTTGGTCCTGATTCTTCAAGTATA
+CTTGTCTCCGTACCTTTGACAGATATTCGAAGAGCAATTAAGGATTCTTTGCCAGAACTAATTGAGGGGATAAAAGGT
+GATGAGCGTAATGTAATTTTAACCCTAGCTCGAATGTGGCAAACAGTGACTACTGGTGAAATTACCTCGAAAGATGTC
+GCTGCAGAATGGGCTATACCTCTTTTACCTAAAGAGCATGTAACTTTACTGGATATAGCTAGAAAAGGCTATCGGGGA
+GAGTGTGATGATAAGTGGGAAGGACTATATTCAAAGGTGAAAGCACTCGTTAAGTATATGAAAAATTCTATAGAAACT
+TCTCTCAATTAGGCTAATTTTATTGCAATAACAGGTGCTTACTTTTAAAACTACTGATTTATTGATAAATATTGAACA
+ATTTTTGGGAAGAATAAAGCGTCCTCTTGTGAAATTAGAGAACGCTTTATTACTTTAATTTAGTGAAACAATTTGTAA
+CTATTGAAAATAGAAAGAAATTGTTCCTTCGATAGTTTATTAATATTAGTGACATTTGCATGCTTCAAAGCCTGTCGG
+AATTGGTTTTTAGTGAAAAGAACACGATATTCACGGTTTACCCACTTATAAACAAAAGATCGATACTTTTTGTAGTCC
+TTCTTTGAAATCAATGGTTGATGTCGTTCAAGAACAATCAATACAGAGTCTACACTTGGCTTAGGATGAAAATATAGT
+GGTGGTACTTTTTTGAGCATTTTTATATCCATCTCCACCATTAATAGTAAACCCAAAGCTCGTTGCAGATTTTGCAAT
+CTTTTCGCAAATCCCTTCTCAACGATAAGATAGCTATATTTAGCCTGACTTTCAAAGGTAATTCTTTTGACAATATCC
+GTACTGATGTTATAAGGAATATTACCATATATCTTATAGTTTATATGTTTTGGGAAGGAAAATTTTAGAATATCCGTT
+TGAATCACTTTTATATTCTCAGAGGGGTTTACCGCTTCTTTAGTCACTTGACATAAGCCTCCATCAATTTCTATAGCA
+GTAACTGATCGACTCATTTTGACTAGCTCTTTGGTAAAATGTCCTTTTCCTGATCCGATTTCTATTACGTTGTCTTGT
+TTACTGATATTCGTGTGATTCAATATTTCTTTTACATGCTTTTTAGAAGTAATAAAATTTTGCGTGTCTTTAGGGTTT
+TTCTGGTTCATTATAACCTTCTCCTTACTGGTTCATTATAACCTTCTCCTTACTGGTTATAATGAACTGACATTAAGC
+GTTCATTATAACCAATTAATTTTGATTTGGTTGATAACGAACTTTATTAATAACAAATATAGAAAAAGTACCCATA" } } ,
+        seq {
+          id {
+            local
+              str "sequence:_1" } ,
+          descr {
+            title "hypothetical protein FBNJAKFI_00001 [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 151 ,
+            seq-data
+              ncbieaa "MPQHIVQKFLGHESPEMTSRYAHIFDETLKNEFTKFQEKLVTNNGDVLDLDEDNE
+VDDVELQWFKKNINAQVLPNGYCRLPVVAGGCPHANACLDCTHFCTSKQFLPQHEEQLERTEELLAIAKDKQWQRQVE
+TNSRVKERLEQIIGSLTG" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 5 ,
+                    data
+                      prot {
+                        name {
+                          "hypothetical protein" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 150 ,
+                        id
+                          local
+                            str "sequence:_1" } } } } } } ,
+        seq {
+          id {
+            local
+              str "sequence:_2" } ,
+          descr {
+            title "hypothetical protein FBNJAKFI_00002 [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 125 ,
+            seq-data
+              ncbieaa "MDKQVRNTTEIVRLAKQKSKKTREKVDKAISKFSIEGKVINFNSIAKEANVSKSW
+LYKEHDIRQRIESLRERQITANVVSKPKKSSRSEEILIKTLKRRVMELEKENKKLQNQIQKLYGDLYNKE" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 6 ,
+                    data
+                      prot {
+                        name {
+                          "hypothetical protein" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 124 ,
+                        id
+                          local
+                            str "sequence:_2" } } } } } } ,
+        seq {
+          id {
+            local
+              str "sequence:_3" } ,
+          descr {
+            title "Streptomycin 3''-adenylyltransferase [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 260 ,
+            seq-data
+              ncbieaa "MSNLINGKIPNQAIQTLKIVKDLFGSSIVGVYLFGSAVNGGLRINSDVDVLVVVN
+HSLPQLTRKKLTERLMTISGKIGNTDSVRPLEVTVINRSEVVPWQYPPKREFIYGEWLRGEFENGQIQEPSYDPDLAI
+VLAQARKNSISLFGPDSSSILVSVPLTDIRRAIKDSLPELIEGIKGDERNVILTLARMWQTVTTGEITSKDVAAEWAI
+PLLPKEHVTLLDIARKGYRGECDDKWEGLYSKVKALVKYMKNSIETSLN" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 7 ,
+                    data
+                      prot {
+                        name {
+                          "Streptomycin 3''-adenylyltransferase" } ,
+                        ec {
+                          "2.7.7.47" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 259 ,
+                        id
+                          local
+                            str "sequence:_3" } } } } } } ,
+        seq {
+          id {
+            local
+              str "sequence:_4" } ,
+          descr {
+            title "rRNA adenine N-6-methyltransferase [Genus species]" ,
+            molinfo {
+              biomol peptide ,
+              tech concept-trans } } ,
+          inst {
+            repr raw ,
+            mol aa ,
+            length 243 ,
+            seq-data
+              ncbieaa "MNQKNPKDTQNFITSKKHVKEILNHTNISKQDNVIEIGSGKGHFTKELVKMSRSV
+TAIEIDGGLCQVTKEAVNPSENIKVIQTDILKFSFPKHINYKIYGNIPYNISTDIVKRITFESQAKYSYLIVEKGFAK
+RLQNLQRALGLLLMVEMDIKMLKKVPPLYFHPKPSVDSVLIVLERHQPLISKKDYKKYRSFVYKWVNREYRVLFTKNQ
+FRQALKHANVTNINKLSKEQFLSIFNSYKLFH" } ,
+          annot {
+            {
+              data
+                ftable {
+                  {
+                    id
+                      local
+                        id 8 ,
+                    data
+                      prot {
+                        name {
+                          "rRNA adenine N-6-methyltransferase" } ,
+                        ec {
+                          "2.1.1.184" } } ,
+                    location
+                      int {
+                        from 0 ,
+                        to 242 ,
+                        id
+                          local
+                            str "sequence:_4" } } } } } } } ,
+      annot {
+        {
+          data
+            ftable {
+              {
+                id
+                  local
+                    id 1 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_1" ,
+                location
+                  int {
+                    from 10 ,
+                    to 465 ,
+                    strand plus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus-tag "FBNJAKFI_00001" } } } } ,
+              {
+                id
+                  local
+                    id 2 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_2" ,
+                location
+                  int {
+                    from 472 ,
+                    to 849 ,
+                    strand plus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus-tag "FBNJAKFI_00002" } } } } ,
+              {
+                id
+                  local
+                    id 3 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_3" ,
+                location
+                  int {
+                    from 1000 ,
+                    to 1782 ,
+                    strand plus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } ,
+                  {
+                    qual "inference" ,
+                    val "similar to AA sequence:UniProtKB:P0A0D1" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus "ant1" ,
+                        locus-tag "FBNJAKFI_00003" } } } } ,
+              {
+                id
+                  local
+                    id 4 ,
+                data
+                  cdregion {
+                    frame one ,
+                    code {
+                      id 11 } } ,
+                product
+                  whole
+                    local
+                      str "sequence:_4" ,
+                location
+                  int {
+                    from 1908 ,
+                    to 2639 ,
+                    strand minus ,
+                    id
+                      local
+                        str "sequence:" } ,
+                qual {
+                  {
+                    qual "inference" ,
+                    val "ab initio prediction:Prodigal:002006" } ,
+                  {
+                    qual "inference" ,
+                    val "similar to AA sequence:UniProtKB:P0A0H2" } } ,
+                xref {
+                  {
+                    data
+                      gene {
+                        locus "ermA1" ,
+                        locus-tag "FBNJAKFI_00004" } } } } } } } } } }
