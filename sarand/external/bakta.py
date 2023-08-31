@@ -4,7 +4,7 @@ import subprocess
 from pathlib import Path
 from typing import Optional, List
 
-from sarand.config import PROGRAM_VERSION_NA, CONDA_BAKTA_NAME, CONDA_EXE_NAME
+from sarand.config import PROGRAM_VERSION_NA, CONDA_BAKTA_NAME, CONDA_EXE_NAME, CONDA_BAKTA_DB
 from sarand.util.logger import LOG
 
 
@@ -326,6 +326,7 @@ class Bakta:
     @classmethod
     def run_for_sarand(cls, genome: Path, prefix: str, out_dir: Path):
         params = BaktaParams(
+            db=Path(CONDA_BAKTA_DB) if CONDA_BAKTA_DB else None,
             genome=genome,
             prefix=prefix,
             meta=True,

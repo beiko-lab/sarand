@@ -12,6 +12,7 @@ CONDA_RGI_NAME: Optional[str] = os.environ.get('CONDA_RGI_NAME')
 CONDA_GRAPH_ALIGNER_NAME: Optional[str] = os.environ.get('CONDA_GRAPH_ALIGNER_NAME')
 CONDA_BLAST_NAME: Optional[str] = os.environ.get('CONDA_BLAST_NAME')
 CONDA_EXE_NAME: Optional[str] = os.environ.get('CONDA_EXE_NAME', 'conda')
+CONDA_BAKTA_DB: Optional[str] = os.environ.get('BAKTA_DB')
 
 """
 To be returned if a program version check returns an error
