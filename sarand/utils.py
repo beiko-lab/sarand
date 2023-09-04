@@ -14,7 +14,7 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 from Bio import SeqIO
 
@@ -22,6 +22,7 @@ from sarand.config import PROGRAM_VERSION_NA
 from sarand.external.bakta import Bakta
 from sarand.external.blastn import Blastn
 from sarand.external.graph_aligner import GraphAligner, GraphAlignerResult
+from sarand.external.bandage import Bandage, BandageResult
 from sarand.external.rgi import Rgi
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
@@ -624,7 +625,7 @@ def read_path_info_from_align_file(align_file, threshold=95):
 
 def read_path_info_from_align_file_with_multiple_amrs(
         output_name: Path,
-        ga: List[GraphAlignerResult],
+        ga: Union[List[GraphAlignerResult], List[BandageResult]],
         threshold=99,
         debug: bool = False
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -649,12 +650,8 @@ def read_path_info_from_align_file_with_multiple_amrs(
         # AM: Removed the cast to integer before comparison
         if coverage >= threshold and identity >= threshold:
             nodes, orientation_list = result.path_to_sarand
-            """
-            AM: start_pos has been incremented by one to compensate for exclusive bounds
-            so that it matches the output from Bandage. However, this may not need to be
-            used. Perhaps Bandage should have been -1 instead?
-            """
-            start_pos = result.path_start + 1
+            #start_pos = result.path_start + 1
+            start_pos = result.path_start
             end_pos = result.path_end
             path_info = {
                 "nodes": nodes,
@@ -667,7 +664,7 @@ def read_path_info_from_align_file_with_multiple_amrs(
     if debug:
         try_dump_to_disk(
             debug_to_write,
-            output_name / 'debug_graph_aligner_coverage_identity.json'
+            output_name / 'aligner_tool_coverage_identity.json'
         )
     return paths_info_list
 
@@ -766,7 +763,8 @@ def check_file(path: str) -> Path:
         )
 
 
-def assert_dependencies_exist(bakta=True, blastn=True, graph_aligner=True, rgi=True):
+def assert_dependencies_exist(bakta=True, blastn=True, graph_aligner=False,
+    bandage = True, rgi=True):
     """Check all dependencies exist and work"""
     versions = list()
     missing = list()
@@ -780,6 +778,11 @@ def assert_dependencies_exist(bakta=True, blastn=True, graph_aligner=True, rgi=T
         versions.append(f'Blastn v{blastn_v}')
         if blastn_v is PROGRAM_VERSION_NA:
             missing.append('Blastn')
+    if bandage:
+        ba_v = Bandage.version()
+        versions.append(f'Bandage v{ba_v}')
+        if ba_v is PROGRAM_VERSION_NA:
+            missing.append('Bandage')
     if graph_aligner:
         ga_v = GraphAligner.version()
         versions.append(f'GraphAligner v{ga_v}')

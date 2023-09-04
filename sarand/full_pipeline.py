@@ -18,6 +18,8 @@ import copy
 import csv
 import os
 import shutil
+import collections
+import datetime
 import sys
 from functools import partial
 from multiprocessing.pool import Pool
@@ -28,6 +30,7 @@ from sarand.annotation_visualization import visualize_annotation
 from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_DIR_NAME, SEQ_NAME_PREFIX, \
     ANNOTATION_DIR
 from sarand.external.graph_aligner import GraphAligner, GraphAlignerParams
+from sarand.external.bandage import Bandage, BandageParams
 from sarand.extract_neighborhood import neighborhood_sequence_extraction
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
@@ -729,46 +732,169 @@ def are_there_amrs_in_graph(
         gfa_file: Path,
         output_dir: Path,
         threshold: float,
-        amr_path: Path,
+        #amr_path: Path,
+        amr_object,
         ga_extra_args: GraphAlignerParams,
         keep_files: bool,
         threads: int,
-        debug: bool
+        debug: bool,
+        use_ga: bool
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
     To call bandage+blast and check if the amr sequence can be found in the assembly graph
     Parameters:
-        amr_file: the address of the query file
-        amr_name: the name of the AMR sequence
         gfa_file: the address of the assembly graph
         output_dir: the address of the output directory
+        amr_path: the address of the file containing the sequence of all AMRs from CARD
         threshold: the threshold for coverage and identity
+        ga_extra_args: Additional arguments to be supplied to GraphAligner.
+        keep_files: True if intermediate files should be kept, False otherwise.
+        debug: True if additional debug files should be created, False otherwise.
+        use_ga: if true Bandage will be replaced by GraphAligner
     Return:
         a boolean value which is True if amr_file was found in gfa_file and the
         list of paths returned by bandage+blast in which the coverage and identiry
         are greater/equal than/to threshold
     """
+    cat_file, amr_files = amr_object
+    amr_names = [extract_name_from_file_name(e) for e in amr_files]
+    LOG.debug(
+        'Checking if AMR gene "' + str(amr_names) + '" exists in the assembly graph...'
+    )
+    output_name = os.path.join(
+        output_dir,
+        extract_name_from_file_name(cat_file)
+        + "_align_"
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+        "")
 
     # Run GraphAligner
-    ga_path = output_dir if keep_files else None
-    ga = GraphAligner.run_for_sarand(
-        gfa=gfa_file,
-        reads=amr_path,
-        threshold=threshold,
-        ga_extra_args=ga_extra_args,
-        out_dir=ga_path,
-        threads=threads
-    )
+    aligner_path = output_name if keep_files else None
+    if use_ga:
+        aligner = GraphAligner.run_for_sarand(
+            gfa=gfa_file,
+            reads=cat_file,
+            threshold=threshold,
+            ga_extra_args=ga_extra_args,
+            out_dir=aligner_path,
+            threads=threads
+        )
+    else:
+        aligner = Bandage.run_for_sarand(
+            gfa=gfa_file,
+            reads=cat_file,
+            threshold=threshold,
+            ga_extra_args=ga_extra_args,
+            out_dir=aligner_path
+            #threads=threads
+        )
 
     paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
         output_name=output_dir,
-        ga=ga.results,
+        ga=aligner.results,
         threshold=threshold,
         debug=debug,
     )
 
     return paths_info_list
 
+def process_amr_group_and_find(
+        gfa_file: Path,
+        align_dir: Path,
+        output_dir: Path,
+        amr_threshold: float,
+        ga_extra_args: GraphAlignerParams,
+        keep_files: bool,
+        core_num: int,
+        debug: bool,
+        use_ga: bool,
+        amr_object
+):
+    """
+    Read a group of AMRs, write them into a single file and call bandage+blast for it
+    to identify them in the graph
+    Parameters:
+        gfa_file: the file containing the assembly graph
+        align_dir: the directory for storing alignment info
+        output_dir: the directory to store the list of AMRs in a single file
+        amr_threshor: the threshold for identity and coverage used in alignment
+        ga_extra_args: Additional arguments to be supplied to GraphAligner.
+        keep_files: True if intermediate files should be kept, False otherwise.
+        core_num: the number of cores used
+        debug: True if additional debug files should be created, False otherwise.
+        use_ga: if true Bandage will be replaced by GraphAligner
+        amr_object: the list of AMRs and their ids
+    Return:
+        the alignment info for AMRs
+    """
+    g_id, amr_group = amr_object
+    # read info of the group into a single file
+    cat_file = os.path.join(
+        output_dir, AMR_DIR_NAME, "amr_group_" + str(g_id) + ".fasta"
+    )
+    file_group = []
+    with open(cat_file, "w") as writer:
+        for amr_info in amr_group:
+            amr_seq, amr_title = amr_info
+            writer.write(amr_title)
+            writer.write(amr_seq)
+            amr_name1 = amr_name_from_comment(amr_title)
+            amr_file_name = restricted_amr_name_from_modified_name(amr_name1)
+            file_group.append(amr_file_name + ".fasta")
+
+    # Run seq alignment tool (Bandage or Graph aligner)
+    p_find_amr_align = are_there_amrs_in_graph(
+        gfa_file=gfa_file,
+        output_dir=Path(align_dir),
+        threshold=amr_threshold,
+        amr_object=(cat_file, file_group),
+        ga_extra_args=ga_extra_args,
+        keep_files=keep_files,
+        threads=core_num,
+        debug=debug,
+        use_ga=use_ga
+    )
+    if debug:
+        try_dump_to_disk(p_find_amr_align, Path(align_dir) / 'debug_p_find_amr_align.json')
+
+    # Remove temporary AMR file
+    if os.path.isfile(cat_file):
+        os.remove(cat_file)
+    return p_find_amr_align
+
+def extract_amr_infos (amr_seq_title_list, amr_group_id, paths_info_group_list):
+    """
+    process the result of parallel processes of bandage
+    """
+    unique_amr_seqs = []
+    unique_amr_infos = []
+    unique_amr_paths = []
+    for i, amr_object in enumerate(amr_seq_title_list):
+        amr_name = amr_name_from_comment(amr_object[1])
+        id = amr_group_id[amr_name]
+        restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
+        if restricted_amr_name in paths_info_group_list[id]:
+            LOG.debug(amr_name + " was found!")
+            path_info = paths_info_group_list[id][restricted_amr_name]
+            overlap, amr_ids = amr_path_overlap(
+                unique_amr_paths, path_info, len(amr_object[0]) - 1
+            )
+            if not overlap:
+                unique_amr_seqs.append(amr_object[0])
+                amr_info = {"name": amr_object[1], "overlap_list": []}
+                unique_amr_infos.append(amr_info)
+                unique_amr_paths.append(path_info)
+            else:
+                if len(amr_ids) > 1:
+                    logging.error("an AMR has overlap with more than one group")
+                    import pdb
+                    pdb.set_trace()
+                # add this AMR to the right group of AMRs all having overlaps
+                for id in amr_ids:
+                    if amr_name not in unique_amr_infos[id]["overlap_list"]:
+                        unique_amr_infos[id]["overlap_list"].append(amr_name)
+
+    return unique_amr_seqs, unique_amr_infos, unique_amr_paths
 
 def find_all_amr_in_graph(
         gfa_file: Path,
@@ -778,7 +904,8 @@ def find_all_amr_in_graph(
         core_num: int,
         ga_extra_args: GraphAlignerParams,
         keep_files: bool,
-        debug: bool
+        debug: bool,
+        use_ga: bool
 ):
     """
     To go over a list of AMR sequences (amr_sequences_file) and run bandage+blast
@@ -792,38 +919,80 @@ def find_all_amr_in_graph(
         ga_extra_args: Additional arguments to be supplied to GraphAligner.
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
+        use_ga: if true Bandage will be replaced by GraphAligner
     """
     align_dir = os.path.join(output_dir, AMR_DIR_NAME, AMR_ALIGN_DIR)
     os.makedirs(align_dir, exist_ok=True)
+    
+    # """
+    # AM: This replaces the original implementation of process_amr_group_and_find
+    # as it's more efficient to run GraphAligner using GraphAligner with multiple
+    # threads instead of multiprocessing workers.
+    # """
+    # d_amr_to_path_list = are_there_amrs_in_graph(
+    #     gfa_file=gfa_file,
+    #     output_dir=Path(align_dir),
+    #     threshold=amr_threshold,
+    #     amr_path=amr_sequences_file,
+    #     ga_extra_args=ga_extra_args,
+    #     keep_files=keep_files,
+    #     threads=core_num,
+    #     debug=debug,
+    #     use_ga=use_ga
+    # )
+    # if debug:
+    #     try_dump_to_disk(d_amr_to_path_list, Path(align_dir) / 'debug_d_amr_to_path_list.json')
 
-    """
-    AM: This replaces the original implementation of process_amr_group_and_find
-    as it's more efficient to run GraphAligner using GraphAligner with multiple 
-    threads instead of multiprocessing workers.
-    """
-    d_amr_to_path_list = are_there_amrs_in_graph(
-        gfa_file=gfa_file,
-        output_dir=Path(align_dir),
-        threshold=amr_threshold,
-        amr_path=amr_sequences_file,
-        ga_extra_args=ga_extra_args,
-        keep_files=keep_files,
-        threads=core_num,
-        debug=debug
-    )
-    if debug:
-        try_dump_to_disk(d_amr_to_path_list, Path(align_dir) / 'debug_d_amr_to_path_list.json')
+    # generate the groups and store the group of each amr
+    group_num = 5
+    amr_group_id = collections.defaultdict(list)
+    amr_file_groups = [[] for i in range(group_num * core_num)]
+    amr_title = ""
+    amr_seq_title_list = []
+    # Read AMR sequences one by one
+    amr_counter = 0
+    with open(amr_sequences_file) as fp:
+        for line in fp:
+            if line.startswith(">"):
+                amr_title = line
+                continue
+            amr_name = amr_name_from_comment(amr_title[:-1])
+            amr_seq_title_list.append((line, amr_title))
+            id = amr_counter % (group_num * core_num)
+            amr_file_groups[id].append((line, amr_title))
+            amr_group_id[amr_name] = id
+            amr_counter += 1
 
-    """
-    AM: The original implementation has been moved into the following function.
-    This is because the output from GraphAligner is now from a single execution,
-    and no longer needs to be concatenated from multiple executions.
-    """
-    d_amr_to_seq = extract_amr_sequences(amr_sequences_file)
-    unique_amr_seqs, unique_amr_infos, unique_amr_paths = get_unique_amr_info(
-        d_amr_to_path_list,
-        d_amr_to_seq
+    amr_objects = [(i, e) for i, e in enumerate(amr_file_groups)]
+    # parallel run Bandage+BLAST
+    p_find_amr = partial(
+        process_amr_group_and_find,
+        gfa_file,
+        Path(align_dir),
+        Path(output_dir),
+        amr_threshold,
+        ga_extra_args,
+        keep_files,
+        core_num,
+        debug,
+        use_ga
     )
+    with Pool(core_num) as p:
+        paths_info_group_list = p.map(p_find_amr, amr_objects)
+
+    # """
+    # AM: The original implementation has been moved into the following function.
+    # This is because the output from GraphAligner is now from a single execution,
+    # and no longer needs to be concatenated from multiple executions.
+    # """
+    # d_amr_to_seq = extract_amr_sequences(amr_sequences_file)
+    # unique_amr_seqs, unique_amr_infos, unique_amr_paths = get_unique_amr_info(
+    #     d_amr_to_path_list,
+    #     d_amr_to_seq
+    # )
+    unique_amr_seqs, unique_amr_infos, unique_amr_paths = extract_amr_infos (
+        amr_seq_title_list, amr_group_id, paths_info_group_list)
+
     if debug:
         try_dump_to_disk(
             [
@@ -1085,7 +1254,10 @@ def full_pipeline_main(params):
     LOG.info("Starting analysis...")
 
     # Convert the graph aligner arguments into a consumable dictionary
-    ga_extra_args = GraphAlignerParams.from_cli_args(params.ga)
+    if params.use_ga:
+        ga_extra_args = GraphAlignerParams.from_cli_args(params.ga)
+    else:
+        ga_extra_args = GraphAlignerParams()
 
     # extract AMR and alignment information
     LOG.info(f"Finding AMR genes in the assembly graph: {params.input_gfa}")
@@ -1097,7 +1269,8 @@ def full_pipeline_main(params):
         params.num_cores,
         ga_extra_args,
         params.keep_intermediate_files,
-        params.debug
+        params.debug,
+        params.use_ga
     )
 
     if not unique_amr_files:
@@ -1148,8 +1321,8 @@ def get_unique_amr_info(
     """
     AM: This needs to be looked at in more detail, the results from this
     function differ depending on the order that they are iterated over.
-    
-    The current implementation follows the original ordering (i.e. the order 
+
+    The current implementation follows the original ordering (i.e. the order
     that the AMRs are read from the user input AMR file).
     """
     unique_amr_seqs = []

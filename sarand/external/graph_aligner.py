@@ -474,7 +474,11 @@ class GraphAligner:
                 seq_strand = cols[4]
                 seq_path = cols[5]
                 path_length = int(cols[6])
-                path_start = int(cols[7])
+                """
+                SK: start_pos has been incremented by one to compensate for exclusive bounds
+                so that it matches the output from Bandage.
+                """
+                path_start = int(cols[7]) + 1
                 path_end = int(cols[8])
                 n_res_matches = int(cols[9])
                 aln_block_len = int(cols[10])

@@ -17,12 +17,12 @@ Sarand can be run using a conda environment or in a container (Docker or Singula
 - [Bakta](https://github.com/oschwengers/bakta)
 - [RGI](https://github.com/arpcard/rgi)
 - [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-- [GraphAligner](https://github.com/maickrau/GraphAligner)
+- [Bandage](https://github.com/rrwick/Bandage) or [GraphAligner](https://github.com/maickrau/GraphAligner)
 
 ### 1a. Docker
 
 This is the easiest way to run Sarand, note that the `-v` argument maps a host directory to the Docker container.
-You need to replace `/host/path` and `/container/path` in the command below with the path to the directory containing your input GFA. 
+You need to replace `/host/path` and `/container/path` in the command below with the path to the directory containing your input GFA.
 Note that this will also be the location that the output is written to.
 
 The most simple way to approach this is by mapping `/host/path` and `/container/path` to the same directory to keep paths consistent.
@@ -53,12 +53,16 @@ conda create -n sarand-1.0.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_feat
 # 2. Create the bakta environment
 conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
 
-# 3. Create the GraphAligner environment
+# 3.a. Create the Bandage environment
+conda create -n bandage-0.8.1 -c conda-forge -c bioconda -c defaults -y bandage=0.8.1
+
+# 3.b. Create the GraphAligner environment
 conda create -n graphaligner-1.0.17b -c conda-forge -c bioconda -y graphaligner=1.0.17b
 
 # 4. Create the RGI environment
 conda create -n rgi-5.2.0 -c conda-forge -c bioconda -c defaults -y rgi=5.2.0
 ```
+Please note that step 3.b is not required if you run the default version of Sarand. Sarand, by default, utilizes Bandage for sequence alignment in the assembly graphs. However, If you prefer to use GraphAligner, please make sure to run command 3.b and install it.
 
 **Downloading and updating the Bakta database:**
 
@@ -77,17 +81,19 @@ conda run -n bakta-1.8.1 amrfinder_update --force_update --database /db/bakta/db
 
 **Configuring conda environments:**
 
-Here you will specify environment variables that are specific to the `sarand-1.0.1` environment, 
+Here you will specify environment variables that are specific to the `sarand-1.0.1` environment,
 these will be automatically used when the environment is active.
 
 ```shell
 conda activate sarand-1.0.1
 conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
-conda env config vars set CONDA_GRAPH_ALIGNER_NAME=graphaligner-1.0.17b 
+conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
 conda env config vars set BAKTA_DB=/db/bakta/db-light
+# Note1: Only run the following command if you have created graphaligner-1.0.17b conda environemnt in step 3.b above.
+conda env config vars set CONDA_GRAPH_ALIGNER_NAME=graphaligner-1.0.17b
 
-# Note: Here you can specify an alternate exe (e.g. micromamba, mamba).
+# Note2: Here you can specify an alternate exe (e.g. micromamba, mamba).
 conda env config vars set CONDA_EXE_NAME=conda
 ```
 
@@ -100,7 +106,7 @@ python -m pip install sarand==1.0.1
 
 ## 2. Testing
 
-You can test your install has worked by running the test script via `bash test/test.sh` 
+You can test your install has worked by running the test script via `bash test/test.sh`
 This will execute sarand on a test dataset (using the following command) and check all the expected outputs are created correctly.
 
     `sarand -i test/spade_output/assembly_graph_with_scaffolds.gfa -o test/test_output -a metaspades -k 55`
@@ -121,7 +127,8 @@ usage: sarand [-h] [-v] -i INPUT_GFA -a ASSEMBLER
               -k MAX_KMER_SIZE [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
               [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
               [-l NEIGHBOURHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
-              [--no_rgi | --rgi_include_loose]
+              [--verbose] [--no_rgi | --rgi_include_loose] [--use_ga]
+              [--ga] [--keep_intermediate_files] [--debug]
 
 Identify and extract the local neighbourhood of target genes (such as AMR)
 from a GFA formatted assembly graph
@@ -130,35 +137,50 @@ optional arguments:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
   -i INPUT_GFA, --input_gfa INPUT_GFA
-                        Path to assembly graph (in GFA format) that you wish
-                        to analyse
-  -a ASSEMBLER, --assembler ASSEMBLER
-                        Assembler used to generate input GFA (required to correctly parse coverage information). It can be one of the following options: metaspades, bcalm and megahit
+                      Path to assembly graph (in GFA format) that you wish
+                      to analyse
+  -a {metaspades,bcalm,megahit}, --assembler {metaspades,bcalm,megahit}
+                      Assembler used to generate input GFA (required to
+                      correctly parse coverage information)
   -k MAX_KMER_SIZE, --max_kmer_size MAX_KMER_SIZE
-                        The (maximum) k-mer sized used by assembler to generate input GFA
+                      Maximum k-mer sized used by assembler to generate
+                      input GFA
+  --extraction_timeout EXTRACTION_TIMEOUT
+                      Maximum time to extract neighbourhood, -1 indicates no
+                      limit
   -j NUM_CORES, --num_cores NUM_CORES
-                        Number of cores to use
+                      Number of cores to use
   -c COVERAGE_DIFFERENCE, --coverage_difference COVERAGE_DIFFERENCE
-                        Maximum coverage difference to include when filtering
-                        graph neighbourhood. Use -1 to indicate no coverage
-                        threshold (although this will likely lead to false
-                        positive neighbourhoods).
+                      Maximum coverage difference to include when filtering
+                      graph neighbourhood. Use -1 to indicate no coverage
+                      threshold (although this will likely lead to false
+                      positive neighbourhoods).
   -t TARGET_GENES, --target_genes TARGET_GENES
-                        Target genes to search for in the assembly graph
-                        (fasta formatted). Default is the pre-installed CARD
-                        database
+                      Target genes to search for in the assembly graph
+                      (fasta formatted). Default is the pre-installed CARD database
   -x MIN_TARGET_IDENTITY, --min_target_identity MIN_TARGET_IDENTITY
-                        Minimum identity/coverage to identify presence of
-                        target gene in assembly graph
+                      Minimum identity/coverage to identify presence of
+                      target gene in assembly graph
   -l NEIGHBOURHOOD_LENGTH, --neighbourhood_length NEIGHBOURHOOD_LENGTH
-                        Size of gene neighbourhood (in terms of nucleotides) to extract from the
-                        assembly graph
+                      Size of gene neighbourhood to extract from the
+                      assembly graph
   -o OUTPUT_DIR, --output_dir OUTPUT_DIR
-                        Output folder for current run of sarand
-  -f, --force           Force overwrite any previous files/output directories
-  --no_rgi              Disable RGI based annotation of graph neighbourhoods
-  --rgi_include_loose   Include loose criteria hits if using RGI to annotate graph neighbourhoods
-  --extraction_timeout  Maximum time to extract neighbourhood sequences of a given gene with default value being -1 indicating no limit
+                      Output folder for current run of sarand
+  -f, --force         Force overwrite any previous files/output     
+                      directories
+  --verbose           Provide verbose debugging output when logging,
+                      and keep intermediate files
+  --no_rgi            Disable RGI based annotation of graph neighbourhoods
+  --rgi_include_loose Include loose criteria hits if using RGI to annotate
+                      graph neighbourhoods
+  --use_ga            Enable GraphAligner (instead of Bandage) for  
+                      sequence alignment in the graph
+  --ga [GA ...]       Additional arguments to supply to graph aligner in the
+                      form of --ga key value, e.g. --ga E-cutoff 0.1;
+                      it should be used only if use_ga is set to True
+  --keep_intermediate_files
+                      Do not delete intermediate files.
+  --debug               Creates additional files for debugging purposes.
 ```
 
 ### 3a. Output
@@ -179,5 +201,5 @@ For each extracted sequence, the first line denotes the corresponding path, wher
     * `annotation_detail_{AMR_NAME}.csv`: the list of annotations of all extracted sequences for an AMR gene
     * `trimmed_annotation_info_{AMR_NAME}.csv`: the list of unique annotations of all extracted sequences for an AMR gene
     * `coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`: the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_DIFFERENCE value.
-    * `prokka_dir_extracted{NUM}_{DATE}`: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
+    * `bakta_dir_extracted{NUM}_{DATE}`: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
     * `rgi_dir`: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.

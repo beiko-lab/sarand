@@ -1,4 +1,4 @@
-LOCUS       contig_1                3440 bp    DNA     linear   UNK 05-JUL-2023
+LOCUS       contig_1                3440 bp    DNA     linear   UNK 31-AUG-2023
 DEFINITION  contig_1, whole genome shotgun sequence.
 ACCESSION   contig_1
 VERSION     contig_1
@@ -13,7 +13,7 @@ COMMENT     Annotated with Bakta
             URL: github.com/oschwengers/bakta
             
             ##Genome Annotation Summary:##
-            Annotation Date                :: 07/05/2023, 15:49:25
+            Annotation Date                :: 08/31/2023, 19:06:17
             CDSs                           ::     2
             tRNAs                          ::     0
             tmRNAs                         ::     0
