@@ -31,7 +31,8 @@ from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_
     ANNOTATION_DIR
 from sarand.external.graph_aligner import GraphAligner, GraphAlignerParams
 from sarand.external.bandage import Bandage, BandageParams
-from sarand.extract_neighborhood import neighborhood_sequence_extraction
+#from sarand.extract_neighborhood import neighborhood_sequence_extraction
+from sarand.extract_neighborhood import sequence_neighborhood_main
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG
@@ -44,7 +45,6 @@ from sarand.utils import (
     amr_name_from_comment,
     extract_name_from_file_name,
     restricted_amr_name_from_modified_name,
-    delete_lines_started_with,
     read_path_info_from_align_file_with_multiple_amrs,
     annotate_sequence,
     extract_amr_sequences,
@@ -1161,90 +1161,6 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files, debug: bo
         )
 
     return all_seq_info_lists, annotation_files
-
-
-def sequence_neighborhood_main(
-        params,
-        gfa_file,
-        amr_seq_align_info,
-        debug: bool
-):
-    """
-    The core function to extract the neighborhood of AMRs
-    Parameters:
-        params: the list pf parameters imported from params.py
-		bandage_path: the path to bandage executable file
-        gfa_file: the file containing the assembly graph
-        amr_seq_align_info: the alignment info (AMR alignment in the graph)
-    Return:
-        the list of files containing extracted sequence and the details of nodes representing them
-    """
-
-    # seq_files = []
-    # path_info_files = []
-    LOG.info(f"Extracting neighborhood sequences with length = {params.neighbourhood_length}")
-
-    # remove paths from GFA file
-    # AM: We don't want to modify the users input data so this now goes to a new file
-    """
-    AM: Since we don't want to modify the users input data, this is now being written
-    to a new file in the output directory. This could be in a temporary directory
-    instead.
-    """
-    path_gfa_new = Path(params.output_dir) / f'{gfa_file.stem}_no_paths.gfa'
-    delete_lines_started_with("P", gfa_file, path_gfa_new)
-    gfa_file = path_gfa_new
-
-    sequence_dir = os.path.join(
-        params.output_dir,
-        SEQ_DIR_NAME,
-        f'{SEQ_DIR_NAME}_{params.neighbourhood_length}',
-    )
-    os.makedirs(sequence_dir, exist_ok=True)
-
-    # If running single threaded do not add any overhead using multiprocessing pool
-    if params.num_cores == 1:
-        lists = list()
-        for x in amr_seq_align_info:
-            lists.append(neighborhood_sequence_extraction(gfa_file,
-                                                          params.neighbourhood_length,
-                                                          sequence_dir,
-                                                          params.min_target_identity,
-                                                          SEQ_NAME_PREFIX,
-                                                          1000,  # should this really be an option? path_node_threshold
-                                                          params.max_kmer_size,
-                                                          params.extraction_timeout,
-                                                          params.assembler, x))
-    else:
-        p_extraction = partial(
-            neighborhood_sequence_extraction,
-            gfa_file,
-            params.neighbourhood_length,
-            sequence_dir,
-            params.min_target_identity,
-            SEQ_NAME_PREFIX,
-            1000,  # should this really be an option? path_node_threshold
-            params.max_kmer_size,
-            params.extraction_timeout,
-            params.assembler
-        )
-        with Pool(params.num_cores) as p:
-            lists = list(p.imap(p_extraction, amr_seq_align_info))
-    seq_files, path_info_files = zip(*lists)
-
-    # AM: To clean up the file we created earlier
-    os.remove(path_gfa_new)
-
-    if debug:
-        try_dump_to_disk(
-            {
-                'seq_files': seq_files,
-                'path_info_files': path_info_files
-            },
-            Path(sequence_dir) / 'debug_sequence_neighborhood_main.json'
-        )
-
-    return seq_files, path_info_files
 
 
 def full_pipeline_main(params):
