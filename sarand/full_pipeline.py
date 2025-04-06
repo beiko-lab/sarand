@@ -532,6 +532,8 @@ def extract_graph_seqs_annotation(
         counter, line = seq_pair
         seq_description = "extracted" + str(counter)
         seq_info = seq_info_list[i]
+        if not seq_info or len(seq_info) == 0:
+            continue          
         # extract amr from seq_info
         amr_found, amr_info, up_info, down_info, seq_info = split_up_down_info(
             line[:-1], seq_info
@@ -923,7 +925,7 @@ def find_all_amr_in_graph(
     """
     align_dir = os.path.join(output_dir, AMR_DIR_NAME, AMR_ALIGN_DIR)
     os.makedirs(align_dir, exist_ok=True)
-    
+
     # """
     # AM: This replaces the original implementation of process_amr_group_and_find
     # as it's more efficient to run GraphAligner using GraphAligner with multiple
