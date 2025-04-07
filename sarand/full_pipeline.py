@@ -32,7 +32,7 @@ from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_
 from sarand.external.graph_aligner import GraphAligner, GraphAlignerParams
 from sarand.external.bandage import Bandage, BandageParams
 #from sarand.extract_neighborhood import neighborhood_sequence_extraction
-from sarand.extract_neighborhood import sequence_neighborhood_main
+from sarand.new_extract_neighborhood import sequence_neighborhood_main
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG

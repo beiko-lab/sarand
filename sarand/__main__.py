@@ -52,9 +52,9 @@ def main():
     )
     parser.add_argument(
         "--extraction_timeout",
-        default=-1,
+        default=10000,
         type=int,
-        help="Maximum time to extract neighbourhood, -1 indicates no limit",
+        help="Maximum time to extract neighbourhood per AMR gene in minutes",
     )
     parser.add_argument(
         "-j",
@@ -157,6 +157,29 @@ def main():
         default=False,
         action='store_true',
         help='Creates additional files for debugging purposes.',
+    )
+    parser.add_argument(
+        "-n",
+        "--max_down_up_paths",
+        default=-1,
+        type=validate_range(int, 0, 100000),
+        help="Max Number of downstream or upstream paths",
+    )
+
+    parser.add_argument(
+        "-seq",
+        "--max_number_seq_for_cdhit",
+        default=100000,
+        type=validate_range(int, 0, 100000),
+        help="Max Number of sequence for cd-hit",
+    )
+    
+    parser.add_argument(
+        "-sim",
+        "--similarity",
+        default=0.9,
+        type=validate_range(float, 0, 1),
+        help="similarity threshold for cdhit (a number between 0 and 1)",
     )
 
     # Parse arguments

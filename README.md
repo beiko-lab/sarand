@@ -48,7 +48,7 @@ As there are dependency conflicts between the tools used by sarand, you will nee
 
 ```shell
 # 1. Create the sarand environment
-conda create -n sarand-1.0.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 pandas python pillow biopython
+conda create -n sarand-1.1.0 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython
 
 # 2. Create the bakta environment
 conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
@@ -81,11 +81,11 @@ conda run -n bakta-1.8.1 amrfinder_update --force_update --database /db/bakta/db
 
 **Configuring conda environments:**
 
-Here you will specify environment variables that are specific to the `sarand-1.0.1` environment,
+Here you will specify environment variables that are specific to the `sarand-1.1.0` environment,
 these will be automatically used when the environment is active.
 
 ```shell
-conda activate sarand-1.0.1
+conda activate sarand-1.1.0
 conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
 conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
@@ -100,8 +100,8 @@ conda env config vars set CONDA_EXE_NAME=conda
 **Installing sarand:**
 
 ```shell
-conda activate sarand-1.0.1
-python -m pip install sarand==1.0.1
+conda activate sarand-1.1.0
+python -m pip install sarand==1.1.0
 ```
 
 ## 2. Testing
@@ -146,8 +146,8 @@ optional arguments:
                       Maximum k-mer sized used by assembler to generate
                       input GFA
   --extraction_timeout EXTRACTION_TIMEOUT
-                      Maximum time to extract neighbourhood, -1 indicates no
-                      limit
+                      Maximum time to extract neighbourhood per gene in
+                      minutes, -1 indicates no limit
   -j NUM_CORES, --num_cores NUM_CORES
                       Number of cores to use
   -c COVERAGE_DIFFERENCE, --coverage_difference COVERAGE_DIFFERENCE
@@ -181,6 +181,11 @@ optional arguments:
   --keep_intermediate_files
                       Do not delete intermediate files.
   --debug               Creates additional files for debugging purposes.
+  -seq SEQ_NUMBER, --max_number_seq_for_cdhit SEQ_NUMBER    
+  		      Max Number of sequence for cd-hit
+  -sim [0 1],  -similarity [0 1]
+                     similarity threshold for cdhit (a number between 0 and 1)
+
 ```
 
 ### 3a. Output
