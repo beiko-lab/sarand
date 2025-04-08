@@ -10,7 +10,7 @@ from sarand.full_pipeline import full_pipeline_main
 from sarand.util.logger import create_logger, get_logger
 from sarand.util.pkg import get_pkg_card_fasta_path
 from sarand.utils import assert_dependencies_exist, check_file, validate_range
-
+from sarand.test_metacherchant import test_metacherchant_main
 
 def main():
     """
@@ -31,14 +31,14 @@ def main():
     parser.add_argument(
         "-i",
         "--input_gfa",
-        required=True,
+        #required=True,
         help="Path to assembly graph (in GFA format) " "that you wish to analyse",
         type=check_file,
     )
     parser.add_argument(
         "-a",
         "--assembler",
-        choices=["metaspades", "bcalm", "megahit"],
+        choices=["metaspades", "bcalm", "megahit", "metacherchant"],
         required=True,
         help="Assembler used to generate input GFA (required to correctly parse "
              "coverage information)",
@@ -173,7 +173,7 @@ def main():
         type=validate_range(int, 0, 100000),
         help="Max Number of sequence for cd-hit",
     )
-    
+
     parser.add_argument(
         "-sim",
         "--similarity",
@@ -181,9 +181,19 @@ def main():
         type=validate_range(float, 0, 1),
         help="similarity threshold for cdhit (a number between 0 and 1)",
     )
+    parser.add_argument(
+        '--meta_main_dir',
+        default = None,
+        help = 'The main directory for metacherchant containing AMR_seqs_full.fasta,'
+            ' all AMR sequences and the extracted local graphs by metacherchant'
+    )
 
     # Parse arguments
     args = parser.parse_args()
+
+    # Enforce conditional requirement for input_gfa
+    if args.assembler != "metacherchant" and args.input_gfa is None:
+        parser.error("The --input_gfa (-i) argument is required.")
 
     # Override the keep intermediate files option if debug is set
     if args.debug:
@@ -225,7 +235,14 @@ def main():
     log.info(f"Sarand initialized: output={args.output_dir}")
 
     # execute main workflow
-    full_pipeline_main(args)
+    #full_pipeline_main(args)
+    if args.assembler == "metacherchant":
+        test_metacherchant_main(args)
+    #elif args.assembler == "contig":
+    #    find_contig_amrs_main(args)
+    else:
+        # execute main workflow
+        full_pipeline_main(args)    
 
 
 if __name__ == "__main__":
