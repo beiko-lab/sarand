@@ -28,7 +28,7 @@ Note that this will also be the location that the output is written to.
 The most simple way to approach this is by mapping `/host/path` and `/container/path` to the same directory to keep paths consistent.
 
 ```shell
-docker run -v /host/path:/container/path -it beiko-lab/sarand:1.0.1 -i /container/path/input.gfa -o /container/path/output
+docker run -v /host/path:/container/path -it beiko-lab/sarand:1.1.0 -i /container/path/input.gfa -o /container/path/output
 ```
 
 ### 1b. Singularity
@@ -36,7 +36,7 @@ docker run -v /host/path:/container/path -it beiko-lab/sarand:1.0.1 -i /containe
 As singularity will automatically map paths, you simply need to run it in the format of:
 
 ```shell
-singularity run docker://beiko-lab/sarand:1.0.1 -i input.gfa -o output
+singularity run docker://beiko-lab/sarand:1.1.0 -i input.gfa -o output
 ```
 
 

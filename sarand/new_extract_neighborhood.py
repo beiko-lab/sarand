@@ -192,7 +192,8 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
 
     if os.path.exists(destination):
         print(f"yes {amr_gene_node} in {up_down} found ")
-        return destination
+        file_name["file_name"] = destination
+        return 
     
     max_number_seq_for_cdhit = params.max_number_seq_for_cdhit
     radius = threshold - len_amr
@@ -425,8 +426,13 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
                     new_path = up_path[::-1][:-1]
                     new_path = new_path + (tuple(amr),)
                     new_path = new_path + down_path[1:]
-                    new_seq = up_seq + \
-                        amr_seq[len_before_amr:-len_after_amr].lower() + \
+                    if(len_after_amr==0):
+                        new_seq = up_seq + \
+                            amr_seq[len_before_amr:].lower() + \
+                        down_seq
+                    else:
+                        new_seq = up_seq + \
+                            amr_seq[len_before_amr:-len_after_amr].lower() + \
                         down_seq
                     mergepaths[new_path] = new_seq
                     
@@ -1082,17 +1088,18 @@ def sequence_neighborhood_main(
         with Pool(params.num_cores) as p:
             lists = list(p.imap(p_extraction, amr_seq_align_info))
     seq_files, path_info_files = zip(*lists)
-    #LOG.info("delete files")
+    LOG.info("delete files")
     for item in os.listdir(params.output_dir):
         item_path = os.path.join(params.output_dir, item)
     
         # Check if it is a file, and if so, delete it
-        if os.path.isfile(item_path) and os.path.splitext(item_path)[1].lower() != ".log":
-            os.remove(item_path)
+        if os.path.isfile(item_path):
+            if not (item_path.endswith('.log') or item_path.endswith('.txt')):
+                os.remove(item_path)
     
-    import shutil
+    
 
-    #shutil.rmtree(f"{params.output_dir}/final_result")
-    #shutil.rmtree(f"{params.output_dir}/final_down_up")
+    shutil.rmtree(f"{params.output_dir}/final_result")
+    shutil.rmtree(f"{params.output_dir}/final_down_up")
 
     return seq_files, path_info_files
