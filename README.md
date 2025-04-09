@@ -206,7 +206,7 @@ Ensure that the following items are placed inside a directory, which will be pas
 ***Running Sarand***
 Once the required files and directories are set up, execute Sarand for Metacherchant using the following command:
 ```shell
-sarand -o <output_dir> -a metacherchant --meta_main_dir <meta_main_dir> -
+sarand -o <output_dir> -a metacherchant --meta_main_dir <meta_main_dir>
 ```
 
 **Running for Contigs:**
