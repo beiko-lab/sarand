@@ -139,7 +139,8 @@ optional arguments:
   -i INPUT_GFA, --input_gfa INPUT_GFA
                       Path to assembly graph (in GFA format) that you wish
                       to analyse
-  -a {metaspades,bcalm,megahit,metacherchant}, --assembler {metaspades,bcalm,megahit,metacherchant}
+  -a {metaspades,bcalm,megahit,metacherchant,contig}, 
+  --assembler {metaspades,bcalm,megahit,metacherchant,contig}
                       Assembler used to generate input GFA (required to
                       correctly parse coverage information)
   -k MAX_KMER_SIZE, --max_kmer_size MAX_KMER_SIZE
@@ -186,11 +187,11 @@ optional arguments:
   -sim [0 1],  -similarity [0 1]
                      similarity threshold for cdhit (a number between 0 and 1)
   --meta_main_dir METACHERCHANT_MAIN_DIR
-                     The main directory for metacherchant containing
-                     AMR_seqs_full.fasta, all AMR sequences and the
-                     extracted local graphs by metacherchant.
-
+  		     The main directory for metacherchant containing
+  		     AMR_seqs_full.fasta, all AMR sequences and the
+  		     extracted local graphs by metacherchant.
 ```
+
 **Running for Metacherchant:**
 
 To extract neighborhoods from Metacherchant, you first need to run Metacherchant separately on your set of target genes. For each gene, Metacherchant will generate a local neighborhood graph. However, it does not provide the actual neighborhood sequences. To extract these sequences from the generated local graphs, Sarand must be run on them.
@@ -206,6 +207,13 @@ Ensure that the following items are placed inside a directory, which will be pas
 Once the required files and directories are set up, execute Sarand for Metacherchant using the following command:
 ```shell
 sarand -o <output_dir> -a metacherchant -k 55 --meta_main_dir <meta_main_dir> -
+```
+
+**Running for Contigs:**
+
+To extract neighborhoods from contigs, execute Sarand using the following command:
+```shell
+sarand -i <contigs_file> -o <output_dir> -a contig -k 55
 ```
 
 ### 3a. Output
@@ -228,3 +236,4 @@ For each extracted sequence, the first line denotes the corresponding path, wher
     * `coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`: the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_DIFFERENCE value.
     * `bakta_dir_extracted{NUM}_{DATE}`: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
     * `rgi_dir`: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.
+

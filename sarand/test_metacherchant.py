@@ -124,9 +124,6 @@ def find_corresponding_amr_file(amr_name, amr_files):
     LOG.error("Error: No amr_file for amr "+amr_name+" was found!")
     sys.exit()
 
-def file_with_prefix_exists(directory, prefix):
-    return any(fname.startswith(prefix) for fname in os.listdir(directory))
-    
 def find_amr_related_nodes(amr_file, gfa_file, output_dir,
 							threshold =  95, output_pre = ''):
 	"""
@@ -150,26 +147,20 @@ def find_amr_related_nodes(amr_file, gfa_file, output_dir,
 		A boolean value which is True if any path was found and
 		A list of dictionaries each denoting an AMR path
 	"""
-	
-	if file_with_prefix_exists(output_dir, output_pre+'_align_'):
-		LOG.debug("Alig file exists! No need to run Bandage!")
-	else:
-		#Run bandage+blast
-		output_name=os.path.join(output_dir, output_pre+'_align_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-		#if os.path.isfile(output_name+'.tsv'):
-		#	os.remove(output_name+'.tsv')
-		LOG.debug("Running Bandage ...")
-		bandage_command = subprocess.run([CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME, 'Bandage',
+	#Run bandage+blast
+	output_name=os.path.join(output_dir, output_pre+'_align_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
+	if os.path.isfile(output_name+'.tsv'):
+		os.remove(output_name+'.tsv')
+	bandage_command = subprocess.run([CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME, 'Bandage',
                     "querypaths", gfa_file, amr_file,
 					output_name, "--pathnodes", "50", "--minpatcov",
 					str((threshold-1)/100.0), "--minmeanid", str((threshold-1)/100.0),
 					"--minhitcov", str((threshold-1)/100.0)],
 					stdout=subprocess.PIPE, check= True )
-		LOG.info(bandage_command.stdout.decode('utf-8'))
+	LOG.info(bandage_command.stdout.decode('utf-8'))
 	# command = bandage_path +' querypaths '+gfa_file+' '+amr_file+' '+output_name + ' --pathnodes 50'
 	# os.system(command)
 	#Process the output tsv file
-	LOG.debug("Reading align file ...")
 	found, paths_info = read_path_info_from_align_file(output_name+".tsv", threshold)
 	if (found):
 		return found, [paths_info[0]]
@@ -308,7 +299,7 @@ def gene_alignment_extraction_metacherchant(gfa_file, output_dir,
 	last_segment = ordered_path_nodes[-1]
 	start_pos = 1
 	end_pos = len(str(last_segment.sequence))
-	
+
 	path_info = {
         	"nodes": node_list,
         	"orientations": orientations,
@@ -484,4 +475,3 @@ if __name__=="__main__":
     #     help = 'the path of the fasta file containing all AMR sequences')
     # args = parser.parse_args()
     main()
-

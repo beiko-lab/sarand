@@ -11,6 +11,7 @@ from sarand.util.logger import create_logger, get_logger
 from sarand.util.pkg import get_pkg_card_fasta_path
 from sarand.utils import assert_dependencies_exist, check_file, validate_range
 from sarand.test_metacherchant import test_metacherchant_main
+from sarand.amr_neighborhood_in_contigs import find_contig_amrs_main
 
 def main():
     """
@@ -38,7 +39,7 @@ def main():
     parser.add_argument(
         "-a",
         "--assembler",
-        choices=["metaspades", "bcalm", "megahit", "metacherchant"],
+        choices=["metaspades", "bcalm", "megahit", "metacherchant", "contig"],
         required=True,
         help="Assembler used to generate input GFA (required to correctly parse "
              "coverage information)",
@@ -238,11 +239,11 @@ def main():
     #full_pipeline_main(args)
     if args.assembler == "metacherchant":
         test_metacherchant_main(args)
-    #elif args.assembler == "contig":
-    #    find_contig_amrs_main(args)
+    elif args.assembler == "contig":
+        find_contig_amrs_main(args)
     else:
         # execute main workflow
-        full_pipeline_main(args)    
+        full_pipeline_main(args)
 
 
 if __name__ == "__main__":
