@@ -47,7 +47,7 @@ def main():
     parser.add_argument(
         "-k",
         "--max_kmer_size",
-        required=True,
+        #required=True,
         type=int,
         help="Maximum k-mer sized used by assembler to generate input GFA",
     )
@@ -192,10 +192,12 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    # Enforce conditional requirement for input_gfa
+    # Enforce conditional requirement for input_gfa and max_kmer_size
     if args.assembler != "metacherchant" and args.input_gfa is None:
         parser.error("The --input_gfa (-i) argument is required.")
-
+    if args.assembler != "metacherchant" and args.assembler != "contig" and args.max_kmer_size is None:
+        parser.error("The --max_kmer_size (-k) argument is required.")
+        
     # Override the keep intermediate files option if debug is set
     if args.debug:
         args.keep_intermediate_files = True
