@@ -101,7 +101,8 @@ conda env config vars set CONDA_EXE_NAME=conda
 
 ```shell
 conda activate sarand-1.1.0
-python -m pip install sarand==1.1.0
+# python -m pip install sarand==1.1.0
+pip install sarand==1.1.0
 ```
 
 ## 2. Testing
