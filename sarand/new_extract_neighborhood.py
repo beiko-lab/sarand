@@ -269,24 +269,8 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
     #print(file_name)
     #return destination
 
-def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params):
+def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params, seq_file):
     threshold = params.neighbourhood_length
-
-    output_name = SEQ_NAME_PREFIX + amr_name
-    seq_output_dir = os.path.join(params.output_dir, SEQ_DIR_NAME,
-        SEQ_DIR_NAME + "_" + str(params.neighbourhood_length),AMR_SEQ_DIR)
-    os.makedirs(seq_output_dir, exist_ok=True)
-
-    seq_file = os.path.join(
-        seq_output_dir,
-        output_name
-        + "_"
-        + str(threshold)
-        + "_"
-        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        + ".txt",
-    )
-
 
     mergepaths = {}
     if (upstream_paths_file != "" and downstream_paths_file == ""):
@@ -458,7 +442,7 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
         mergepaths[new_path] = new_seq
         check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
 
-    return seq_file
+    #return seq_file
 
 
 
@@ -647,6 +631,20 @@ def neighborhood_sequence_extraction(
     # Extract the sequenc of AMR neighborhood
     LOG.debug(f"Calling extract_neighborhood_sequence for {os.path.basename(amr_name)}...")
     seq_counter = 0
+    output_name = SEQ_NAME_PREFIX + amr_name
+    seq_output_dir = os.path.join(params.output_dir, SEQ_DIR_NAME,
+        SEQ_DIR_NAME + "_" + str(params.neighbourhood_length),AMR_SEQ_DIR)
+    os.makedirs(seq_output_dir, exist_ok=True)
+    threshold = params.neighbourhood_length
+    seq_file = os.path.join(
+        seq_output_dir,
+        output_name
+        + "_"
+        + str(threshold)
+        + "_"
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+        + ".txt",
+    )
     for amr_path in amr_paths:
         find_downstream = True
         find_upstream = True
@@ -750,9 +748,9 @@ def neighborhood_sequence_extraction(
 
         print(f"downstream file :{downstream_paths_file}")
         print(f"upstream file : {upstream_paths_file}")
-        seq_file = merge_upstream_amr_downstream_5(
+        merge_upstream_amr_downstream_5(
             upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
-            amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params)
+            amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
 
 
     path_info_list = create_paths_info_list(seq_file, directed_graph, amr_paths, params.neighbourhood_length, params.max_kmer_size, params.assembler)
