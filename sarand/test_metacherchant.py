@@ -39,6 +39,7 @@ from sarand.config import SEQ_NAME_PREFIX, ANNOTATION_DIR, EVAL_DIR, AMR_DIR_NAM
     AMR_SEQ_DIR, SEQ_DIR_NAME, CONDA_BANDAGE_NAME, CONDA_EXE_NAME, AMR_ALIGN_DIR, \
     CONDA_BLAST_NAME
 from sarand.external.bandage import Bandage, BandageParams
+RUN_BANDAGE = False
 
 def extract_files(gfiles, message):
     """
@@ -343,7 +344,7 @@ def test_metacherchant_main(params):
 
     #average_precision = 0
     #average_sensitivity = 0
-    no_align_file = open(os.path.join(params.output_dir, 'no_align_found.txt'), 'w')
+    #no_align_file = open(os.path.join(params.output_dir, 'no_align_found.txt'), 'w')
     align_dir = os.path.join(params.output_dir, AMR_ALIGN_DIR)
     if not os.path.exists(align_dir):
         os.makedirs(align_dir)
@@ -377,14 +378,16 @@ def test_metacherchant_main(params):
         os.system(command)
         LOG.info('gfa_file: '+gfa_file)
         output_dir = params.output_dir
-        LOG.debug('calling find_amr_related_nodes ...')
-        found, amr_paths_info = find_amr_related_nodes(amr_file, gfa_file,
+        found = False
+        if RUN_BANDAGE:
+                LOG.debug('calling Bandage to find ' + amr_name)
+                found, amr_paths_info = find_amr_related_nodes(amr_file, gfa_file,
 						align_dir,
 						params.min_target_identity, restricted_amr_name)
-        LOG.info("found: " + str(found))
-        LOG.info("amr_paths_info:" + str(amr_paths_info))
+                LOG.info("found: " + str(found))
+                LOG.info("amr_paths_info:" + str(amr_paths_info))
         if not found:
-            LOG.error("no alignment was found for "+amr_file)
+            LOG.debug("Calling gene_alignment_extraction_metacherchant for "+amr_name)
             amr_paths_info = gene_alignment_extraction_metacherchant(gfa_file, params.output_dir,
 	        params.min_target_identity, amr_file)
 
@@ -402,7 +405,7 @@ def test_metacherchant_main(params):
         )
         seq_files.extend(seq_files_fake)
         path_info_files.extend(path_info_files_fake)
-    no_align_file.close()
+    #no_align_file.close()
     #LOG.info('Neighborhood Extraction ...')
     #seq_files, path_info_files = sequence_neighborhood_main(
     #    params,

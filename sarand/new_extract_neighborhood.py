@@ -268,6 +268,140 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
     file_name["file_name"] =  destination
     #print(file_name)
     #return destination
+def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params, seq_file):
+    threshold = params.neighbourhood_length
+
+    mergepaths = {}
+    if (upstream_paths_file != "" and downstream_paths_file == ""):
+        # Initialize an empty dictionary to store the data
+        upstream_paths = {}
+
+        # Open the file and read it line by line
+        with open(upstream_paths_file, 'r') as file:
+            while True:
+                # Read the first line (key)
+                key_line = file.readline().strip()
+
+                # If the line is empty, break the loop (EOF)
+                if not key_line:
+                    break
+
+                # Remove the "> " at the start and convert the string to a tuple
+                key_tuple = eval(key_line.replace("> ", ""))
+
+                # Read the second line (value)
+                value_line = file.readline().strip()
+
+                # Add the key-value pair to the dictionary
+                upstream_paths[key_tuple] = value_line
+
+
+        for up_path, seq in upstream_paths.items():
+            #print("len temp:" , len(temp_mergepaths))
+            new_path = up_path[::-1][:-1]
+            new_path = new_path + (tuple(amr),)
+            new_seq = seq + amr_seq.lower()
+            print("new path :", type(new_path), new_path)
+            mergepaths[new_path] = new_seq
+
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+
+    elif (upstream_paths_file == "" and downstream_paths_file != ""):
+
+        # Initialize an empty dictionary to store the data
+        downstream_paths = {}
+
+        # Open the file and read it line by line
+        with open(downstream_paths_file, 'r') as file:
+            while True:
+                # Read the first line (key)
+                key_line = file.readline().strip()
+
+                # If the line is empty, break the loop (EOF)
+                if not key_line:
+                    break
+
+                # Remove the "> " at the start and convert the string to a tuple
+                key_tuple = eval(key_line.replace("> ", ""))
+
+                # Read the second line (value)
+                value_line = file.readline().strip()
+
+                # Add the key-value pair to the dictionary
+                downstream_paths[key_tuple] = value_line
+        for down_path, seq in downstream_paths.items():
+            new_path = (tuple(amr),)
+            new_path = new_path + down_path[1:]
+            new_seq = amr_seq.lower() + seq
+            mergepaths[new_path] = new_seq
+
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+
+    elif (upstream_paths_file != "" and downstream_paths_file != ""):
+        # Initialize an empty dictionary to store the data
+        upstream_paths = {}
+
+        # Open the file and read it line by line
+        with open(upstream_paths_file, 'r') as file:
+            while True:
+                # Read the first line (key)
+                key_line = file.readline().strip()
+
+                # If the line is empty, break the loop (EOF)
+                if not key_line:
+                    break
+
+                # Remove the "> " at the start and convert the string to a tuple
+                key_tuple = eval(key_line.replace("> ", ""))
+
+                # Read the second line (value)
+                value_line = file.readline().strip()
+
+                # Add the key-value pair to the dictionary
+                upstream_paths[key_tuple] = value_line
+
+        # Initialize an empty dictionary to store the data
+        downstream_paths = {}
+
+        # Open the file and read it line by line
+        with open(downstream_paths_file, 'r') as file:
+            while True:
+                # Read the first line (key)
+                key_line = file.readline().strip()
+
+                # If the line is empty, break the loop (EOF)
+                if not key_line:
+                    break
+
+                # Remove the "> " at the start and convert the string to a tuple
+                key_tuple = eval(key_line.replace("> ", ""))
+
+                # Read the second line (value)
+                value_line = file.readline().strip()
+
+                # Add the key-value pair to the dictionary
+                downstream_paths[key_tuple] = value_line
+
+
+
+            for up_path, up_seq in upstream_paths.items():
+                for down_path, down_seq in downstream_paths.items():
+                    new_path = up_path[::-1][:-1]
+                    new_path = new_path + (tuple(amr),)
+                    new_path = new_path + down_path[1:]
+                    new_seq = up_seq + amr_seq.lower() + down_seq
+                    mergepaths[new_path] = new_seq
+
+            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+
+    else:
+        #import pdb; pdb.set_trace()
+        new_path = (tuple(amr),)
+        new_seq = amr_seq.lower()
+        mergepaths[new_path] = new_seq
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+
+    #return seq_file
 
 def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params, seq_file):
     threshold = params.neighbourhood_length
@@ -687,10 +821,15 @@ def neighborhood_sequence_extraction(
         downstream_paths_file = {"file_name" : "" }
         upstream_paths_file = {"file_name" : "" }
 
-        amr_seq = directed_graph.nodes[amr_gene[0]]['sequence']
-        if(len(amr_gene)>1):
-            for gene_index in range(1, len(amr_gene)):
-                amr_seq = amr_seq + directed_graph.nodes[amr_gene[gene_index]]['sequence'][directed_graph[amr_gene[gene_index-1]][amr_gene[gene_index]]['overlap']:]
+        if params.assembler == "metacherchant":
+        	#read amr_seq directly from the amr file
+        	amr_seq, _ = retrieve_AMR(file_path)
+        	amr_seq = amr_seq.rstrip('\n')
+        else:
+        	amr_seq = directed_graph.nodes[amr_gene[0]]['sequence']
+        	if(len(amr_gene)>1):
+        		for gene_index in range(1, len(amr_gene)):
+        			amr_seq = amr_seq + directed_graph.nodes[amr_gene[gene_index]]['sequence'][directed_graph[amr_gene[gene_index-1]][amr_gene[gene_index]]['overlap']:]
 
         # amr_seq = amr_seq[len_before_amr:-len_after_amr]
         # downstream
@@ -748,14 +887,20 @@ def neighborhood_sequence_extraction(
 
         print(f"downstream file :{downstream_paths_file}")
         print(f"upstream file : {upstream_paths_file}")
-        merge_upstream_amr_downstream_5(
-            upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
-            amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
+        if params.assembler == "metacherchant":
+        	merge_upstream_amr_downstream_metacherchant(
+        		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
+        		amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
+        else:
+        	merge_upstream_amr_downstream_5(
+            		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
+            		amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
 
 
-    path_info_list = create_paths_info_list(seq_file, directed_graph, amr_paths, params.neighbourhood_length, params.max_kmer_size, params.assembler)
+    if params.assembler != "metacherchant":
+        path_info_list = create_paths_info_list(seq_file, directed_graph, amr_paths, params.neighbourhood_length, params.max_kmer_size, params.assembler)
 
-    write_paths_info_to_file(path_info_list, paths_info_file)
+        write_paths_info_to_file(path_info_list, paths_info_file)
 
     return seq_file, paths_info_file
 

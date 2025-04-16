@@ -257,11 +257,9 @@ def find_gene_coverage(seq_info_list, path_info):
                 coverage_list.append(sum_coverage / (end - start + 1))
                 break
         if not found:
-            LOG.error("ERROR: no nodes were found for this gene!!!")
-            import pdb
-
-            pdb.set_trace()
-            sys.exit(1)
+            LOG.error("ERROR: no nodes were found for this AMR gene!!!")
+            #import pdb; pdb.set_trace()
+            #sys.exit(1)
     return coverage_list
 
 
