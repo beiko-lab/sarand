@@ -28,7 +28,7 @@ Note that this will also be the location that the output is written to.
 The most simple way to approach this is by mapping `/host/path` and `/container/path` to the same directory to keep paths consistent.
 
 ```shell
-docker run -v /host/path:/container/path -it beiko-lab/sarand:1.1.0 -i /container/path/input.gfa -o /container/path/output
+docker run -v /host/path:/container/path -it beiko-lab/sarand:1.1.1 -i /container/path/input.gfa -o /container/path/output
 ```
 
 ### 1b. Singularity
@@ -36,7 +36,7 @@ docker run -v /host/path:/container/path -it beiko-lab/sarand:1.1.0 -i /containe
 As singularity will automatically map paths, you simply need to run it in the format of:
 
 ```shell
-singularity run docker://beiko-lab/sarand:1.1.0 -i input.gfa -o output
+singularity run docker://beiko-lab/sarand:1.1.1 -i input.gfa -o output
 ```
 
 
@@ -48,7 +48,7 @@ As there are dependency conflicts between the tools used by sarand, you will nee
 
 ```shell
 # 1. Create the sarand environment
-conda create -n sarand-1.1.0 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython
+conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython
 
 # 2. Create the bakta environment
 conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
@@ -81,11 +81,11 @@ conda run -n bakta-1.8.1 amrfinder_update --force_update --database /db/bakta/db
 
 **Configuring conda environments:**
 
-Here you will specify environment variables that are specific to the `sarand-1.1.0` environment,
+Here you will specify environment variables that are specific to the `sarand-1.1.1` environment,
 these will be automatically used when the environment is active.
 
 ```shell
-conda activate sarand-1.1.0
+conda activate sarand-1.1.1
 conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
 conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
@@ -100,9 +100,9 @@ conda env config vars set CONDA_EXE_NAME=conda
 **Installing sarand:**
 
 ```shell
-conda activate sarand-1.1.0
-# python -m pip install sarand==1.1.0
-pip install sarand==1.1.0
+conda activate sarand-1.1.1
+# python -m pip install sarand==1.1.1
+pip install sarand==1.1.1
 ```
 
 ## 2. Testing
