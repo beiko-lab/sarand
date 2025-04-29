@@ -1,5 +1,3 @@
 recursive-include test/metagenome_data *
 
 recursive-include data *
-
-include LICENSE.txt
