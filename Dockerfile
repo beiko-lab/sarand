@@ -40,6 +40,9 @@ RUN apt-get update -y -m && \
         numpy \
         matplotlib-base \
         gfapy=1.2.3 \
+        cd-hit=4.6.8 \
+        networkx \
+        gzip \
         pandas \
         python \
         pillow \
