@@ -711,18 +711,40 @@ def check_for_similarity(mergepaths, input_file, output_file, similarity):
 
 def write_paths_info_to_file(paths_info_list, paths_info_file):
     """ """
-
+    # calculate path coverage
+    coverage_list = []
+    sequence_num= -1
+    first_seq_num = 0
+    coverage = 0
+    for node_info in paths_info_list:
+        if (node_info["sequence"] != sequence_num) and (coverage!=0):
+            coverage_list.append(coverage/path_length)
+            coverage = 0
+        elif (node_info["sequence"] != sequence_num) and (coverage==0):
+            first_seq_num = node_info["sequence"]
+        #it is updated by each node but when it's used it has the "end" of the last node in the path with that sequence #
+        path_length=node_info["end"]
+        sequence_num = node_info["sequence"]
+        coverage += node_info["coverage"] * (node_info["end"] - node_info["start"] + 1)
+    coverage_list.append(coverage/path_length)
+    # write into paths_info_file
+    sequence_num = first_seq_num
+    coverage_index = 0
     with open(paths_info_file, "a") as fd:
         writer = csv.writer(fd)
-        for path_info in paths_info_list:
+        for node_info in paths_info_list:
+            if (node_info["sequence"] != sequence_num):
+                coverage_index = coverage_index + 1
+            sequence_num =  node_info["sequence"] 
             #print(path_info)
             writer.writerow(
                 [
-                    path_info["sequence"],
-                    path_info["node"],
-                    path_info["coverage"],
-                    path_info["start"],
-                    path_info["end"],
+                    node_info["sequence"],
+                    node_info["node"],
+                    node_info["coverage"],
+                    node_info["start"],
+                    node_info["end"],
+                    coverage_list[coverage_index]
                 ]
             )
 
@@ -760,7 +782,7 @@ def neighborhood_sequence_extraction(
 
     with open(paths_info_file, "a") as fd:
         writer = csv.writer(fd)
-        writer.writerow(["sequence", "node", "coverage", "start", "end"])
+        writer.writerow(["sequence", "node", "coverage", "start", "end", "path_coverage"])
 
     # Extract the sequenc of AMR neighborhood
     LOG.debug(f"Calling extract_neighborhood_sequence for {os.path.basename(amr_name)}...")

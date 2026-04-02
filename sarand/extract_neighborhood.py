@@ -86,19 +86,21 @@ def similar_sequence_exits(seq_list, query_seq, output_dir):
     return -1, False
 
 
-def write_sequences_to_file(sequence_list, path_list, file_name):
+def write_sequences_to_file(sequence_list, path_list, file_name, paths_coverage):
     """
     To write the extracted sequences and paths in neighborhood of the AMR gene in a file
     Parameters:
             sequence_list: the list of sequences extracted in AMR gene neighborhood
             path_list: the list of all paths (a list of nodes) in AMR gene neighborhood
             file_name: the name of file to be writtn in
+            paths_coverage: the list of coverage for the extracted paths
     """
     file = open(file_name, "a+")
-    for seq, path in zip(sequence_list, path_list):
+    for seq, path, coverage in zip(sequence_list, path_list, paths_coverage):
         myLine = "> " + ", ".join(path) + ":"
         file.write(myLine + "\n")
         file.write(seq + "\n")
+        file.write("Path coverage: " + coverage + "\n")
     file.close()
 
 
@@ -1013,9 +1015,12 @@ def extract_pre_sequence(
 def write_paths_info_to_file(paths_info_list, paths_info_file, seq_counter):
     """ """
     counter = seq_counter
+    paths_coverage=[]
     with open(paths_info_file, "a") as fd:
         writer = csv.writer(fd)
         for i, path_info in enumerate(paths_info_list):
+            coverage = 0
+            path_length=path_info[-1]["end"]
             for node_info in path_info:
                 counter = i + seq_counter + 1
                 writer.writerow(
@@ -1027,7 +1032,10 @@ def write_paths_info_to_file(paths_info_list, paths_info_file, seq_counter):
                         node_info["end"],
                     ]
                 )
-    return counter
+                #calculate coverage
+                coverage = node_info["coverage"] * (node_info["end"] - node_info["start"])/path_length
+            paths_coverage.append(coverage)
+    return counter, paths_coverage
 
 
 def calculate_coverage(segment, max_kmer_size, node, assembler):
@@ -1886,13 +1894,16 @@ def neighborhood_sequence_extraction(
         checked_amr_paths_info.append(amr_path_info)
         # if not sequence_list:
         # 	continue
-        write_sequences_to_file(sequence_list, path_list, seq_file)
+        seq_counter, paths_coverage = write_paths_info_to_file(
+            path_info_list, paths_info_file, seq_counter
+        )
+        write_sequences_to_file(sequence_list, path_list, seq_file, paths_coverage)
         LOG.info(
             "Extracted neighborhoods written to " + seq_file
         )
-        seq_counter = write_paths_info_to_file(
-            path_info_list, paths_info_file, seq_counter
-        )
+        #seq_counter, paths_coverage = write_paths_info_to_file(
+        #    path_info_list, paths_info_file, seq_counter
+        #)
     return seq_file, paths_info_file
 
 def sequence_neighborhood_main(
