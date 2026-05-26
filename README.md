@@ -1,5 +1,7 @@
 # Sarand
 
+[![DOI](https://zenodo.org/badge/482245454.svg)](https://doi.org/10.5281/zenodo.20394760)
+
 ![sarand](sarand/docs/sarand.png)
 
 Sarand is a tool to identify genes within an assembly graph and extract the local graph neighbourhood.
