@@ -21,17 +21,9 @@ setup(
     python_requires='>=3.7',
     long_description=long_description,
     long_description_content_type="text/markdown",
-    # what about the ones in the requirement file?????? should I include them here?????
-    install_requires=['dna_features_viewer', 'numpy', 'pillow', 'matplotlib', 'gfapy', 'pandas', 'biopython'],
-    # not sure how to set this correctly???????????????????
-    # package_data={
-    #     'sarand': ['data/CARD_AMR_seq.fasta'],
-    # },
-    # data_files=[('data', ['data/CARD_AMR_seq.fasta']), ('test', ['test/metagenome_data/Ecoli_NC_010488.fna',\
-    #                 'test/metagenome_data/klebsiella_NC_009650.fna', 'test/metagenome_data/staphylo_NC_002758.fna'])],
-    # How to include test files???? similar to the above or in manifest.in
+    install_requires=['dna_features_viewer', 'networkx', 'numpy', 'pillow', 'matplotlib', 'gfapy', 'pandas', 'biopython'],
     include_package_data=True,
-    package_data={'': ['data/*.fasta']},
+    package_data={'sarand': ['data/*']},
     entry_points={
         'console_scripts': [
             'sarand = sarand.__main__:main'
