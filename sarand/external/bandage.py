@@ -232,7 +232,7 @@ class BandageResult:
         return self.query
     @property
     def path(self) -> str:
-        return (re.sub("\((.*?)\)", "", self.path_with_start_end)).strip()
+        return (re.sub(r"\((.*?)\)", "", self.path_with_start_end)).strip()
 
     @property
     def path_start(self) -> int:

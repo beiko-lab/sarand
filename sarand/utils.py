@@ -535,7 +535,7 @@ def extract_nodes_in_path(path):
         index = path.rfind("(")
         end_pos = int(path[index + 1: -1])
     # Remove text between ()
-    path = (re.sub("\((.*?)\)", "", path)).strip()
+    path = (re.sub(r"\((.*?)\)", "", path)).strip()
     node_list = []
     orientation_list = []
     nodes = path.split(",")
