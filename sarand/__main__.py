@@ -49,7 +49,7 @@ def main():
         "--max_kmer_size",
         #required=True,
         type=int,
-        help="Maximum k-mer sized used by assembler to generate input GFA",
+        help="Maximum k-mer sized used by assembler to generate input GFA (for calculating coverage correctly)",
     )
     parser.add_argument(
         "--extraction_timeout",
