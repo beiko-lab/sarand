@@ -11,32 +11,25 @@ To run the code make sure to use:
 import os
 import sys
 import csv
-import pandas as pd
 import datetime
 import gfapy
 import subprocess
 from pathlib import Path
 
 from sarand.util.logger import LOG
-from sarand.external.blastn import Blastn
 from sarand.utils import (
     restricted_amr_name_from_modified_name,
     amr_name_from_comment,
     read_path_info_from_align_file,
     create_fasta_file,
-    retrieve_AMR,
-    extract_name_from_file_name,
 )
 from sarand.new_extract_neighborhood import sequence_neighborhood_main
 from sarand.full_pipeline import (
     neighborhood_annotation,
-    check_coverage_consistency_remove_rest_seq,
     find_corrsponding_seq_path_file,
 )
-from sarand.config import SEQ_NAME_PREFIX, ANNOTATION_DIR, EVAL_DIR, AMR_DIR_NAME, \
-    AMR_SEQ_DIR, SEQ_DIR_NAME, CONDA_BANDAGE_NAME, CONDA_EXE_NAME, AMR_ALIGN_DIR, \
-    CONDA_BLAST_NAME
-from sarand.external.bandage import Bandage, BandageParams
+from sarand.config import SEQ_NAME_PREFIX, ANNOTATION_DIR, AMR_DIR_NAME, \
+    AMR_SEQ_DIR, SEQ_DIR_NAME, CONDA_BANDAGE_NAME, CONDA_EXE_NAME, AMR_ALIGN_DIR
 RUN_BANDAGE = False
 
 def extract_files(gfiles, message):
@@ -418,23 +411,19 @@ def test_metacherchant_main(params):
         neighborhood_files = seq_files
     else:
         LOG.error("No file containing the extracted neighborhood sequences is available!")
-        import pdb
-        pdb.set_trace()
+        sys.exit(1)
 
     if path_info_files:
         nodes_info_files = path_info_files
     else:
         LOG.error("No file containing path info for neighborhood sequences is available!")
-        import pdb
-        pdb.set_trace()
+        sys.exit(1)
     all_seq_info_lists = []
     annotation_files = []
     for amr_name in amr_names:
         LOG.info('Annnnnotation for '+amr_name+' ...')
         restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
         amr_file = find_corresponding_amr_file(restricted_amr_name, ref_amr_files)
-        #restricted_amr_name = extract_name_from_file_name(amr_file)
-        #_, amr_name = retrieve_AMR(amr_file)
         neighborhood_file, nodes_info_file = find_corrsponding_seq_path_file(
             restricted_amr_name,
             neighborhood_files,
@@ -448,8 +437,6 @@ def test_metacherchant_main(params):
                 + " was found! We looked for a file like "
                 + restricted_amr_name
             )
-            import pdb
-            pdb.set_trace()
             sys.exit(1)
         all_seq_info_list, annotation_file = neighborhood_annotation(
             amr_name,

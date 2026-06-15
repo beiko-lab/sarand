@@ -27,10 +27,10 @@ from pathlib import Path
 from typing import Dict, List, Any
 
 from sarand.annotation_visualization import visualize_annotation
-from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_DIR_NAME, SEQ_NAME_PREFIX, \
+from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_NAME_PREFIX, \
     ANNOTATION_DIR
 from sarand.external.graph_aligner import GraphAligner, GraphAlignerParams
-from sarand.external.bandage import Bandage, BandageParams
+from sarand.external.bandage import Bandage
 from sarand.new_extract_neighborhood import sequence_neighborhood_main
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
@@ -46,7 +46,6 @@ from sarand.utils import (
     restricted_amr_name_from_modified_name,
     read_path_info_from_align_file_with_multiple_amrs,
     annotate_sequence,
-    extract_amr_sequences,
 )
 
 
@@ -76,7 +75,6 @@ def write_info_in_annotation_file(
                 seq,
                 len_seq,
                 gene_info["gene"],
-                # gene_info["prokka_gene_name"],
                 gene_info["product"],
                 gene_info["length"],
                 gene_info["start_pos"],
@@ -257,8 +255,6 @@ def find_gene_coverage(seq_info_list, path_info):
                 break
         if not found:
             LOG.error("ERROR: no nodes were found for this AMR gene!!!")
-            #import pdb; pdb.set_trace()
-            #sys.exit(1)
     return coverage_list
 
 
@@ -353,9 +349,6 @@ def check_coverage_consistency_remove_rest_seq(
                     + " regarding "
                     + amr_name
                 )
-                import pdb
-
-                pdb.set_trace()
                 sys.exit(1)
             else:
                 amr_coverages.append(amr_coverage)
@@ -364,9 +357,7 @@ def check_coverage_consistency_remove_rest_seq(
         LOG.error(
             "Inconsistency between the number of sequences and found amr-coverages!"
         )
-        import pdb
-
-        pdb.set_trace()
+        sys.exit(1)
     # check coverage consistency by comparing its coverage with AMR coverage
     # and remove genes with inconsistent coverage and whatever comes before them if upstream OR after them if downstream
     remained_seqs = []
@@ -523,8 +514,6 @@ def extract_graph_seqs_annotation(
 
     # Further processing of result of parallel annotation
     all_seq_info_list = []
-    # if amr_name=='GES-4' or amr_name=='GES-21':
-    # 	import pdb; pdb.set_trace()
     for i, seq_pair in enumerate(sequence_list):
         counter, line = seq_pair
         seq_description = "extracted" + str(counter)
@@ -545,7 +534,6 @@ def extract_graph_seqs_annotation(
                 + "\n"
             )
             continue
-            # import pdb; pdb.set_trace()
         # calculate coverage for the genes available in the annotation
         coverage_list = []
         if path_info_list:
@@ -637,7 +625,6 @@ def neighborhood_annotation(
     gene_info = {
         "seq_value": "seq_value",
         "gene": "gene",
-        # "prokka_gene_name": "prokka_gene_name",
         "product": "product",
         "length": "length",
         "start_pos": "start_pos",
@@ -885,9 +872,7 @@ def extract_amr_infos (amr_seq_title_list, amr_group_id, paths_info_group_list):
                 unique_amr_paths.append(path_info)
             else:
                 if len(amr_ids) > 1:
-                    logging.error("an AMR has overlap with more than one group")
-                    import pdb
-                    pdb.set_trace()
+                    LOG.error("an AMR has overlap with more than one group")
                 # add this AMR to the right group of AMRs all having overlaps
                 for id in amr_ids:
                     if amr_name not in unique_amr_infos[id]["overlap_list"]:
@@ -922,25 +907,6 @@ def find_all_amr_in_graph(
     """
     align_dir = os.path.join(output_dir, AMR_DIR_NAME, AMR_ALIGN_DIR)
     os.makedirs(align_dir, exist_ok=True)
-
-    # """
-    # AM: This replaces the original implementation of process_amr_group_and_find
-    # as it's more efficient to run GraphAligner using GraphAligner with multiple
-    # threads instead of multiprocessing workers.
-    # """
-    # d_amr_to_path_list = are_there_amrs_in_graph(
-    #     gfa_file=gfa_file,
-    #     output_dir=Path(align_dir),
-    #     threshold=amr_threshold,
-    #     amr_path=amr_sequences_file,
-    #     ga_extra_args=ga_extra_args,
-    #     keep_files=keep_files,
-    #     threads=core_num,
-    #     debug=debug,
-    #     use_ga=use_ga
-    # )
-    # if debug:
-    #     try_dump_to_disk(d_amr_to_path_list, Path(align_dir) / 'debug_d_amr_to_path_list.json')
 
     # generate the groups and store the group of each amr
     group_num = 5
@@ -979,16 +945,6 @@ def find_all_amr_in_graph(
     with Pool(core_num) as p:
         paths_info_group_list = p.map(p_find_amr, amr_objects)
 
-    # """
-    # AM: The original implementation has been moved into the following function.
-    # This is because the output from GraphAligner is now from a single execution,
-    # and no longer needs to be concatenated from multiple executions.
-    # """
-    # d_amr_to_seq = extract_amr_sequences(amr_sequences_file)
-    # unique_amr_seqs, unique_amr_infos, unique_amr_paths = get_unique_amr_info(
-    #     d_amr_to_path_list,
-    #     d_amr_to_seq
-    # )
     unique_amr_seqs, unique_amr_infos, unique_amr_paths = extract_amr_infos (
         amr_seq_title_list, amr_group_id, paths_info_group_list)
 
@@ -1107,15 +1063,13 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files, debug: bo
         neighborhood_files = seq_files
     else:
         LOG.error("No file containing the extracted neighborhood sequences is available!")
-        import pdb
-        pdb.set_trace()
+        sys.exit(1)
 
     if path_info_files:
         nodes_info_files = path_info_files
     else:
         LOG.error("No file containing path info for neighborhood sequences is available!")
-        import pdb
-        pdb.set_trace()
+        sys.exit(1)
 
     all_seq_info_lists = []
     annotation_files = []
@@ -1135,9 +1089,6 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files, debug: bo
                 + " was found! We looked for a file like "
                 + restricted_amr_name
             )
-            import pdb
-
-            pdb.set_trace()
             sys.exit(1)
         all_seq_info_list, annotation_file = neighborhood_annotation(
             amr_name,
@@ -1190,8 +1141,6 @@ def full_pipeline_main(params):
 
     if not unique_amr_files:
         LOG.error("No AMR genes were found in graph!")
-        import pdb
-        pdb.set_trace()
         sys.exit(1)
 
     # not used anywhere? @Somayeh
@@ -1200,9 +1149,7 @@ def full_pipeline_main(params):
         send_amr_align_info = True
     else:
         LOG.error("AMR alignment info is not available")
-        import pdb
-
-        pdb.set_trace()
+        sys.exit(1)
 
     # create pairs of seq and align info
     amr_seq_align_info = []
@@ -1265,9 +1212,6 @@ def get_unique_amr_info(
         else:
             if len(amr_ids) > 1:
                 LOG.error("an AMR has overlap with more than one group")
-                import pdb
-
-                pdb.set_trace()
             # add this AMR to the right group of AMRs all having overlaps
             # AM: This will only ever iterate once, or never.
             for cur_id in amr_ids:

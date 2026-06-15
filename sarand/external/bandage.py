@@ -2,7 +2,7 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, List, Union, Dict
+from typing import Optional, List
 
 from sarand.config import PROGRAM_VERSION_NA, CONDA_BANDAGE_NAME, CONDA_EXE_NAME
 from sarand.util.logger import LOG
@@ -106,8 +106,6 @@ class BandageParams:
             cmd += ['--minmeanid', str(self.minmeanid)]
         if self.minhitcov:
             cmd += ['--minhitcov', str(self.minhitcov)]
-        #if self.threads:
-        #    cmd += ['--threads', str(self.threads)]
         if self.verbose:
             cmd += ['--verbose']
         if self.maxevprod:
@@ -164,8 +162,6 @@ class BandageParams:
             self.minmeanid = float(d['minmeanid'])
         if 'minhitcov' in d:
             self.minhitcov = float(d['minhitcov'])
-        #if 'threads' in d:
-        #    self.threads = int(d['threads'])
         if 'verbose' in d:
             self.verbose = True
         if 'maxevprod' in d:
@@ -234,7 +230,6 @@ class BandageResult:
     @property
     def identity(self) -> str:
         return self.query
-        #return self.name.split(' ')[0]
     @property
     def path(self) -> str:
         return (re.sub("\((.*?)\)", "", self.path_with_start_end)).strip()
@@ -262,8 +257,6 @@ class BandageResult:
             nodes:	list of node numbers -> e.g., [69, 2193]
             orientation: list of orientation of nodes -> e.g., [-, +]
         """
-        # Remove text between ()
-        #purePath = (re.sub("\((.*?)\)", "", self.path_with_start_end)).strip()
         if len(self.path) == 0:
             raise Exception('??')
         nodes = list()
@@ -369,7 +362,6 @@ class Bandage:
                 minpatcov = ((threshold - 1) / 100.0),
                 minmeanid = ((threshold - 1) / 100.0),
                 minhitcov = ((threshold - 1) / 100.0),
-                #threads=threads,
             )
             if ga_extra_args:
                 params.update_from_object(ga_extra_args)
@@ -395,7 +387,6 @@ class Bandage:
                     minpatcov = ((threshold - 1) / 100.0),
                     minmeanid = ((threshold - 1) / 100.0),
                     minhitcov = ((threshold - 1) / 100.0),
-                    #threads=threads,
                 )
                 if ga_extra_args:
                     params.update_from_object(ga_extra_args)

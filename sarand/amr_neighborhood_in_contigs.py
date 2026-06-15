@@ -23,15 +23,11 @@ params.output_dir+'contigs_output_'+str(params.seq_length)
 ################################################################################
 
 import os
-import re
+import sys
 import glob
-import argparse
-import datetime
 import csv
 import collections
 import subprocess
-from csv import DictReader
-import pandas as pd
 from Bio import SeqIO
 from gfapy.sequence import rc
 
@@ -154,7 +150,6 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 					record_name_list.append(record.seq_name)
 				elif not target_amr:
 					LOG.error("ERROR: couldn't find the length of AMR: "+str(record.amr_name))
-					#import pdb; pdb.set_trace()
 					sys.exit()
         # extract neighborhood sequence(s)
 		ng_lists = []

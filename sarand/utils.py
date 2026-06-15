@@ -355,10 +355,7 @@ def split_up_down_info(sequence, seq_info):
         amr_end = len(sequence) - 1
     elif amr_end == -1 or amr_start == -1:
         LOG.error("No AMR sequence (lower case string) was found in " + sequence)
-        import pdb
-
-        pdb.set_trace()
-    # import pdb;pdb.set_trace()
+        sys.exit(1)
     # find the gene has the most overlap with the found range
     overlap_thr = 50
     found = False
@@ -518,49 +515,6 @@ def similar_seq_annotation_already_exist(
     return found
 
 
-"""
-AM: This method is not used.
-"""
-# def extract_info_from_overlap_file(overlap_file_name):
-#     """ """
-#     heads = []
-#     member_lists = []
-#     unique_amr_list = []
-#     with open(overlap_file_name, "r") as read_obj:
-#         for line in read_obj:
-#             if ":" in line:
-#                 items = line[:-1].split(":")
-#                 if len(items[1]) > 0:
-#                     heads.append(items[0])
-#                     members = items[1].split(", ")
-#                     member_lists.append(members)
-#                 else:
-#                     unique_amr_list.append(items[0])
-#     return heads, member_lists, unique_amr_list
-
-
-"""
-AM: This method is not used.
-"""
-# def extract_unique_align_files(all_align_files, unique_amr_files):
-#     """ """
-#     amr_align_files = []
-#     if all_align_files:
-#         for amr_file in unique_amr_files:
-#             found_it = False
-#             amr_name = extract_name_from_file_name(amr_file)
-#             for align_file in all_align_files:
-#                 if os.path.basename(align_file).startswith(amr_name + "_align"):
-#                     found_it = True
-#                     amr_align_files.append(align_file)
-#                     break
-#             if not found_it:
-#                 LOG.error("no alignment was found for " + amr_file)
-#                 import pdb
-#
-#                 pdb.set_trace()
-#     return amr_align_files
-
 
 def extract_nodes_in_path(path):
     """
@@ -667,53 +621,6 @@ def read_path_info_from_align_file_with_multiple_amrs(
             output_name / 'aligner_tool_coverage_identity.json'
         )
     return paths_info_list
-
-
-"""
-AM: This method is not called anywhere.
-"""
-
-
-# def extract_path_info_for_amrs(all_align_files, unique_amr_files, amr_count, threshold):
-#     """ """
-#     unique_amr_path_list = []
-#     if len(all_align_files) == amr_count:
-#         amr_align_files = extract_unique_align_files(all_align_files, unique_amr_files)
-#         for align_file in amr_align_files:
-#             found, paths_info = read_path_info_from_align_file(align_file, threshold)
-#             if found:
-#                 unique_amr_path_list.append(paths_info)
-#             else:
-#
-#                 LOG.error(align_file + " file was not found or was empty!")
-#                 import pdb
-#
-#                 pdb.set_trace()
-#     else:
-#         paths_info_group_list = []
-#         for align_file in all_align_files:
-#             paths_info_group = read_path_info_from_align_file_with_multiple_amrs(
-#                 align_file, threshold
-#             )
-#             paths_info_group_list.append(paths_info_group)
-#         unique_amr_path_list = []
-#         for amr_file in unique_amr_files:
-#             amr_found = False
-#             restricted_amr_name = extract_name_from_file_name(amr_file)
-#             for paths_info_group in paths_info_group_list:
-#                 if restricted_amr_name in paths_info_group:
-#                     amr_found = True
-#                     path_info = paths_info_group[restricted_amr_name]
-#                     unique_amr_path_list.append(path_info)
-#             if not amr_found:
-#
-#                 LOG.error(
-#                     "ERROR: no path info was found for " + restricted_amr_name
-#                 )
-#                 import pdb
-#
-#                 pdb.set_trace()
-#     return unique_amr_path_list
 
 
 def delete_lines_started_with(ch, filename: Path, out_path: Path):

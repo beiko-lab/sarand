@@ -32,7 +32,6 @@ def main():
     parser.add_argument(
         "-i",
         "--input_gfa",
-        #required=True,
         help="Path to assembly graph (in GFA format) " "that you wish to analyse",
         type=check_file,
     )
@@ -47,7 +46,6 @@ def main():
     parser.add_argument(
         "-k",
         "--max_kmer_size",
-        #required=True,
         type=int,
         help="Maximum k-mer sized used by assembler to generate input GFA (for calculating coverage correctly)",
     )
@@ -238,7 +236,6 @@ def main():
     log.info(f"Sarand initialized: output={args.output_dir}")
 
     # execute main workflow
-    #full_pipeline_main(args)
     if args.assembler == "metacherchant":
         test_metacherchant_main(args)
     elif args.assembler == "contig":

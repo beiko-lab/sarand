@@ -16,65 +16,24 @@ To run:
 
 import sys
 import os
-import tempfile
-
-import gfapy
 import datetime
 import threading
 import time
-
-from functools import partial
-from multiprocessing.pool import Pool
-from sarand.util.file import try_dump_to_disk
 import csv
 import subprocess
-from gfapy.sequence import rc
 import shutil
-import multiprocessing
-from csv import DictReader
-from pathlib import Path
+from functools import partial
+from multiprocessing.pool import Pool
+
+import gfapy
+import networkx as nx
+
 from sarand.util.logger import LOG
-
-
-from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_DIR_NAME, SEQ_NAME_PREFIX, \
-    ANNOTATION_DIR
-
-from sarand.utils import (
-    reverse_sign,
-    find_node_name,
-    exist_in_path,
-    compare_two_sequences,
-    read_path_info_from_align_file,
-    retrieve_AMR,
-    create_fasta_file,
-    split_up_down_info,
-    seqs_annotation_are_identical,
-    similar_seq_annotation_already_exist,
-    amr_name_from_comment,
-    extract_name_from_file_name,
-    restricted_amr_name_from_modified_name,
-    delete_lines_started_with,
-    read_path_info_from_align_file_with_multiple_amrs,
-    annotate_sequence,
-    extract_amr_sequences,
-)
+from sarand.config import AMR_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
+from sarand.utils import retrieve_AMR
 
 OUT_DIR = "output"
 TEMP_DIR = "temp"
-
-
-import networkx as nx
-
-
-
-import gfapy
-import gzip
-
-import os
-import subprocess
-import shutil
-import multiprocessing
-
 
 
 def calculate_coverage(node, max_kmer_size, node_name, assembler):
@@ -97,9 +56,6 @@ def calculate_coverage(node, max_kmer_size, node_name, assembler):
         LOG.error(
             "no way of calculating node coverage has been defined for this assembler!"
         )
-        import pdb
-
-        pdb.set_trace()
         sys.exit()
     return coverage
 
@@ -395,7 +351,6 @@ def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_
             check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
 
     else:
-        #import pdb; pdb.set_trace()
         new_path = (tuple(amr),)
         new_seq = amr_seq.lower()
         mergepaths[new_path] = new_seq
@@ -557,7 +512,6 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
             check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
 
     else:
-        #import pdb; pdb.set_trace()
         new_path = (tuple(amr),)
 
         if(len_before_amr > threshold):
@@ -1075,7 +1029,6 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
 
 
             start = end + 1
-            #import pdb; pdb.set_trace()
             end = end + len(ego_graph.nodes[path[index_amr_in_path][-1]]['sequence']) - len_after_amr - int(ego_graph[path[index_amr_in_path][-2]][path[index_amr_in_path][-1]]['overlap'])
             info = {"sequence" : counter,
                     "node" : node,
@@ -1161,11 +1114,7 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                         "end" : end}
                 paths_info_list.append(info)
 
-        #import pdb
-
-        #pdb.set_trace()
         #### downstreams
-        #print("is_downstrams : ", is_downstreams)
         if(is_downstreams):
             #print("index_amr_in_path : ", index_amr_in_path)
             #print("len path :", len(path))
@@ -1235,7 +1184,6 @@ def sequence_neighborhood_main(
         reverse_directed_graph[edge[0]][edge[1]]['weight'] = len(
             reverse_directed_graph.nodes[edge[1]]['sequence']) - reverse_directed_graph[edge[0]][edge[1]]['overlap']
 
-    #import pdb; pdb.set_trace()
     # If running single threaded do not add any overhead using multiprocessing pool
     if params.num_cores == 1:
         lists = list()
