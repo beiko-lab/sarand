@@ -27,6 +27,7 @@ dependencies = [
     "gfapy",
     "pandas",
     "biopython",
+    "pyrodigal"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
