@@ -27,8 +27,6 @@ from sarand.utils import (
     retrieve_AMR,
     extract_name_from_file_name,
 )
-#from sarand.extract_neighborhood import neighborhood_sequence_extraction
-#from sarand.extract_neighborhood import sequence_neighborhood_main
 from sarand.new_extract_neighborhood import sequence_neighborhood_main
 from sarand.full_pipeline import (
     neighborhood_annotation,
