@@ -12,7 +12,7 @@ import gfapy
 import networkx as nx
 
 from sarand.util.logger import LOG
-from sarand.config import TARGET_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
+from sarand.config import SEQ_DIR_NAME, SEQ_NAME_PREFIX, NEIGHBORHOOD_SEQ_DIR
 from sarand.external.cdhit import Cdhit
 
 
@@ -141,7 +141,6 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     stop_flag.clear()
     print("flag: ", stop_flag.is_set())
     threshold = params.neighbourhood_length
-    cluster_threshold = params.max_down_up_paths
 
     source = f"{params.output_dir}/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
     destination = f"{params.output_dir}/final_down_up/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
@@ -151,7 +150,6 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
         file_name["file_name"] = destination
         return
 
-    max_number_seq_for_cdhit = params.max_number_seq_for_cdhit
     radius = threshold - len_target
     selected_paths = {}
     ego_nx_graph = nx.ego_graph(
@@ -387,16 +385,15 @@ def neighborhood_sequence_extraction(
     file_path, target_hits = target_info
     #LOG.debug("target_file = " + file_path)
     target_name = file_path.split("/")[-1].split(".")[0]
-    LOG.info(f"exteracting downstream and upstream paths for : {target_name}")
+    LOG.info(f"Extracting downstream and upstream paths for : {target_name}")
     #print("target_name :", target_name)
     #print("len target paths :", len(target_hits))
     # csv file for path_info
     length_dir = (
         Path(params.output_dir)
         / SEQ_DIR_NAME
-        / (SEQ_DIR_NAME + "_" + str(params.neighbourhood_length))
     )
-    paths_info_dir = length_dir / "paths_info"
+    paths_info_dir = length_dir / "neighbourhood_paths"
     paths_info_dir.mkdir(parents=True, exist_ok=True)
     # kept as str: the returned file path is substring-matched downstream
     paths_info_file = str(
@@ -417,7 +414,7 @@ def neighborhood_sequence_extraction(
     LOG.debug(f"Calling extract_neighborhood_sequences for {Path(target_name).name}...")
     seq_counter = 0
     output_name = SEQ_NAME_PREFIX + target_name
-    seq_output_dir = length_dir / TARGET_SEQ_DIR
+    seq_output_dir = length_dir / NEIGHBORHOOD_SEQ_DIR
     seq_output_dir.mkdir(parents=True, exist_ok=True)
     threshold = params.neighbourhood_length
     seq_file = str(
@@ -836,9 +833,7 @@ def extract_target_neighbourhoods(
         debug: bool
 ):
     output_dir = Path(params.output_dir)
-    sequence_dir = (
-        output_dir / SEQ_DIR_NAME / f'{SEQ_DIR_NAME}_{params.neighbourhood_length}'
-    )
+    sequence_dir = output_dir / SEQ_DIR_NAME
     sequence_dir.mkdir(parents=True, exist_ok=True)
 
     (output_dir / "final_result").mkdir(parents=True, exist_ok=True)

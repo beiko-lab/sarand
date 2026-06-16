@@ -282,7 +282,6 @@ def trim_annotations_by_coverage(params: argparse.Namespace, amr_files: List[str
         annotate_dir = (
             Path(params.output_dir)
             / ANNOTATION_DIR
-            / (ANNOTATION_DIR + "_" + str(params.neighbourhood_length))
             / ("annotation_" + restricted_amr_name + "_" + str(params.neighbourhood_length))
         )
         if params.coverage_difference > 0:

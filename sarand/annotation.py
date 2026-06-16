@@ -204,9 +204,7 @@ def annotate_neighborhood(
     """
     LOG.info("Annotating " + amr_name)
     # initializing required files and directories
-    annotations_dir = (
-        Path(output_dir) / ANNOTATION_DIR / (ANNOTATION_DIR + "_" + str(seq_length))
-    )
+    annotations_dir = Path(output_dir) / ANNOTATION_DIR
     annotate_dir = annotations_dir / ("annotation" + output_name + "_" + str(seq_length))
     if annotate_dir.exists():
         try:

@@ -54,8 +54,6 @@ def run_graph_pipeline(params: argparse.Namespace) -> None:
         params.debug
     )
 
-    # breakpoint
-    assert False
     # Stage 3: annotate the neighbourhoods
     all_seq_info_lists, _ = annotate_all_neighbourhoods(
         params, seq_files, path_info_files, unique_target_files, params.debug
