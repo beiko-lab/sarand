@@ -1,19 +1,3 @@
-"""
-File:		extract_neighborhood.py
-Author:		Somayeh Kafaie
-Date:		July 2020
-Purpose:	To extract the neighborhood of an AMR gene from an assembly graph
-
-To run:
-- The Bandage+BLAST implementation:
-	python extract_neighborhood.py --amr/-A <AMR gene file path in FASTA format>
-	--gfa/-G <GFA assembly graph>
-	--length/-L <length of the linear sequence around AMR gene to be extracted (default = 1000)>
-
-"""
-
-################################################################################
-
 import sys
 import datetime
 import gc
@@ -29,7 +13,7 @@ import gfapy
 import networkx as nx
 
 from sarand.util.logger import LOG
-from sarand.config import AMR_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
+from sarand.config import TARGET_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
 from sarand.util.sequence import retrieve_AMR
 
 OUT_DIR = "output"
@@ -736,7 +720,7 @@ def neighborhood_sequence_extraction(
     LOG.debug(f"Calling extract_neighborhood_sequence for {Path(amr_name).name}...")
     seq_counter = 0
     output_name = SEQ_NAME_PREFIX + amr_name
-    seq_output_dir = length_dir / AMR_SEQ_DIR
+    seq_output_dir = length_dir / TARGET_SEQ_DIR
     seq_output_dir.mkdir(parents=True, exist_ok=True)
     threshold = params.neighbourhood_length
     seq_file = str(

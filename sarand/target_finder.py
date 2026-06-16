@@ -14,10 +14,10 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from sarand.config import (
-    AMR_ALIGN_DIR,
-    AMR_DIR_NAME,
-    AMR_OVERLAP_FILE,
-    AMR_SEQ_DIR,
+    TARGET_ALIGN_DIR,
+    TARGET_DIR_NAME,
+    TARGET_OVERLAP_FILE,
+    TARGET_SEQ_DIR,
 )
 from sarand.external.bandage import Bandage
 from sarand.util.file import try_dump_to_disk
@@ -125,7 +125,7 @@ def align_amrs_to_graph(
     return paths_info_list
 
 
-def find_amr_group_in_graph(
+def find_target_group_in_graph(
         gfa_file: Path,
         align_dir: Path,
         output_dir: Path,
@@ -151,7 +151,7 @@ def find_amr_group_in_graph(
     """
     g_id, amr_group = amr_object
     # read info of the group into a single file
-    cat_file = Path(output_dir) / AMR_DIR_NAME / ("amr_group_" + str(g_id) + ".fasta")
+    cat_file = Path(output_dir) / TARGET_DIR_NAME / ("amr_group_" + str(g_id) + ".fasta")
     file_group = []
     with open(cat_file, "w") as writer:
         for amr_info in amr_group:
@@ -241,7 +241,7 @@ def find_all_target_in_graph(
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
     """
-    align_dir = Path(output_dir) / AMR_DIR_NAME / AMR_ALIGN_DIR
+    align_dir = Path(output_dir) / TARGET_DIR_NAME / TARGET_ALIGN_DIR
     align_dir.mkdir(parents=True, exist_ok=True)
 
     # generate the groups and store the group of each amr
@@ -266,8 +266,8 @@ def find_all_target_in_graph(
 
     amr_objects = [(i, e) for i, e in enumerate(amr_file_groups)]
     # parallel run Bandage+BLAST
-    p_find_amr = partial(
-        find_amr_group_in_graph,
+    p_find_target = partial(
+        find_target_group_in_graph,
         gfa_file,
         Path(align_dir),
         Path(output_dir),
@@ -317,9 +317,9 @@ def write_found_amrs_to_disk(
     Return:
         the list of written per-AMR FASTA file paths.
     """
-    amr_dir = output_dir / AMR_DIR_NAME / AMR_SEQ_DIR
+    amr_dir = output_dir / TARGET_DIR_NAME / TARGET_SEQ_DIR
     amr_dir.mkdir(parents=True, exist_ok=True)
-    overlap_file_name = output_dir / AMR_DIR_NAME / AMR_OVERLAP_FILE
+    overlap_file_name = output_dir / TARGET_DIR_NAME / TARGET_OVERLAP_FILE
 
     unique_amr_files = list()
 

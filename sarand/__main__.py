@@ -96,7 +96,7 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "-c",
+        "-z",
         "--min_target_coverage",
         default=95,
         type=validate_range(float, 0.1, 100),
