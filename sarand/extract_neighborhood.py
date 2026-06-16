@@ -16,10 +16,6 @@ from sarand.util.logger import LOG
 from sarand.config import TARGET_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
 from sarand.util.sequence import retrieve_AMR
 
-OUT_DIR = "output"
-TEMP_DIR = "temp"
-
-
 def calculate_coverage(node, max_kmer_size, node_name, assembler):
     """
     To calculate node coverage based on assembler type
@@ -34,8 +30,6 @@ def calculate_coverage(node, max_kmer_size, node_name, assembler):
         coverage = node['KC'] / (len(node['sequence']) - max_kmer_size)
     elif assembler == "megahit":
         coverage = float(node_name.split("cov_")[1].split("_")[0])
-    elif assembler == "metacherchant" or assembler == "spacegraphcats":
-        coverage = -1
     else:
         LOG.error(
             "no way of calculating node coverage has been defined for this assembler!"
@@ -43,10 +37,11 @@ def calculate_coverage(node, max_kmer_size, node_name, assembler):
         sys.exit()
     return coverage
 
-def get_sequnce_path(directed_graph, path, threshold, len_amr, up_down):
+
+def get_sequnce_path(directed_graph, path, threshold, len_target, up_down):
     sequence = ""
     if (up_down == "down"):
-        sequence = directed_graph.nodes[path[0]]['sequence'][-len_amr:]
+        sequence = directed_graph.nodes[path[0]]['sequence'][-len_target:]
         for i in range(1, len(path)):
             #print(i)
             sequence = sequence + \
@@ -57,7 +52,7 @@ def get_sequnce_path(directed_graph, path, threshold, len_amr, up_down):
         for i in range(len(path)-1, 0, -1):
             sequence = sequence + directed_graph.nodes[path[i]]['sequence'][:-(directed_graph[path[i-1]][path[i]]['overlap'])]
         sequence = sequence + \
-            directed_graph.nodes[path[0]]['sequence'][0:len_amr]
+            directed_graph.nodes[path[0]]['sequence'][0:len_target]
         sequence = sequence[-threshold:]
     return sequence
 
@@ -120,26 +115,26 @@ def create_directed_graph_nx(gfa_graph):
 
 ##### compare downstream and upstreams seperately for similarity (new job)
 #### final method for get path
-def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_down, params, stop_flag, file_name):
+def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, up_down, params, stop_flag, file_name):
 
     stop_flag.clear()
     print("flag: ", stop_flag.is_set())
     threshold = params.neighbourhood_length
     cluster_threshold = params.max_down_up_paths
 
-    source = f"{params.output_dir}/clustered_{amr_gene_node}_{len_amr}_{up_down}.fasta"
-    destination = f"{params.output_dir}/final_down_up/clustered_{amr_gene_node}_{len_amr}_{up_down}.fasta"
+    source = f"{params.output_dir}/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
+    destination = f"{params.output_dir}/final_down_up/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
 
     if Path(destination).exists():
-        print(f"yes {amr_gene_node} in {up_down} found ")
+        print(f"yes {target_gene_node} in {up_down} found ")
         file_name["file_name"] = destination
         return
 
     max_number_seq_for_cdhit = params.max_number_seq_for_cdhit
-    radius = threshold - len_amr
+    radius = threshold - len_target
     selected_paths = {}
     ego_nx_graph = nx.ego_graph(
-        directed_graph, amr_gene_node, radius=radius, distance="weight")
+        directed_graph, target_gene_node, radius=radius, distance="weight")
 
 
     nodes_one_step_more = set(ego_nx_graph.nodes)
@@ -154,7 +149,7 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
         return
 
     print("yes len of ego_nx_graph : ", len(ego_nx_graph.nodes))
-    paths = {tuple([amr_gene_node]):len_amr}
+    paths = {tuple([target_gene_node]):len_target}
 
     counter_for_paths = 0
     print("flag: ", stop_flag.is_set())
@@ -180,14 +175,14 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
                             if( new_w < threshold):
                                 paths[new_p] = new_w
                             else:
-                                selected_paths[new_p] = get_sequnce_path(ego_nx_graph, new_p, threshold, len_amr, up_down)
+                                selected_paths[new_p] = get_sequnce_path(ego_nx_graph, new_p, threshold, len_target, up_down)
                 else:
-                    selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_amr, up_down)
+                    selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_target, up_down)
             else:
-                selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_amr, up_down)
+                selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_target, up_down)
 
     if(len(selected_paths)):
-        check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{amr_gene_node}.fasta", source, params.similarity)
+        check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{target_gene_node}.fasta", source, params.similarity)
 
     ##### move to final paths
 
@@ -196,7 +191,7 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
     file_name["file_name"] =  destination
     #print(file_name)
     #return destination
-def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params, seq_file):
+def merge_upstream_target_downstream_metacherchant(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
     threshold = params.neighbourhood_length
 
     mergepaths = {}
@@ -227,12 +222,12 @@ def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_
         for up_path, seq in upstream_paths.items():
             #print("len temp:" , len(temp_mergepaths))
             new_path = up_path[::-1][:-1]
-            new_path = new_path + (tuple(amr),)
-            new_seq = seq + amr_seq.lower()
+            new_path = new_path + (tuple(target),)
+            new_seq = seq + target_seq.lower()
             print("new path :", type(new_path), new_path)
             mergepaths[new_path] = new_seq
 
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     elif (upstream_paths_file == "" and downstream_paths_file != ""):
 
@@ -258,12 +253,12 @@ def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_
                 # Add the key-value pair to the dictionary
                 downstream_paths[key_tuple] = value_line
         for down_path, seq in downstream_paths.items():
-            new_path = (tuple(amr),)
+            new_path = (tuple(target),)
             new_path = new_path + down_path[1:]
-            new_seq = amr_seq.lower() + seq
+            new_seq = target_seq.lower() + seq
             mergepaths[new_path] = new_seq
 
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     elif (upstream_paths_file != "" and downstream_paths_file != ""):
         # Initialize an empty dictionary to store the data
@@ -315,22 +310,22 @@ def merge_upstream_amr_downstream_metacherchant(upstream_paths_file, downstream_
             for up_path, up_seq in upstream_paths.items():
                 for down_path, down_seq in downstream_paths.items():
                     new_path = up_path[::-1][:-1]
-                    new_path = new_path + (tuple(amr),)
+                    new_path = new_path + (tuple(target),)
                     new_path = new_path + down_path[1:]
-                    new_seq = up_seq + amr_seq.lower() + down_seq
+                    new_seq = up_seq + target_seq.lower() + down_seq
                     mergepaths[new_path] = new_seq
 
-            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     else:
-        new_path = (tuple(amr),)
-        new_seq = amr_seq.lower()
+        new_path = (tuple(target),)
+        new_seq = target_seq.lower()
         mergepaths[new_path] = new_seq
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     #return seq_file
 
-def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, amr, amr_name, amr_seq, len_before_amr, len_after_amr, params, seq_file):
+def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
     threshold = params.neighbourhood_length
 
     mergepaths = {}
@@ -361,21 +356,21 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
         for up_path, seq in upstream_paths.items():
             #print("len temp:" , len(temp_mergepaths))
             new_path = up_path[::-1][:-1]
-            new_path = new_path + (tuple(amr),)
-            if(len_after_amr == 0):
-                new_seq = seq + amr_seq[len_before_amr:].lower()
+            new_path = new_path + (tuple(target),)
+            if(len_after_target == 0):
+                new_seq = seq + target_seq[len_before_target:].lower()
             else:
-                new_seq = seq + amr_seq[len_before_amr:-len_after_amr].lower() + amr_seq[-len_after_amr:]
+                new_seq = seq + target_seq[len_before_target:-len_after_target].lower() + target_seq[-len_after_target:]
 
-            if(len_after_amr > threshold):
-                new_seq = new_seq[0:-(len_after_amr-threshold)]
+            if(len_after_target > threshold):
+                new_seq = new_seq[0:-(len_after_target-threshold)]
             print("new path :", type(new_path), new_path)
             mergepaths[new_path] = new_seq
 
 
 
 
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     elif (upstream_paths_file == "" and downstream_paths_file != ""):
 
@@ -401,23 +396,23 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
                 # Add the key-value pair to the dictionary
                 downstream_paths[key_tuple] = value_line
         for down_path, seq in downstream_paths.items():
-            new_path = (tuple(amr),)
+            new_path = (tuple(target),)
             new_path = new_path + down_path[1:]
 
-            if(len_before_amr > threshold):
-                new_seq = amr_seq[:len_before_amr][-threshold:]
+            if(len_before_target > threshold):
+                new_seq = target_seq[:len_before_target][-threshold:]
             else:
-                new_seq = amr_seq[:len_before_amr]
+                new_seq = target_seq[:len_before_target]
 
-            if(len_after_amr == 0):
-                new_seq = new_seq + amr_seq[len_before_amr:].lower() + seq
+            if(len_after_target == 0):
+                new_seq = new_seq + target_seq[len_before_target:].lower() + seq
             else:
-                new_seq = new_seq + amr_seq[len_before_amr:-len_after_amr].lower() + seq
+                new_seq = new_seq + target_seq[len_before_target:-len_after_target].lower() + seq
 
             mergepaths[new_path] = new_seq
 
 
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     elif (upstream_paths_file != "" and downstream_paths_file != ""):
         # Initialize an empty dictionary to store the data
@@ -469,38 +464,38 @@ def merge_upstream_amr_downstream_5(upstream_paths_file, downstream_paths_file, 
             for up_path, up_seq in upstream_paths.items():
                 for down_path, down_seq in downstream_paths.items():
                     new_path = up_path[::-1][:-1]
-                    new_path = new_path + (tuple(amr),)
+                    new_path = new_path + (tuple(target),)
                     new_path = new_path + down_path[1:]
-                    if(len_after_amr==0):
+                    if(len_after_target==0):
                         new_seq = up_seq + \
-                            amr_seq[len_before_amr:].lower() + \
+                            target_seq[len_before_target:].lower() + \
                         	down_seq
                     else:
                         new_seq = up_seq + \
-                            amr_seq[len_before_amr:-len_after_amr].lower() + \
+                            target_seq[len_before_target:-len_after_target].lower() + \
                         	down_seq
                     mergepaths[new_path] = new_seq
 
-            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     else:
-        new_path = (tuple(amr),)
+        new_path = (tuple(target),)
 
-        if(len_before_amr > threshold):
-            new_seq = amr_seq[:len_before_amr][-threshold:]
+        if(len_before_target > threshold):
+            new_seq = target_seq[:len_before_target][-threshold:]
         else:
-            new_seq = amr_seq[:len_before_amr]
+            new_seq = target_seq[:len_before_target]
 
-        if(len_after_amr == 0):
-            new_seq = new_seq + amr_seq[len_before_amr:].lower()
+        if(len_after_target == 0):
+            new_seq = new_seq + target_seq[len_before_target:].lower()
         else:
-            new_seq = new_seq + amr_seq[len_before_amr:-len_after_amr].lower() + amr_seq[-len_after_amr:]
+            new_seq = new_seq + target_seq[len_before_target:-len_after_target].lower() + target_seq[-len_after_target:]
 
-        if(len_after_amr > threshold):
-            new_seq = new_seq[0:-(len_after_amr-threshold)]
+        if(len_after_target > threshold):
+            new_seq = new_seq[0:-(len_after_target-threshold)]
 
         mergepaths[new_path] = new_seq
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{amr_name}.fasta", seq_file, params.similarity)
+        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
 
     #return seq_file
 
@@ -521,7 +516,7 @@ def check_add_temp_for_similarity(temp_mergepaths, input_file, output_file, simi
         '-o', output_file,          # Output file
         '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
         '-n', '5',                   # Word length (default is 5)
-        '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
+        '-T', '1',  # single thread; per-target parallelism is handled by the pool
     ]
     # Execute the command
     try:
@@ -550,7 +545,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', "temp_file.fasta",          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
+            '-T', '1',  # single thread; per-target parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -575,7 +570,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', output_file,          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
+            '-T', '1',  # single thread; per-target parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -596,7 +591,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', output_file,          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
+            '-T', '1',  # single thread; per-target parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -626,7 +621,7 @@ def check_for_similarity(mergepaths, input_file, output_file, similarity):
         '-o', output_file,          # Output file
         '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
         '-n', '5',                  # Word length (default is 5)
-        '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
+        '-T', '1',  # single thread; per-target parallelism is handled by the pool
     ]
 
     # Execute the command
@@ -678,7 +673,7 @@ def write_paths_info_to_file(paths_info_list, paths_info_file):
 
 
 def neighborhood_sequence_extraction(
-    directed_graph, reverse_directed_graph, params, amr_info
+    directed_graph, reverse_directed_graph, params, target_info
 ):
     #print(params.output_dir)
     # Define a flag for stopping the loop
@@ -687,12 +682,12 @@ def neighborhood_sequence_extraction(
 
     duration = params.extraction_timeout * 60
 
-    file_path, amr_paths = amr_info
-    #LOG.debug("amr_file = " + file_path)
-    amr_name = file_path.split("/")[-1].split(".")[0]
-    LOG.info(f"exteracting downstream and upstream paths for : {amr_name}")
-    #print("amr_name :", amr_name)
-    #print("len amr paths :", len(amr_paths))
+    file_path, target_hits = target_info
+    #LOG.debug("target_file = " + file_path)
+    target_name = file_path.split("/")[-1].split(".")[0]
+    LOG.info(f"exteracting downstream and upstream paths for : {target_name}")
+    #print("target_name :", target_name)
+    #print("len target paths :", len(target_hits))
     # csv file for path_info
     length_dir = (
         Path(params.output_dir)
@@ -705,7 +700,7 @@ def neighborhood_sequence_extraction(
     paths_info_file = str(
         paths_info_dir
         / (
-            SEQ_NAME_PREFIX + amr_name + "_" + str(params.neighbourhood_length)
+            SEQ_NAME_PREFIX + target_name + "_" + str(params.neighbourhood_length)
             + "_"
             + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
             + ".csv"
@@ -716,10 +711,10 @@ def neighborhood_sequence_extraction(
         writer = csv.writer(fd)
         writer.writerow(["sequence", "node", "coverage", "start", "end", "path_coverage"])
 
-    # Extract the sequenc of AMR neighborhood
-    LOG.debug(f"Calling extract_neighborhood_sequence for {Path(amr_name).name}...")
+    # Extract the sequence of target neighbourhood
+    LOG.debug(f"Calling extract_neighborhood_sequences for {Path(target_name).name}...")
     seq_counter = 0
-    output_name = SEQ_NAME_PREFIX + amr_name
+    output_name = SEQ_NAME_PREFIX + target_name
     seq_output_dir = length_dir / TARGET_SEQ_DIR
     seq_output_dir.mkdir(parents=True, exist_ok=True)
     threshold = params.neighbourhood_length
@@ -734,38 +729,38 @@ def neighborhood_sequence_extraction(
             + ".txt"
         )
     )
-    for amr_path in amr_paths:
+    for target_hit in target_hits:
         find_downstream = True
         find_upstream = True
-        #print(amr_path)
-        # amr_gene
-        amr_gene = [pair[0]+pair[1]
-                    for pair in zip(amr_path['nodes'], amr_path['orientations'])]
-        print("amr gene : ", amr_gene)
-        #len_after_amr = len(
-        #    directed_graph.nodes[amr_gene[-1]]['sequence']) - amr_path['end_pos']
-        #len_before_amr = amr_path['start_pos'] - 1
+        #print(target_hit)
+        # target_gene
+        target_gene = [pair[0]+pair[1]
+                    for pair in zip(target_hit['nodes'], target_hit['orientations'])]
+        print("target gene : ", target_gene)
+        #len_after_target = len(
+        #    directed_graph.nodes[target_gene[-1]]['sequence']) - target_hit['end_pos']
+        #len_before_target = target_hit['start_pos'] - 1
 
-        if(amr_path['end_pos'] == 0):
-            len_after_amr = 0
+        if(target_hit['end_pos'] == 0):
+            len_after_target = 0
         else:
-            len_after_amr = len(
-                directed_graph.nodes[amr_gene[-1]]['sequence']) - amr_path['end_pos']
+            len_after_target = len(
+                directed_graph.nodes[target_gene[-1]]['sequence']) - target_hit['end_pos']
 
-        if(amr_path['start_pos'] == 0):
-            len_before_amr = 0
+        if(target_hit['start_pos'] == 0):
+            len_before_target = 0
         else:
-            len_before_amr = amr_path['start_pos'] - 1
+            len_before_target = target_hit['start_pos'] - 1
 
 
-        print("len after: ", len_after_amr)
-        print("len before: ", len_before_amr)
+        print("len after: ", len_after_target)
+        print("len before: ", len_before_target)
 
 
-        if len_after_amr >= params.neighbourhood_length:
+        if len_after_target >= params.neighbourhood_length:
             find_downstream = False
 
-        if len_before_amr >= params.neighbourhood_length:
+        if len_before_target >= params.neighbourhood_length:
             find_upstream = False
 
         #print(find_downstream)
@@ -777,23 +772,23 @@ def neighborhood_sequence_extraction(
         upstream_paths_file = {"file_name" : "" }
 
         if params.assembler == "metacherchant":
-        	#read amr_seq directly from the amr file
-        	amr_seq, _ = retrieve_AMR(file_path)
-        	amr_seq = amr_seq.rstrip('\n')
+        	#read target_seq directly from the target file
+        	target_seq, _ = retrieve_AMR(file_path)
+        	target_seq = target_seq.rstrip('\n')
         else:
-        	amr_seq = directed_graph.nodes[amr_gene[0]]['sequence']
-        	if(len(amr_gene)>1):
-        		for gene_index in range(1, len(amr_gene)):
-        			amr_seq = amr_seq + directed_graph.nodes[amr_gene[gene_index]]['sequence'][directed_graph[amr_gene[gene_index-1]][amr_gene[gene_index]]['overlap']:]
+        	target_seq = directed_graph.nodes[target_gene[0]]['sequence']
+        	if(len(target_gene)>1):
+        		for gene_index in range(1, len(target_gene)):
+        			target_seq = target_seq + directed_graph.nodes[target_gene[gene_index]]['sequence'][directed_graph[target_gene[gene_index-1]][target_gene[gene_index]]['overlap']:]
 
-        # amr_seq = amr_seq[len_before_amr:-len_after_amr]
+        # target_seq = target_seq[len_before_target:-len_after_target]
         # downstream
 
         if find_downstream:
             print("into down")
-            amr_gene_node = amr_gene[-1]
+            target_gene_node = target_gene[-1]
 
-            loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(directed_graph, amr_gene_node, len_after_amr, "down", params, stop_flag_downstream, downstream_paths_file))
+            loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(directed_graph, target_gene_node, len_after_target, "down", params, stop_flag_downstream, downstream_paths_file))
             loop_thread.start()
             # Wait for the thread to finish or until the time limit expires
             start_time = time.time()
@@ -811,16 +806,16 @@ def neighborhood_sequence_extraction(
             loop_thread.join()
 
             #downstream_paths_file = get_paths_from_big_nx_graph_4(
-            #    directed_graph, amr_gene_node, len_after_amr, "down", params, stop_flag)
+            #    directed_graph, target_gene_node, len_after_target, "down", params, stop_flag)
             print("done downstream")
 
         # upstream
         if find_upstream:
             print("into up")
-            amr_gene_node = amr_gene[0]
+            target_gene_node = target_gene[0]
             #stop_flag.clear()
             print("flag: ", stop_flag_upstream.is_set())
-            loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(reverse_directed_graph, amr_gene_node, len_before_amr, "up", params, stop_flag_upstream, upstream_paths_file))
+            loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag_upstream, upstream_paths_file))
             loop_thread.start()
             # Wait for the thread to finish or until the time limit expires
             start_time = time.time()
@@ -837,23 +832,23 @@ def neighborhood_sequence_extraction(
             loop_thread.join()
 
             #upstream_paths_file = get_paths_from_big_nx_graph_4(
-            #    reverse_directed_graph, amr_gene_node, len_before_amr, "up", params, stop_flag)
+            #    reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag)
             print("done upstream")
 
         print(f"downstream file :{downstream_paths_file}")
         print(f"upstream file : {upstream_paths_file}")
         if params.assembler == "metacherchant":
-        	merge_upstream_amr_downstream_metacherchant(
-        		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
-        		amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
+        	merge_upstream_target_downstream_metacherchant(
+        		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
+        		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
         else:
-        	merge_upstream_amr_downstream_5(
-            		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], amr=amr_gene, amr_name=amr_name,
-            		amr_seq=amr_seq, len_before_amr=len_before_amr, len_after_amr=len_after_amr, params=params, seq_file=seq_file)
+        	merge_upstream_target_downstream_5(
+            		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
+            		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
 
 
     if params.assembler != "metacherchant":
-        path_info_list = create_paths_info_list(seq_file, directed_graph, amr_paths, params.neighbourhood_length, params.max_kmer_size, params.assembler)
+        path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighbourhood_length, params.max_kmer_size, params.assembler)
 
         write_paths_info_to_file(path_info_list, paths_info_file)
 
@@ -861,7 +856,7 @@ def neighborhood_sequence_extraction(
 
 
 
-def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_size, assembler):
+def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer_size, assembler):
     paths_info_list = []
     paths = {}
 
@@ -879,52 +874,52 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
     for path, seq in paths.items():
         seq = seq.upper()
         end = -1
-        #print(f"path : {path} , {type(path)}, amr_gene, {amr_gene}, {type(amr_gene)}")
+        #print(f"path : {path} , {type(path)}, target_gene, {target_gene}, {type(target_gene)}")
 
         for index, element in enumerate(path):
             if isinstance(element, tuple):
                 #print(f"The first tuple is at index: {index}")
-                index_amr_in_path = index
-                for amr_path in amr_paths:
-                    #print(amr_path)
-                    # amr_gene
-                    amr_gene = [pair[0]+pair[1]
-                        for pair in zip(amr_path['nodes'], amr_path['orientations'])]
-                    if(tuple(amr_gene)==element):
-                        if(amr_path['end_pos'] == 0):
-                            len_after_amr = 0
+                index_target_in_path = index
+                for target_hit in target_hits:
+                    #print(target_hit)
+                    # target_gene
+                    target_gene = [pair[0]+pair[1]
+                        for pair in zip(target_hit['nodes'], target_hit['orientations'])]
+                    if(tuple(target_gene)==element):
+                        if(target_hit['end_pos'] == 0):
+                            len_after_target = 0
                         else:
-                            len_after_amr = len(
-                                ego_graph.nodes[amr_gene[-1]]['sequence']) - amr_path['end_pos']
+                            len_after_target = len(
+                                ego_graph.nodes[target_gene[-1]]['sequence']) - target_hit['end_pos']
 
-                        if(amr_path['start_pos'] == 0):
-                            len_before_amr = 0
+                        if(target_hit['start_pos'] == 0):
+                            len_before_target = 0
                         else:
-                            len_before_amr = amr_path['start_pos'] - 1
+                            len_before_target = target_hit['start_pos'] - 1
                 break
 
-        print(f"len_befor : {len_before_amr}")
-        print(f"len after : {len_after_amr}")
-        print(f"amr : {amr_gene}")
-        #index_amr_in_path = path.index(amr_gene)
-        #print("index amr : ", index_amr_in_path)
+        print(f"len_befor : {len_before_target}")
+        print(f"len after : {len_after_target}")
+        print(f"target : {target_gene}")
+        #index_target_in_path = path.index(target_gene)
+        #print("index target : ", index_target_in_path)
 
-        is_upstreams = (index_amr_in_path > 0)
-        is_downstreams = (len(path)-1) > index_amr_in_path
+        is_upstreams = (index_target_in_path > 0)
+        is_downstreams = (len(path)-1) > index_target_in_path
 
         #print(is_upstreams)
         #print(is_downstreams)
 
         #### upstreams
         if(is_upstreams):
-            for up_path_index in range(index_amr_in_path):
+            for up_path_index in range(index_target_in_path):
                 node = path[up_path_index]
                 coverage = calculate_coverage(ego_graph.nodes[path[up_path_index]], max_kmer_size, path[up_path_index], assembler)
                 start = end + 1
                 if(type(path[up_path_index+1]) == tuple):
                     #print(path[up_path_index + 1])
                     #print("path[up_path_index + 1][0] : ", path[up_path_index + 1][0])
-                    end = seq.find(ego_graph.nodes[path[up_path_index + 1][0]]['sequence'][0:len_before_amr]) - 1
+                    end = seq.find(ego_graph.nodes[path[up_path_index + 1][0]]['sequence'][0:len_before_target]) - 1
                     #print("end : ", end)
                 else:
                     #print(path[up_path_index + 1])
@@ -937,17 +932,17 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                     "end" : end}
                 paths_info_list.append(info)
 
-        #print(len(path[index_amr_in_path]))
-        ##### amr
-        if(len(path[index_amr_in_path]) == 1):
-            print(f"len_befor : {len_before_amr}")
-            print(f"len after : {len_after_amr}")
-            node = path[index_amr_in_path]
-            coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][0]], max_kmer_size, path[index_amr_in_path][0], assembler)
+        #print(len(path[index_target_in_path]))
+        ##### target
+        if(len(path[index_target_in_path]) == 1):
+            print(f"len_befor : {len_before_target}")
+            print(f"len after : {len_after_target}")
+            node = path[index_target_in_path]
+            coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][0]], max_kmer_size, path[index_target_in_path][0], assembler)
             ####upstream
-            if(len_before_amr > 0):
+            if(len_before_target > 0):
                 start = end + 1
-                end = (end + len_before_amr) if(len_before_amr <= threshold) else (end + threshold)
+                end = (end + len_before_target) if(len_before_target <= threshold) else (end + threshold)
                 #print("info : ", info)
                 info = {"sequence" : counter,
                         "node" : node,
@@ -956,9 +951,9 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                         "end" : end}
                 paths_info_list.append(info)
 
-            ####amr
+            ####target
             start = end + 1
-            end = end + len(ego_graph.nodes[path[index_amr_in_path][0]]['sequence'][len_before_amr:]) if (len_after_amr==0) else end + len(ego_graph.nodes[path[index_amr_in_path][0]]['sequence'][len_before_amr:- len_after_amr])
+            end = end + len(ego_graph.nodes[path[index_target_in_path][0]]['sequence'][len_before_target:]) if (len_after_target==0) else end + len(ego_graph.nodes[path[index_target_in_path][0]]['sequence'][len_before_target:- len_after_target])
             info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -968,9 +963,9 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
             paths_info_list.append(info)
 
             ###downstream
-            if(len_after_amr>0):
+            if(len_after_target>0):
                 start = end + 1
-                end = end + threshold  if (len_after_amr >= threshold) else end + len_after_amr
+                end = end + threshold  if (len_after_target >= threshold) else end + len_after_target
                 info = {"sequence" : counter,
                         "node" : node,
                         "coverage" : coverage,
@@ -979,13 +974,13 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                 #print("info : ", info)
                 paths_info_list.append(info)
 
-        elif len(path[index_amr_in_path]) == 2 :
+        elif len(path[index_target_in_path]) == 2 :
             ##### upstream
-            node = path[index_amr_in_path][0]
-            coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][0]], max_kmer_size, path[index_amr_in_path][0], assembler)
-            if(len_before_amr > 0):
+            node = path[index_target_in_path][0]
+            coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][0]], max_kmer_size, path[index_target_in_path][0], assembler)
+            if(len_before_target > 0):
                 start = end + 1
-                end = (end + len_before_amr) if(len_before_amr <= threshold) else (end + threshold)
+                end = (end + len_before_target) if(len_before_target <= threshold) else (end + threshold)
                 info = {"sequence" : counter,
                         "node" : node,
                         "coverage" : coverage,
@@ -993,9 +988,9 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                         "end" : end}
                 paths_info_list.append(info)
 
-            #####amr
+            #####target
             start = end + 1
-            end = end + len(ego_graph.nodes[path[index_amr_in_path][0]]['sequence'][len_before_amr:])
+            end = end + len(ego_graph.nodes[path[index_target_in_path][0]]['sequence'][len_before_target:])
             info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -1003,12 +998,12 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                     "end" : end}
             paths_info_list.append(info)
 
-            node = path[index_amr_in_path][-1]
-            coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][-1]], max_kmer_size, path[index_amr_in_path][-1], assembler)
+            node = path[index_target_in_path][-1]
+            coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][-1]], max_kmer_size, path[index_target_in_path][-1], assembler)
 
 
             start = end + 1
-            end = end + len(ego_graph.nodes[path[index_amr_in_path][-1]]['sequence']) - len_after_amr - int(ego_graph[path[index_amr_in_path][-2]][path[index_amr_in_path][-1]]['overlap'])
+            end = end + len(ego_graph.nodes[path[index_target_in_path][-1]]['sequence']) - len_after_target - int(ego_graph[path[index_target_in_path][-2]][path[index_target_in_path][-1]]['overlap'])
             info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -1017,10 +1012,10 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
             paths_info_list.append(info)
 
             #### downstream
-            if(len_after_amr>0):
+            if(len_after_target>0):
                 start = end + 1
-                if(index_amr_in_path < len(path) - 1):
-                    end = (end + len_after_amr) if(len_after_amr <= threshold) else (end + threshold)
+                if(index_target_in_path < len(path) - 1):
+                    end = (end + len_after_target) if(len_after_target <= threshold) else (end + threshold)
                 else:
                     end = len(seq) - 1
                 info = {"sequence" : counter,
@@ -1032,11 +1027,11 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
 
         else:
             ##### upstream
-            node = path[index_amr_in_path][0]
-            coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][0]], max_kmer_size, path[index_amr_in_path][0], assembler)
-            if(len_before_amr > 0):
+            node = path[index_target_in_path][0]
+            coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][0]], max_kmer_size, path[index_target_in_path][0], assembler)
+            if(len_before_target > 0):
                 start = end + 1
-                end = (end + len_before_amr) if(len_before_amr <= threshold) else (end + threshold)
+                end = (end + len_before_target) if(len_before_target <= threshold) else (end + threshold)
                 info = {"sequence" : counter,
                         "node" : node,
                         "coverage" : coverage,
@@ -1044,9 +1039,9 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                         "end" : end}
                 paths_info_list.append(info)
 
-            #####amr
+            #####target
             start = end + 1
-            end = end + len(ego_graph.nodes[node]['sequence'][len_before_amr:])
+            end = end + len(ego_graph.nodes[node]['sequence'][len_before_target:])
             info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -1055,11 +1050,11 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
             paths_info_list.append(info)
 
 
-            for amr_index in range(1, len(path[index_amr_in_path])-1) :
-                node = path[index_amr_in_path][amr_index]
-                coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][amr_index]], max_kmer_size, path[index_amr_in_path][amr_index], assembler)
+            for target_index in range(1, len(path[index_target_in_path])-1) :
+                node = path[index_target_in_path][target_index]
+                coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][target_index]], max_kmer_size, path[index_target_in_path][target_index], assembler)
                 start = end + 1
-                end = end + ego_graph[path[index_amr_in_path][amr_index-1]][path[index_amr_in_path][amr_index]]['weight']
+                end = end + ego_graph[path[index_target_in_path][target_index-1]][path[index_target_in_path][target_index]]['weight']
                 info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -1067,11 +1062,11 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
                     "end" : end}
                 paths_info_list.append(info)
 
-            node = path[index_amr_in_path][-1]
-            coverage = calculate_coverage(ego_graph.nodes[path[index_amr_in_path][-1]], max_kmer_size, path[index_amr_in_path][-1], assembler)
+            node = path[index_target_in_path][-1]
+            coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][-1]], max_kmer_size, path[index_target_in_path][-1], assembler)
 
             start = end + 1
-            end = end + len(ego_graph.nodes[path[index_amr_in_path][-1]]['sequence']) - len_after_amr - int(ego_graph[path[index_amr_in_path][-2]][path[index_amr_in_path][-1]]['overlap'])
+            end = end + len(ego_graph.nodes[path[index_target_in_path][-1]]['sequence']) - len_after_target - int(ego_graph[path[index_target_in_path][-2]][path[index_target_in_path][-1]]['overlap'])
             info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -1080,10 +1075,10 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
             paths_info_list.append(info)
 
             #### downstream
-            if(len_after_amr>0):
+            if(len_after_target>0):
                 start = end + 1
-                if(index_amr_in_path < len(path) - 1):
-                    end = (end + len_after_amr) if(len_after_amr <= threshold) else (end + threshold)
+                if(index_target_in_path < len(path) - 1):
+                    end = (end + len_after_target) if(len_after_target <= threshold) else (end + threshold)
                 else:
                     end = len(seq) - 1
                 info = {"sequence" : counter,
@@ -1095,15 +1090,15 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
 
         #### downstreams
         if(is_downstreams):
-            #print("index_amr_in_path : ", index_amr_in_path)
+            #print("index_target_in_path : ", index_target_in_path)
             #print("len path :", len(path))
 
-            for down_path_index in range(index_amr_in_path+1, len(path)-1):
+            for down_path_index in range(index_target_in_path+1, len(path)-1):
                 #print(down_path_index)
                 node = path[down_path_index]
                 coverage = calculate_coverage(ego_graph.nodes[path[down_path_index]], max_kmer_size, path[down_path_index], assembler)
                 start = end + 1
-                if(down_path_index==index_amr_in_path+1):
+                if(down_path_index==index_target_in_path+1):
                     end = end + ego_graph[path[down_path_index-1][-1]][path[down_path_index]]['weight']
                     #print("end in the if : ", end)
                 else:
@@ -1131,17 +1126,9 @@ def create_paths_info_list(seq_file, ego_graph, amr_paths, threshold, max_kmer_s
     #print("paths info list : ", paths_info_list)
     return paths_info_list
 
-
-
-
-
-if __name__ == "__main__":
-    pass
-
-
 # Worker-process globals for neighbourhood extraction. The assembly graph is
 # large, so rather than binding it into a per-task callable (which re-pickles the
-# whole graph for every AMR), it is handed to each worker once via the pool
+# whole graph for every target), it is handed to each worker once via the pool
 # initializer and read from these globals during extraction.
 _WORKER_DIRECTED_GRAPH = None
 _WORKER_REVERSE_GRAPH = None
@@ -1156,17 +1143,17 @@ def _init_extraction_worker(directed_graph, reverse_directed_graph, params):
     _WORKER_PARAMS = params
 
 
-def _extract_in_worker(amr_info):
-    """Per-task worker: only the small per-AMR payload is pickled per call."""
+def _extract_in_worker(target_info):
+    """Per-task worker: only the small per-target payload is pickled per call."""
     return neighborhood_sequence_extraction(
-        _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, amr_info
+        _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, target_info
     )
 
 
-def sequence_neighborhood_main(
+def extract_target_neighbourhoods(
         params,
         gfa_file,
-        amr_seq_align_info,
+        target_seq_align_info,
         debug: bool
 ):
     output_dir = Path(params.output_dir)
@@ -1190,11 +1177,11 @@ def sequence_neighborhood_main(
     # If running single threaded do not add any overhead using multiprocessing pool
     if params.num_cores == 1:
         lists = list()
-        for x in amr_seq_align_info:
-            file_path, amr_paths = x
-            #LOG.debug("amr_file = " + file_path)
-            amr_name = file_path.split("/")[-1].split(".")[0]
-            #if(amr_name == "TEM-181") :
+        for x in target_seq_align_info:
+            file_path, target_hits = x
+            #LOG.debug("target_file = " + file_path)
+            target_name = file_path.split("/")[-1].split(".")[0]
+            #if(target_name == "TEM-181") :
             lists.append(neighborhood_sequence_extraction(directed_graph, reverse_directed_graph, params, x))
     else:
         # The workers only traverse (never mutate) the graph, so share a single
@@ -1214,7 +1201,7 @@ def sequence_neighborhood_main(
                 initializer=_init_extraction_worker,
                 initargs=(directed_graph, reverse_directed_graph, params),
             ) as p:
-                lists = list(p.imap(_extract_in_worker, amr_seq_align_info))
+                lists = list(p.imap(_extract_in_worker, target_seq_align_info))
         finally:
             gc.unfreeze()
     seq_files, path_info_files = zip(*lists)
