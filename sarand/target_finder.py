@@ -146,7 +146,7 @@ def find_target_group_in_graph(
     Parameters:
         gfa_file: the file containing the assembly graph
         align_dir: the directory for storing alignment info
-        output_dir: the directory to store the list of AMRs in a single file
+        output_dir: the directory to store the list of target hits in a single file
         min_target_identity: minimum target identity
         min_target_coverage: minimum target coverage
         keep_files: True if intermediate files should be kept, False otherwise.
@@ -249,8 +249,13 @@ def find_all_targets_in_graph(
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
     """
+    # target_hits always holds the temporary per-group fasta files.
+    (Path(output_dir) / TARGET_DIR_NAME).mkdir(parents=True, exist_ok=True)
     align_dir = Path(output_dir) / TARGET_DIR_NAME / TARGET_ALIGN_DIR
-    align_dir.mkdir(parents=True, exist_ok=True)
+    # Only persist the alignments directory when intermediate files are kept;
+    # otherwise Bandage runs in a temp dir and nothing is written here.
+    if keep_files:
+        align_dir.mkdir(parents=True, exist_ok=True)
 
     # generate the groups and store the group of each target
     group_num = 5

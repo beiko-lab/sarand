@@ -351,6 +351,9 @@ class Bandage:
             reads = Path(reads)
 
         if out_dir is not None:
+            # Bandage exits 0 but silently fails to write its .tsv if the
+            # output directory does not exist, so ensure it is present first.
+            out_dir.mkdir(parents=True, exist_ok=True)
             params = BandageParams(
                 graph=gfa,
                 reads=reads,
