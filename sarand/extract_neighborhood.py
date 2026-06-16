@@ -4,7 +4,6 @@ import gc
 import threading
 import time
 import csv
-import subprocess
 import shutil
 import multiprocessing
 from pathlib import Path
@@ -14,7 +13,29 @@ import networkx as nx
 
 from sarand.util.logger import LOG
 from sarand.config import TARGET_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
-from sarand.util.sequence import retrieve_AMR
+from sarand.external.cdhit import Cdhit
+
+
+def read_paths_file(file_path):
+    """Read a paths file of alternating "> <path-tuple>" / sequence lines into a dict."""
+    paths = {}
+    with open(file_path, 'r') as fd:
+        while True:
+            key_line = fd.readline().strip()
+            # An empty line marks EOF
+            if not key_line:
+                break
+            path = eval(key_line.replace("> ", ""))
+            paths[path] = fd.readline().strip()
+    return paths
+
+
+def write_paths_file(file_path, paths, mode='w'):
+    """Write a {path: sequence} dict as alternating "> <path>" / sequence lines."""
+    with open(file_path, mode) as fd:
+        for path, seq in paths.items():
+            fd.write("> " + str(path) + "\n")
+            fd.write(str(seq) + "\n")
 
 def calculate_coverage(node, max_kmer_size, node_name, assembler):
     """
@@ -38,7 +59,7 @@ def calculate_coverage(node, max_kmer_size, node_name, assembler):
     return coverage
 
 
-def get_sequnce_path(directed_graph, path, threshold, len_target, up_down):
+def get_sequence_path(directed_graph, path, threshold, len_target, up_down):
     sequence = ""
     if (up_down == "down"):
         sequence = directed_graph.nodes[path[0]]['sequence'][-len_target:]
@@ -175,14 +196,14 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
                             if( new_w < threshold):
                                 paths[new_p] = new_w
                             else:
-                                selected_paths[new_p] = get_sequnce_path(ego_nx_graph, new_p, threshold, len_target, up_down)
+                                selected_paths[new_p] = get_sequence_path(ego_nx_graph, new_p, threshold, len_target, up_down)
                 else:
-                    selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_target, up_down)
+                    selected_paths[p] = get_sequence_path(ego_nx_graph, p, threshold, len_target, up_down)
             else:
-                selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_target, up_down)
+                selected_paths[p] = get_sequence_path(ego_nx_graph, p, threshold, len_target, up_down)
 
     if(len(selected_paths)):
-        check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{target_gene_node}.fasta", source, params.similarity)
+        check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{target_gene_node}.fasta", source, params.deduplication_identity)
 
     ##### move to final paths
 
@@ -191,170 +212,14 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     file_name["file_name"] =  destination
     #print(file_name)
     #return destination
-def merge_upstream_target_downstream_metacherchant(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
-    threshold = params.neighbourhood_length
-
-    mergepaths = {}
-    if (upstream_paths_file != "" and downstream_paths_file == ""):
-        # Initialize an empty dictionary to store the data
-        upstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(upstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                upstream_paths[key_tuple] = value_line
-
-
-        for up_path, seq in upstream_paths.items():
-            #print("len temp:" , len(temp_mergepaths))
-            new_path = up_path[::-1][:-1]
-            new_path = new_path + (tuple(target),)
-            new_seq = seq + target_seq.lower()
-            print("new path :", type(new_path), new_path)
-            mergepaths[new_path] = new_seq
-
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
-    elif (upstream_paths_file == "" and downstream_paths_file != ""):
-
-        # Initialize an empty dictionary to store the data
-        downstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(downstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                downstream_paths[key_tuple] = value_line
-        for down_path, seq in downstream_paths.items():
-            new_path = (tuple(target),)
-            new_path = new_path + down_path[1:]
-            new_seq = target_seq.lower() + seq
-            mergepaths[new_path] = new_seq
-
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
-    elif (upstream_paths_file != "" and downstream_paths_file != ""):
-        # Initialize an empty dictionary to store the data
-        upstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(upstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                upstream_paths[key_tuple] = value_line
-
-        # Initialize an empty dictionary to store the data
-        downstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(downstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                downstream_paths[key_tuple] = value_line
-
-
-
-            for up_path, up_seq in upstream_paths.items():
-                for down_path, down_seq in downstream_paths.items():
-                    new_path = up_path[::-1][:-1]
-                    new_path = new_path + (tuple(target),)
-                    new_path = new_path + down_path[1:]
-                    new_seq = up_seq + target_seq.lower() + down_seq
-                    mergepaths[new_path] = new_seq
-
-            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
-    else:
-        new_path = (tuple(target),)
-        new_seq = target_seq.lower()
-        mergepaths[new_path] = new_seq
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
-    #return seq_file
 
 def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
     threshold = params.neighbourhood_length
 
     mergepaths = {}
     if (upstream_paths_file != "" and downstream_paths_file == ""):
-        # Initialize an empty dictionary to store the data
-        upstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(upstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                upstream_paths[key_tuple] = value_line
-
-
+        upstream_paths = read_paths_file(upstream_paths_file)
         for up_path, seq in upstream_paths.items():
-            #print("len temp:" , len(temp_mergepaths))
             new_path = up_path[::-1][:-1]
             new_path = new_path + (tuple(target),)
             if(len_after_target == 0):
@@ -367,34 +232,8 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
             print("new path :", type(new_path), new_path)
             mergepaths[new_path] = new_seq
 
-
-
-
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
     elif (upstream_paths_file == "" and downstream_paths_file != ""):
-
-        # Initialize an empty dictionary to store the data
-        downstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(downstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                downstream_paths[key_tuple] = value_line
+        downstream_paths = read_paths_file(downstream_paths_file)
         for down_path, seq in downstream_paths.items():
             new_path = (tuple(target),)
             new_path = new_path + down_path[1:]
@@ -411,72 +250,23 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
             mergepaths[new_path] = new_seq
 
-
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
-
     elif (upstream_paths_file != "" and downstream_paths_file != ""):
-        # Initialize an empty dictionary to store the data
-        upstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(upstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                upstream_paths[key_tuple] = value_line
-
-        # Initialize an empty dictionary to store the data
-        downstream_paths = {}
-
-        # Open the file and read it line by line
-        with open(downstream_paths_file, 'r') as file:
-            while True:
-                # Read the first line (key)
-                key_line = file.readline().strip()
-
-                # If the line is empty, break the loop (EOF)
-                if not key_line:
-                    break
-
-                # Remove the "> " at the start and convert the string to a tuple
-                key_tuple = eval(key_line.replace("> ", ""))
-
-                # Read the second line (value)
-                value_line = file.readline().strip()
-
-                # Add the key-value pair to the dictionary
-                downstream_paths[key_tuple] = value_line
-
-
-
-            for up_path, up_seq in upstream_paths.items():
-                for down_path, down_seq in downstream_paths.items():
-                    new_path = up_path[::-1][:-1]
-                    new_path = new_path + (tuple(target),)
-                    new_path = new_path + down_path[1:]
-                    if(len_after_target==0):
-                        new_seq = up_seq + \
-                            target_seq[len_before_target:].lower() + \
-                        	down_seq
-                    else:
-                        new_seq = up_seq + \
-                            target_seq[len_before_target:-len_after_target].lower() + \
-                        	down_seq
-                    mergepaths[new_path] = new_seq
-
-            check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
+        upstream_paths = read_paths_file(upstream_paths_file)
+        downstream_paths = read_paths_file(downstream_paths_file)
+        for up_path, up_seq in upstream_paths.items():
+            for down_path, down_seq in downstream_paths.items():
+                new_path = up_path[::-1][:-1]
+                new_path = new_path + (tuple(target),)
+                new_path = new_path + down_path[1:]
+                if(len_after_target==0):
+                    new_seq = up_seq + \
+                        target_seq[len_before_target:].lower() + \
+                        down_seq
+                else:
+                    new_seq = up_seq + \
+                        target_seq[len_before_target:-len_after_target].lower() + \
+                        down_seq
+                mergepaths[new_path] = new_seq
 
     else:
         new_path = (tuple(target),)
@@ -495,7 +285,8 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
             new_seq = new_seq[0:-(len_after_target-threshold)]
 
         mergepaths[new_path] = new_seq
-        check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.similarity)
+
+    check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.deduplication_identity)
 
     #return seq_file
 
@@ -503,56 +294,15 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
 def check_add_temp_for_similarity(temp_mergepaths, input_file, output_file, similarity):
 
-    with open(input_file, 'w') as file:
-        for path, seq in temp_mergepaths.items():
-            file.write("> " + str(path) + "\n")
-            file.write(str(seq)+"\n")
-
-    #os.remove(output_file)
-
-    cdhit_command = [
-        'cd-hit',                   # Command to execute
-        '-i', input_file,           # Input file
-        '-o', output_file,          # Output file
-        '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-        '-n', '5',                   # Word length (default is 5)
-        '-T', '1',  # single thread; per-target parallelism is handled by the pool
-    ]
-    # Execute the command
-    try:
-        subprocess.run(cdhit_command, check=True)
-        print(f"CD-HIT completed for {input_file}.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error running CD-HIT on {input_file}: {e}")
-
-
-
-
-    #os.remove(input_file)
+    write_paths_file(input_file, temp_mergepaths)
+    Cdhit.cluster(input_file, output_file, similarity)
     shutil.copyfile(output_file, input_file)
 
 def check_similarity_down_up_streams(paths, input_file, output_file, similarity):
 
     if Path(input_file).exists():
-        with open(input_file, 'w') as file:
-            for path, seq in paths.items():
-                file.write("> " + str(path) + "\n")
-                file.write(str(seq)+"\n")
-
-        cdhit_command = [
-            'cd-hit',                   # Command to execute
-            '-i', input_file,           # Input file
-            '-o', "temp_file.fasta",          # Output file
-            '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-            '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-target parallelism is handled by the pool
-        ]
-        # Execute the command
-        try:
-            subprocess.run(cdhit_command, check=True)
-            print(f"CD-HIT completed for {input_file}.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error running CD-HIT on {input_file}: {e}")
+        write_paths_file(input_file, paths)
+        Cdhit.cluster(input_file, "temp_file.fasta", similarity)
 
         with open('temp_file.fasta', 'r') as file:
            content_to_append = file.read()
@@ -564,41 +314,11 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
         # Copy the file
         shutil.copy(output_file, input_file)
 
-        cdhit_command = [
-            'cd-hit',                   # Command to execute
-            '-i', input_file,           # Input file
-            '-o', output_file,          # Output file
-            '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-            '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-target parallelism is handled by the pool
-        ]
-        # Execute the command
-        try:
-            subprocess.run(cdhit_command, check=True)
-            print(f"CD-HIT completed for {input_file}.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error running CD-HIT on {input_file}: {e}")
+        Cdhit.cluster(input_file, output_file, similarity)
 
     else:
-        with open(input_file, 'w') as file:
-            for path, seq in paths.items():
-                file.write("> " + str(path) + "\n")
-                file.write(str(seq)+"\n")
-
-        cdhit_command = [
-            'cd-hit',                   # Command to execute
-            '-i', input_file,           # Input file
-            '-o', output_file,          # Output file
-            '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-            '-n', '5',                   # Word length (default is 5)
-            '-T', '1',  # single thread; per-target parallelism is handled by the pool
-        ]
-        # Execute the command
-        try:
-            subprocess.run(cdhit_command, check=True)
-            print(f"CD-HIT completed for {input_file}.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error running CD-HIT on {input_file}: {e}")
+        write_paths_file(input_file, paths)
+        Cdhit.cluster(input_file, output_file, similarity)
 
 
     number_cluster = 0
@@ -610,26 +330,8 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
 
 
 def check_for_similarity(mergepaths, input_file, output_file, similarity):
-    with open(input_file, 'a') as file:
-        for path, seq in mergepaths.items():
-            file.write("> " + str(path) + "\n")
-            file.write(str(seq)+"\n")
-    # Define the CD-HIT command
-    cdhit_command = [
-        'cd-hit',                   # Command to execute
-        '-i', input_file,           # Input file
-        '-o', output_file,          # Output file
-        '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-        '-n', '5',                  # Word length (default is 5)
-        '-T', '1',  # single thread; per-target parallelism is handled by the pool
-    ]
-
-    # Execute the command
-    try:
-        subprocess.run(cdhit_command, check=True)
-        print(f"CD-HIT completed for {input_file}.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error running CD-HIT on {input_file}: {e}")
+    write_paths_file(input_file, mergepaths, mode='a')
+    Cdhit.cluster(input_file, output_file, similarity)
 
 def write_paths_info_to_file(paths_info_list, paths_info_file):
     """ """
@@ -770,16 +472,10 @@ def neighborhood_sequence_extraction(
 
         downstream_paths_file = {"file_name" : "" }
         upstream_paths_file = {"file_name" : "" }
-
-        if params.assembler == "metacherchant":
-        	#read target_seq directly from the target file
-        	target_seq, _ = retrieve_AMR(file_path)
-        	target_seq = target_seq.rstrip('\n')
-        else:
-        	target_seq = directed_graph.nodes[target_gene[0]]['sequence']
-        	if(len(target_gene)>1):
-        		for gene_index in range(1, len(target_gene)):
-        			target_seq = target_seq + directed_graph.nodes[target_gene[gene_index]]['sequence'][directed_graph[target_gene[gene_index-1]][target_gene[gene_index]]['overlap']:]
+       	target_seq = directed_graph.nodes[target_gene[0]]['sequence']
+        if(len(target_gene)>1):
+        	for gene_index in range(1, len(target_gene)):
+        		target_seq = target_seq + directed_graph.nodes[target_gene[gene_index]]['sequence'][directed_graph[target_gene[gene_index-1]][target_gene[gene_index]]['overlap']:]
 
         # target_seq = target_seq[len_before_target:-len_after_target]
         # downstream
@@ -837,20 +533,14 @@ def neighborhood_sequence_extraction(
 
         print(f"downstream file :{downstream_paths_file}")
         print(f"upstream file : {upstream_paths_file}")
-        if params.assembler == "metacherchant":
-        	merge_upstream_target_downstream_metacherchant(
-        		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
-        		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
-        else:
-        	merge_upstream_target_downstream_5(
+       	merge_upstream_target_downstream_5(
             		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
             		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
 
 
-    if params.assembler != "metacherchant":
-        path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighbourhood_length, params.max_kmer_size, params.assembler)
+    path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighbourhood_length, params.max_kmer_size, params.assembler)
 
-        write_paths_info_to_file(path_info_list, paths_info_file)
+    write_paths_info_to_file(path_info_list, paths_info_file)
 
     return seq_file, paths_info_file
 
@@ -858,18 +548,7 @@ def neighborhood_sequence_extraction(
 
 def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer_size, assembler):
     paths_info_list = []
-    paths = {}
-
-    # Open the file and read it line by line
-    with open(seq_file, 'r') as file:
-        while True:
-            key_value = file.readline().strip()
-            if not key_value:
-                break
-            path = eval(key_value.replace("> ", ""))
-            seq = file.readline().strip()
-            paths[path] = seq
-            #paths.append(path)
+    paths = read_paths_file(seq_file)
     counter = 0
     for path, seq in paths.items():
         seq = seq.upper()

@@ -39,9 +39,9 @@ def create_fasta_file(seq: str, output_dir: str | Path, comment: str = "> sequen
     return str(myfile_name)
 
 
-def retrieve_AMR(file_path: str | Path) -> tuple[str, str]:
+def retrieve_target(file_path: str | Path) -> tuple[str, str]:
     """
-    To read the AMR gene from the text file.
+    To read the target gene from the text file.
     Parameters:
         file_path:	the address of the file containing the AMR gene
     Return:

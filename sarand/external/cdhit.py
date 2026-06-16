@@ -20,13 +20,13 @@ class CdhitParams:
             self,
             input_file: Path,
             output_file: Path,
-            identity: int,
+            identity: float,
             word_length: int,
             threads: int,
     ):
         self.input_file: Path = input_file
-        self.output_file: Path = output_file 
-        self.identitiy: int = identity 
+        self.output_file: Path = output_file
+        self.identity: float = identity
         self.word_length: int = word_length
         self.threads: int = threads
 
@@ -40,11 +40,11 @@ class CdhitParams:
             '-o',
             str(self.output_file.absolute()),
             '-c',
-            self.identity,
+            str(self.identity),
             '-n',
-            self.word_length,
+            str(self.word_length),
             '-T',
-            self.threads
+            str(self.threads),
         ]
         return out
 
@@ -58,13 +58,13 @@ class Cdhit:
         self.params: CdhitParams = params
 
     @classmethod
-    def run(cls, params: BlastnParams):
-        """Run cd_hit given the parameters."""
+    def run(cls, params: CdhitParams):
+        """Run cd-hit given the parameters."""
 
         # Generate the command
         cmd = params.as_cmd()
 
-        # Run blastn
+        # Run cd-hit
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,
@@ -77,6 +77,29 @@ class Cdhit:
             raise RuntimeError(f'cd-hit failed: {stderr}')
 
         return cls(params)
+
+    @classmethod
+    def cluster(
+            cls,
+            input_file,
+            output_file,
+            identity: float,
+            word_length: int = 5,
+            threads: int = 1,
+    ):
+        """Cluster the sequences in input_file at the given identity.
+
+        word_length defaults to cd-hit's default of 5 and threads to 1, since
+        per-target parallelism is handled by the calling pool.
+        """
+        params = CdhitParams(
+            input_file=Path(input_file),
+            output_file=Path(output_file),
+            identity=identity,
+            word_length=word_length,
+            threads=threads,
+        )
+        return cls.run(params)
 
     @staticmethod
     def version() -> str:

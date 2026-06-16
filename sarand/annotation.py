@@ -26,7 +26,7 @@ from sarand.util.annotate import (
 from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG
 from sarand.util.naming import extract_name_from_file_name
-from sarand.util.sequence import retrieve_AMR
+from sarand.util.sequence import retrieve_target
 
 
 def write_annotation_row(annotation_writer: Any, visual_annotation_writer: Any,
@@ -323,7 +323,7 @@ def annotate_all_neighbourhoods(
     annotation_files = []
     for amr_file in amr_files:
         restricted_amr_name = extract_name_from_file_name(amr_file)
-        _, amr_name = retrieve_AMR(amr_file)
+        _, amr_name = retrieve_target(amr_file)
         neighborhood_file, nodes_info_file = find_seq_and_path_files(
             restricted_amr_name,
             neighborhood_files,
