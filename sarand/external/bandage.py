@@ -345,9 +345,8 @@ class Bandage:
             gfa: Path,
             reads: Path,
             threshold: float,
-            ga_extra_args: BandageParams,
+            extra_params: Optional[BandageParams] = None,
             out_dir: Optional[Path] = None,
-            #threads: Optional[int] = 1,
     ) -> 'Bandage':
 
         """Default method to run Bandage for the sarand pipeline."""
@@ -363,8 +362,8 @@ class Bandage:
                 minmeanid = ((threshold - 1) / 100.0),
                 minhitcov = ((threshold - 1) / 100.0),
             )
-            if ga_extra_args:
-                params.update_from_object(ga_extra_args)
+            if extra_params:
+                params.update_from_object(extra_params)
             out = Bandage.run(params)
             if out.stdout:
                 path_stdout = out_dir / 'bandage_stdout.txt'
@@ -388,8 +387,8 @@ class Bandage:
                     minmeanid = ((threshold - 1) / 100.0),
                     minhitcov = ((threshold - 1) / 100.0),
                 )
-                if ga_extra_args:
-                    params.update_from_object(ga_extra_args)
+                if extra_params:
+                    params.update_from_object(extra_params)
                 return Bandage.run(params)
 
     @staticmethod

@@ -131,21 +131,6 @@ def main():
              " graph neighbourhoods",
     )
     parser.add_argument(
-        '--use_ga',
-        default = False,
-        action='store_true',
-        help="Enable GraphAligner (instead of Bandage) for sequence alignment in the graph",
-    )
-    # GraphAligner options
-    parser.add_argument(
-        '--ga',
-        default=None,
-        action='append',
-        nargs='*',
-        help='Additional arguments to supply to graph aligner in the form of --ga key value,'
-        'e.g. --ga E-cutoff 0.1; it should be used only if use_ga is set to True'
-    )
-    parser.add_argument(
         "--keep_intermediate_files",
         default=False,
         action="store_true",
@@ -226,8 +211,7 @@ def main():
     log = get_logger()
 
     # check dependencies work
-    assert_dependencies_exist(graph_aligner = args.use_ga,
-            bandage = not args.use_ga, rgi=not args.no_rgi)
+    assert_dependencies_exist(bandage=True, rgi=not args.no_rgi)
 
     # convert argparse to config dictionary
     args.run_time = run_time

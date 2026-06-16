@@ -14,14 +14,13 @@ import shutil
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any
 
 from Bio import SeqIO
 
 from sarand.config import PROGRAM_VERSION_NA
 from sarand.external.bakta import Bakta
 from sarand.external.blastn import Blastn
-from sarand.external.graph_aligner import GraphAligner, GraphAlignerResult
 from sarand.external.bandage import Bandage, BandageResult
 from sarand.external.rgi import Rgi
 from sarand.model.fasta_seq import FastaSeq
@@ -579,7 +578,7 @@ def read_path_info_from_align_file(align_file, threshold=95):
 
 def read_path_info_from_align_file_with_multiple_amrs(
         output_name: Path,
-        ga: Union[List[GraphAlignerResult], List[BandageResult]],
+        ga: List[BandageResult],
         threshold=99,
         debug: bool = False
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -670,8 +669,7 @@ def check_file(path: str) -> Path:
         )
 
 
-def assert_dependencies_exist(bakta=True, blastn=True, graph_aligner=False,
-    bandage = True, rgi=True):
+def assert_dependencies_exist(bakta=True, blastn=True, bandage=True, rgi=True):
     """Check all dependencies exist and work"""
     versions = list()
     missing = list()
@@ -690,11 +688,6 @@ def assert_dependencies_exist(bakta=True, blastn=True, graph_aligner=False,
         versions.append(f'Bandage v{ba_v}')
         if ba_v is PROGRAM_VERSION_NA:
             missing.append('Bandage')
-    if graph_aligner:
-        ga_v = GraphAligner.version()
-        versions.append(f'GraphAligner v{ga_v}')
-        if ga_v is PROGRAM_VERSION_NA:
-            missing.append('GraphAligner')
     if rgi:
         rgi_v = Rgi.version()
         versions.append(f'RGI v{rgi_v}')

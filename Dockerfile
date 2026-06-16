@@ -12,7 +12,6 @@ USER root
 
 # Set the conda environment names to run dependencies
 ENV CONDA_BAKTA_NAME='bakta'
-ENV CONDA_GRAPH_ALIGNER_NAME='graphaligner'
 ENV CONDA_BANDAGE_NAME='bandage'
 ENV CONDA_RGI_NAME='rgi'
 ENV CONDA_EXE_NAME='micromamba'
@@ -28,8 +27,6 @@ RUN apt-get update -y -m && \
     rm -rf /var/lib/apt/lists/* && \
     micromamba create -n ${CONDA_RGI_NAME} -c conda-forge -c bioconda -c defaults -y  \
         rgi=5.2.0 && \
-    micromamba create -n ${CONDA_GRAPH_ALIGNER_NAME} -c conda-forge -c bioconda -c defaults -y  \
-        graphaligner=1.0.17 && \
     micromamba create -n ${CONDA_BANDAGE_NAME} -c conda-forge -c bioconda -c defaults -y  \
             bandage=0.8.1 && \
     micromamba create -n ${CONDA_BAKTA_NAME} -c conda-forge -c bioconda -c defaults -y \

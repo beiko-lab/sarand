@@ -21,7 +21,7 @@ Sarand can be run using a conda environment or in a container (Docker or Singula
 - [Bakta](https://github.com/oschwengers/bakta)
 - [RGI](https://github.com/arpcard/rgi)
 - [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
-- [Bandage](https://github.com/rrwick/Bandage) or [GraphAligner](https://github.com/maickrau/GraphAligner)
+- [Bandage](https://github.com/rrwick/Bandage)
 
 ### 1a. Docker
 
@@ -57,16 +57,12 @@ conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_feat
 # 2. Create the bakta environment
 conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
 
-# 3.a. Create the Bandage environment
+# 3. Create the Bandage environment
 conda create -n bandage-0.8.1 -c conda-forge -c bioconda -c defaults -y bandage=0.8.1
-
-# 3.b. Create the GraphAligner environment
-conda create -n graphaligner-1.0.17b -c conda-forge -c bioconda -y graphaligner=1.0.17b
 
 # 4. Create the RGI environment
 conda create -n rgi-5.2.0 -c conda-forge -c bioconda -c defaults -y rgi=5.2.0
 ```
-Please note that step 3.b is not required if you run the default version of Sarand. Sarand, by default, utilizes Bandage for sequence alignment in the assembly graphs. However, If you prefer to use GraphAligner, please make sure to run command 3.b and install it.
 
 **Downloading and updating the Bakta database:**
 
@@ -94,10 +90,8 @@ conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
 conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
 conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
 conda env config vars set BAKTA_DB=/db/bakta/db-light
-# Note1: Only run the following command if you have created graphaligner-1.0.17b conda environemnt in step 3.b above.
-conda env config vars set CONDA_GRAPH_ALIGNER_NAME=graphaligner-1.0.17b
 
-# Note2: Here you can specify an alternate exe (e.g. micromamba, mamba).
+# Note: Here you can specify an alternate exe (e.g. micromamba, mamba).
 conda env config vars set CONDA_EXE_NAME=conda
 ```
 
@@ -132,8 +126,8 @@ usage: sarand [-h] [-v] -i INPUT_GFA -a ASSEMBLER
               -k MAX_KMER_SIZE [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
               [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
               [-l NEIGHBOURHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
-              [--verbose] [--no_rgi | --rgi_include_loose] [--use_ga]
-              [--ga] [--keep_intermediate_files] [--debug]
+              [--verbose] [--no_rgi | --rgi_include_loose]
+              [--keep_intermediate_files] [--debug]
 
 Identify and extract the local neighbourhood of target genes (such as AMR)
 from a GFA formatted assembly graph
@@ -179,11 +173,6 @@ optional arguments:
   --no_rgi            Disable RGI based annotation of graph neighbourhoods
   --rgi_include_loose Include loose criteria hits if using RGI to annotate
                       graph neighbourhoods
-  --use_ga            Enable GraphAligner (instead of Bandage) for  
-                      sequence alignment in the graph
-  --ga [GA ...]       Additional arguments to supply to graph aligner in the
-                      form of --ga key value, e.g. --ga E-cutoff 0.1;
-                      it should be used only if use_ga is set to True
   --keep_intermediate_files
                       Do not delete intermediate files.
   --debug               Creates additional files for debugging purposes.

@@ -29,7 +29,6 @@ from typing import Dict, List, Any
 from sarand.annotation_visualization import visualize_annotation
 from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_NAME_PREFIX, \
     ANNOTATION_DIR
-from sarand.external.graph_aligner import GraphAligner, GraphAlignerParams
 from sarand.external.bandage import Bandage
 from sarand.new_extract_neighborhood import sequence_neighborhood_main
 from sarand.model.fasta_seq import FastaSeq
@@ -718,25 +717,19 @@ def are_there_amrs_in_graph(
         gfa_file: Path,
         output_dir: Path,
         threshold: float,
-        #amr_path: Path,
         amr_object,
-        ga_extra_args: GraphAlignerParams,
         keep_files: bool,
-        threads: int,
         debug: bool,
-        use_ga: bool
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
     To call bandage+blast and check if the amr sequence can be found in the assembly graph
     Parameters:
         gfa_file: the address of the assembly graph
         output_dir: the address of the output directory
-        amr_path: the address of the file containing the sequence of all AMRs from CARD
         threshold: the threshold for coverage and identity
-        ga_extra_args: Additional arguments to be supplied to GraphAligner.
+        amr_object: the concatenated AMR file and the list of AMR file names
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
-        use_ga: if true Bandage will be replaced by GraphAligner
     Return:
         a boolean value which is True if amr_file was found in gfa_file and the
         list of paths returned by bandage+blast in which the coverage and identiry
@@ -754,26 +747,14 @@ def are_there_amrs_in_graph(
         + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
         "")
 
-    # Run GraphAligner
+    # Run Bandage+BLAST
     aligner_path = output_name if keep_files else None
-    if use_ga:
-        aligner = GraphAligner.run_for_sarand(
-            gfa=gfa_file,
-            reads=cat_file,
-            threshold=threshold,
-            ga_extra_args=ga_extra_args,
-            out_dir=aligner_path,
-            threads=threads
-        )
-    else:
-        aligner = Bandage.run_for_sarand(
-            gfa=gfa_file,
-            reads=cat_file,
-            threshold=threshold,
-            ga_extra_args=ga_extra_args,
-            out_dir=aligner_path
-            #threads=threads
-        )
+    aligner = Bandage.run_for_sarand(
+        gfa=gfa_file,
+        reads=cat_file,
+        threshold=threshold,
+        out_dir=aligner_path,
+    )
 
     paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
         output_name=output_dir,
@@ -789,11 +770,9 @@ def process_amr_group_and_find(
         align_dir: Path,
         output_dir: Path,
         amr_threshold: float,
-        ga_extra_args: GraphAlignerParams,
         keep_files: bool,
         core_num: int,
         debug: bool,
-        use_ga: bool,
         amr_object
 ):
     """
@@ -804,11 +783,9 @@ def process_amr_group_and_find(
         align_dir: the directory for storing alignment info
         output_dir: the directory to store the list of AMRs in a single file
         amr_threshor: the threshold for identity and coverage used in alignment
-        ga_extra_args: Additional arguments to be supplied to GraphAligner.
         keep_files: True if intermediate files should be kept, False otherwise.
         core_num: the number of cores used
         debug: True if additional debug files should be created, False otherwise.
-        use_ga: if true Bandage will be replaced by GraphAligner
         amr_object: the list of AMRs and their ids
     Return:
         the alignment info for AMRs
@@ -828,17 +805,14 @@ def process_amr_group_and_find(
             amr_file_name = restricted_amr_name_from_modified_name(amr_name1)
             file_group.append(amr_file_name + ".fasta")
 
-    # Run seq alignment tool (Bandage or Graph aligner)
+    # Run Bandage+BLAST
     p_find_amr_align = are_there_amrs_in_graph(
         gfa_file=gfa_file,
         output_dir=Path(align_dir),
         threshold=amr_threshold,
         amr_object=(cat_file, file_group),
-        ga_extra_args=ga_extra_args,
         keep_files=keep_files,
-        threads=core_num,
         debug=debug,
-        use_ga=use_ga
     )
     if debug:
         try_dump_to_disk(p_find_amr_align, Path(align_dir) / 'debug_p_find_amr_align.json')
@@ -886,10 +860,8 @@ def find_all_amr_in_graph(
         amr_sequences_file: Path,
         amr_threshold: float,
         core_num: int,
-        ga_extra_args: GraphAlignerParams,
         keep_files: bool,
         debug: bool,
-        use_ga: bool
 ):
     """
     To go over a list of AMR sequences (amr_sequences_file) and run bandage+blast
@@ -900,10 +872,8 @@ def find_all_amr_in_graph(
         amr_sequences_file: the address of the file containing the sequence of all AMRs from CARD
         amr_threshold: the threshold for coverage and identity
         core_num: the number of used cores
-        ga_extra_args: Additional arguments to be supplied to GraphAligner.
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
-        use_ga: if true Bandage will be replaced by GraphAligner
     """
     align_dir = os.path.join(output_dir, AMR_DIR_NAME, AMR_ALIGN_DIR)
     os.makedirs(align_dir, exist_ok=True)
@@ -936,11 +906,9 @@ def find_all_amr_in_graph(
         Path(align_dir),
         Path(output_dir),
         amr_threshold,
-        ga_extra_args,
         keep_files,
         core_num,
         debug,
-        use_ga
     )
     with Pool(core_num) as p:
         paths_info_group_list = p.map(p_find_amr, amr_objects)
@@ -1119,12 +1087,6 @@ def full_pipeline_main(params):
     """
     LOG.info("Starting analysis...")
 
-    # Convert the graph aligner arguments into a consumable dictionary
-    if params.use_ga:
-        ga_extra_args = GraphAlignerParams.from_cli_args(params.ga)
-    else:
-        ga_extra_args = GraphAlignerParams()
-
     # extract AMR and alignment information
     LOG.info(f"Finding AMR genes in the assembly graph: {params.input_gfa}")
     unique_amr_files, unique_amr_path_list = find_all_amr_in_graph(
@@ -1133,10 +1095,8 @@ def full_pipeline_main(params):
         params.target_genes,
         params.min_target_identity,
         params.num_cores,
-        ga_extra_args,
         params.keep_intermediate_files,
         params.debug,
-        params.use_ga
     )
 
     if not unique_amr_files:
