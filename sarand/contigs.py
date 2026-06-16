@@ -222,5 +222,3 @@ def run_contig_pipeline(params):
 	annotate_sequence_bundle(contig_ng_info, contig_dir)
 	LOG.info("neighborhood extraction and annotation from cotigs is done!")
 
-if __name__=="__main__":
-	main()
