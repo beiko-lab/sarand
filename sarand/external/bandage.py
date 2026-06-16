@@ -80,7 +80,6 @@ class BandageParams:
         self.minpatcov = minpatcov
         self.minmeanid = minmeanid
         self.minhitcov = minhitcov
-        #self.threads = threads
         self.verbose = verbose
         self.maxevprod = maxevprod
         self.minpatlen = minpatlen

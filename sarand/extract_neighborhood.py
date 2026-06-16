@@ -76,7 +76,6 @@ def get_sequence_path(directed_graph, path, threshold, len_target, up_down):
     if (up_down == "down"):
         sequence = directed_graph.nodes[path[0]]['sequence'][-len_target:]
         for i in range(1, len(path)):
-            #print(i)
             sequence = sequence + \
                 directed_graph.nodes[path[i]
                                      ]['sequence'][directed_graph[path[i-1]][path[i]]['overlap']:]
@@ -208,21 +207,14 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
 
     print("flag: ", stop_flag.is_set())
     while not stop_flag.is_set() and len(paths)>0:
-        #while(len(paths)>0):
             p, w = paths.popitem()
-            #print(p, w)
             print("paths : ", len(paths))
 
-            #print(ego_nx_graph.out_edges(p[-1], data = True))
             neighbor = set(ego_nx_graph.successors(p[-1]))
-            #print("neighbor: ", neighbor)
             if(neighbor):
                 check_loop = all(item in set(p) for item in neighbor)
-                #print("check loop: ", check_loop)
                 if(not check_loop):
                     for edge in ego_nx_graph.out_edges(p[-1], data = True):
-                        #print("n : ", edge[1])
-                        #print("yes or not in a loop: ", edge[1] in p)
                         if(edge[1] not in p):
                             new_w = w + edge[2]['weight']
                             new_p = p + tuple([edge[1]])
@@ -243,8 +235,6 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     shutil.move(source, destination)
 
     file_name["file_name"] =  destination
-    #print(file_name)
-    #return destination
 
 def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
     """
@@ -339,7 +329,6 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
     check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.deduplication_identity)
 
-    #return seq_file
 
 
 
@@ -380,7 +369,6 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
     with open(output_file, 'r') as file:
         number_cluster = sum(1 for line in file) / 2
 
-    #print(f"number of cluster : {number_cluster}")
     return number_cluster
 
 
@@ -430,7 +418,6 @@ def write_paths_info_to_file(paths_info_list, paths_info_file):
             if (node_info["sequence"] != sequence_num):
                 coverage_index = coverage_index + 1
             sequence_num =  node_info["sequence"] 
-            #print(path_info)
             writer.writerow(
                 [
                     node_info["sequence"],
@@ -469,11 +456,8 @@ def neighborhood_sequence_extraction(
     duration = params.extraction_timeout * 60
 
     file_path, target_hits = target_info
-    #LOG.debug("target_file = " + file_path)
     target_name = file_path.split("/")[-1].split(".")[0]
     LOG.info(f"Extracting downstream and upstream paths for : {target_name}")
-    #print("target_name :", target_name)
-    #print("len target paths :", len(target_hits))
     # csv file for path_info
     length_dir = (
         Path(params.output_dir)
@@ -516,14 +500,10 @@ def neighborhood_sequence_extraction(
     for target_hit in target_hits:
         find_downstream = True
         find_upstream = True
-        #print(target_hit)
         # target_gene
         target_gene = [pair[0]+pair[1]
                     for pair in zip(target_hit['nodes'], target_hit['orientations'])]
         print("target gene : ", target_gene)
-        #len_after_target = len(
-        #    directed_graph.nodes[target_gene[-1]]['sequence']) - target_hit['end_pos']
-        #len_before_target = target_hit['start_pos'] - 1
 
         if(target_hit['end_pos'] == 0):
             len_after_target = 0
@@ -547,8 +527,6 @@ def neighborhood_sequence_extraction(
         if len_before_target >= params.neighborhood_length:
             find_upstream = False
 
-        #print(find_downstream)
-        #print(find_upstream)
 
 
 
@@ -559,7 +537,6 @@ def neighborhood_sequence_extraction(
         	for gene_index in range(1, len(target_gene)):
         		target_seq = target_seq + directed_graph.nodes[target_gene[gene_index]]['sequence'][directed_graph[target_gene[gene_index-1]][target_gene[gene_index]]['overlap']:]
 
-        # target_seq = target_seq[len_before_target:-len_after_target]
         # downstream
 
         if find_downstream:
@@ -573,17 +550,14 @@ def neighborhood_sequence_extraction(
             print(f"duration : {duration}")
             while time.time() - start_time < duration:
                 if not loop_thread.is_alive():  # If the thread has finished naturally, break
-                    #print("Loop finished early.")
                     break
                 time.sleep(0.001)  # Check periodically
 
             # If time expires, set the stop flag to stop the thread
             if loop_thread.is_alive():
-                #print("Time limit reached. Stopping the loop.")
                 stop_flag_downstream.set()
             loop_thread.join()
 
-            #downstream_paths_file = get_paths_from_big_nx_graph_4(
             #    directed_graph, target_gene_node, len_after_target, "down", params, stop_flag)
             print("done downstream")
 
@@ -591,7 +565,6 @@ def neighborhood_sequence_extraction(
         if find_upstream:
             print("into up")
             target_gene_node = target_gene[0]
-            #stop_flag.clear()
             print("flag: ", stop_flag_upstream.is_set())
             loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag_upstream, upstream_paths_file))
             loop_thread.start()
@@ -599,17 +572,14 @@ def neighborhood_sequence_extraction(
             start_time = time.time()
             while time.time() - start_time < duration:
                 if not loop_thread.is_alive():  # If the thread has finished naturally, break
-                    #print("Loop finished early.")
                     break
                 time.sleep(0.001)  # Check periodically
 
             # If time expires, set the stop flag to stop the thread
             if loop_thread.is_alive():
-                #print("Time limit reached. Stopping the loop.")
                 stop_flag_upstream.set()
             loop_thread.join()
 
-            #upstream_paths_file = get_paths_from_big_nx_graph_4(
             #    reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag)
             print("done upstream")
 
@@ -651,14 +621,11 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
     for path, seq in paths.items():
         seq = seq.upper()
         end = -1
-        #print(f"path : {path} , {type(path)}, target_gene, {target_gene}, {type(target_gene)}")
 
         for index, element in enumerate(path):
             if isinstance(element, tuple):
-                #print(f"The first tuple is at index: {index}")
                 index_target_in_path = index
                 for target_hit in target_hits:
-                    #print(target_hit)
                     # target_gene
                     target_gene = [pair[0]+pair[1]
                         for pair in zip(target_hit['nodes'], target_hit['orientations'])]
@@ -678,14 +645,10 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
         print(f"len_befor : {len_before_target}")
         print(f"len after : {len_after_target}")
         print(f"target : {target_gene}")
-        #index_target_in_path = path.index(target_gene)
-        #print("index target : ", index_target_in_path)
 
         is_upstreams = (index_target_in_path > 0)
         is_downstreams = (len(path)-1) > index_target_in_path
 
-        #print(is_upstreams)
-        #print(is_downstreams)
 
         #### upstreams
         if(is_upstreams):
@@ -694,14 +657,9 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
                 coverage = calculate_coverage(ego_graph.nodes[path[up_path_index]], max_kmer_size, path[up_path_index], assembler)
                 start = end + 1
                 if(type(path[up_path_index+1]) == tuple):
-                    #print(path[up_path_index + 1])
-                    #print("path[up_path_index + 1][0] : ", path[up_path_index + 1][0])
                     end = seq.find(ego_graph.nodes[path[up_path_index + 1][0]]['sequence'][0:len_before_target]) - 1
-                    #print("end : ", end)
                 else:
-                    #print(path[up_path_index + 1])
                     end = seq.find(ego_graph.nodes[path[up_path_index + 1]]['sequence']) - 1
-                    #print(end)
                 info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -709,7 +667,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
                     "end" : end}
                 paths_info_list.append(info)
 
-        #print(len(path[index_target_in_path]))
         ##### target
         if(len(path[index_target_in_path]) == 1):
             print(f"len_befor : {len_before_target}")
@@ -720,7 +677,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
             if(len_before_target > 0):
                 start = end + 1
                 end = (end + len_before_target) if(len_before_target <= threshold) else (end + threshold)
-                #print("info : ", info)
                 info = {"sequence" : counter,
                         "node" : node,
                         "coverage" : coverage,
@@ -736,7 +692,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
                     "coverage" : coverage,
                     "start" : start,
                     "end" : end}
-            #print("info : ", info)
             paths_info_list.append(info)
 
             ###downstream
@@ -748,7 +703,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
                         "coverage" : coverage,
                         "start" : start,
                         "end" : end}
-                #print("info : ", info)
                 paths_info_list.append(info)
 
         elif len(path[index_target_in_path]) == 2 :
@@ -867,20 +821,15 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
 
         #### downstreams
         if(is_downstreams):
-            #print("index_target_in_path : ", index_target_in_path)
-            #print("len path :", len(path))
 
             for down_path_index in range(index_target_in_path+1, len(path)-1):
-                #print(down_path_index)
                 node = path[down_path_index]
                 coverage = calculate_coverage(ego_graph.nodes[path[down_path_index]], max_kmer_size, path[down_path_index], assembler)
                 start = end + 1
                 if(down_path_index==index_target_in_path+1):
                     end = end + ego_graph[path[down_path_index-1][-1]][path[down_path_index]]['weight']
-                    #print("end in the if : ", end)
                 else:
                     end = end + ego_graph[path[down_path_index-1]][path[down_path_index]]['weight']
-                    #print("end out of the if : ", end)
                 info = {"sequence" : counter,
                     "node" : node,
                     "coverage" : coverage,
@@ -900,7 +849,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
             paths_info_list.append(info)
         counter = counter + 1
 
-    #print("paths info list : ", paths_info_list)
     return paths_info_list
 
 # Worker-process globals for neighborhood extraction. The assembly graph is
