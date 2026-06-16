@@ -14,6 +14,7 @@ Global configuration for output file names / directories
 TARGET_DIR_NAME = "target_hits"
 TARGET_SEQ_DIR = "sequences"
 TARGET_ALIGN_DIR = "alignments"
+TARGET_ALIGN_FILE = "bandage.tsv"
 TARGET_OVERLAP_FILE = "overlaps.txt"
 SUBGRAPH_DIR_NAME = "subgraphs"
 SEQ_DIR_NAME = "sequences_info"

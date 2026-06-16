@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import collections
 import datetime
+import shutil
 from functools import partial
 from multiprocessing.pool import Pool
 from pathlib import Path
@@ -15,6 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from sarand.config import (
     TARGET_ALIGN_DIR,
+    TARGET_ALIGN_FILE,
     TARGET_DIR_NAME,
     TARGET_OVERLAP_FILE,
     TARGET_SEQ_DIR,
@@ -110,7 +112,7 @@ def align_targets_to_graph(
     )
 
     # Run Bandage+BLAST
-    aligner_path = output_name if keep_files else None
+    aligner_path = output_name #if keep_files else None
     aligner = Bandage.run_for_sarand(
         gfa=gfa_file,
         reads=cat_file,
@@ -226,6 +228,43 @@ def collect_unique_targets(
     return unique_target_seqs, unique_target_infos, unique_target_paths
 
 
+def consolidate_alignments(align_dir: Path, keep_files: bool, debug: bool) -> Optional[Path]:
+    """Merge the per-group Bandage alignment files into a single TSV.
+
+    Each target group is aligned in its own ``target_group_*_align_*`` sub-directory
+    holding a ``bandage.tsv``. These are concatenated (header kept once) into a single
+    ``bandage.tsv`` directly under ``align_dir``. Unless intermediate files are kept
+    (``keep_files`` or ``debug``), the per-group sub-directories are then removed.
+
+    Parameters:
+        align_dir: the alignments directory containing the per-group sub-directories.
+        keep_files: True if intermediate files should be kept, False otherwise.
+        debug: True if additional debug files should be created, False otherwise.
+    Return:
+        the path to the consolidated TSV, or None if no per-group files were found.
+    """
+    group_dirs = sorted(p.parent for p in align_dir.glob("*/" + TARGET_ALIGN_FILE))
+    if not group_dirs:
+        return None
+
+    combined_file = align_dir / TARGET_ALIGN_FILE
+    header_written = False
+    with combined_file.open("w") as writer:
+        for group_dir in group_dirs:
+            with (group_dir / TARGET_ALIGN_FILE).open() as reader:
+                header = reader.readline()
+                if not header_written:
+                    writer.write(header)
+                    header_written = True
+                shutil.copyfileobj(reader, writer)
+
+    if not (keep_files or debug):
+        for group_dir in group_dirs:
+            shutil.rmtree(group_dir)
+
+    return combined_file
+
+
 def find_all_targets_in_graph(
         gfa_file: Path,
         output_dir: str,
@@ -292,7 +331,11 @@ def find_all_targets_in_graph(
     )
     with Pool(core_num) as p:
         paths_info_group_list = p.map(p_find_target, target_objects)
-        
+
+    # Merge the per-group alignment TSVs into one and drop the per-group
+    # sub-directories unless intermediate/debug files are requested.
+    consolidate_alignments(Path(align_dir), keep_files, debug)
+
     unique_target_seqs, unique_target_infos, unique_target_paths = collect_unique_targets(
         target_seq_title_list, target_group_id, paths_info_group_list)
 
@@ -343,7 +386,7 @@ def write_found_targets_to_disk(
             target_file = create_fasta_file(
                 seq,
                 str(target_dir.absolute()),
-                f'>{unique_target_infos[i]["name"]}',
+                f'{unique_target_infos[i]["name"]}',
                 restricted_target_name
             )
             unique_target_files.append(target_file)
