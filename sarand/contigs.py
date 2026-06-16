@@ -81,7 +81,7 @@ def extract_amr_length(target_genes_file):
     return amr_objects
 
 def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
-									neighborhood_len = 1000, threshold = 95):
+									neighborhood_len = 1000, threshold = 95, num_cores = 1):
 	"""
 	"""
 	if genome_file == '':
@@ -98,7 +98,7 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 		blast_file = open(blast_file_name, "w")
 		blast_command = subprocess.run(["blastn", "-query", target_genes_file, "-db", genome_file,
 						"-outfmt", "10", "-evalue", "0.5", "-perc_identity", str(threshold-1),
-						"-num_threads", "4"], stdout=blast_file, check= True)
+						"-num_threads", str(num_cores)], stdout=blast_file, check= True)
 		blast_file.close()
 	AMR_dir = Path(out_dir) / AMR_SEQ_DIR
 	ng_file = Path(out_dir) / 'AMR_contig_neighborhood.fasta'
@@ -215,7 +215,7 @@ def run_contig_pipeline(params):
 	# the neighborhoods will be extracted
 	contig_ng_info = find_all_amrs_and_neighborhood(params.target_genes, params.input_gfa,
 								contig_dir, params.neighbourhood_length,
-								params.min_target_identity)
+								params.min_target_identity, params.num_cores)
 	annotate_sequence_bundle(contig_ng_info, contig_dir)
 	LOG.info("neighborhood extraction and annotation from cotigs is done!")
 
