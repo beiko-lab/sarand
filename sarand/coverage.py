@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
 from sarand.config import ANNOTATION_DIR
-from sarand.util.annotate import similar_annotation_exists
+from sarand.util.annotate import similar_annotation_exists, write_orf_files
 from sarand.util.logger import LOG
 from sarand.util.naming import extract_name_from_file_name
 
@@ -261,6 +261,12 @@ def filter_by_coverage_consistency(
                         gene_info["target_amr"],
                     ]
                 )
+
+    # write the pyrodigal ORFs called per coverage-filtered neighbourhood
+    write_orf_files(
+        remained_seqs,
+        Path(annotate_dir) / ("orfs_" + str(coverage_thr) + "_" + amr_name),
+    )
 
     return coverage_annotation, len(remained_seqs)
 

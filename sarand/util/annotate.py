@@ -55,6 +55,12 @@ def call_orfs(seq: str) -> List[GeneInfo]:
             "seq_value": nt_seq,
             "seq_name": None,
             "target_amr": None,
+            # retain pyrodigal's ORF output so the called ORFs can be written
+            # out later (e.g. for the coverage-filtered neighbourhoods)
+            "strand": gene.strand,
+            "partial": f"{int(gene.partial_begin)}{int(gene.partial_end)}",
+            "nt_seq": gene.sequence(),
+            "aa_seq": gene.translate(),
         })
     return seq_info
 
@@ -166,11 +172,39 @@ def similar_annotation_exists(seq_info_list: List[GeneInfo],
     return False
 
 
-def annotation_already_exists(seq_info_list: List[GeneInfo],
-                              all_seq_info_lists: List[List[GeneInfo]],
-                              out_dir: str | Path) -> bool:
-    """Like ``similar_annotation_exists`` but requiring an exact (100%) match."""
-    for seq_list in all_seq_info_lists:
-        if annotations_identical(seq_info_list, seq_list, out_dir, 100):
-            return True
-    return False
+def write_orf_files(seq_info_lists: List[List[GeneInfo]],
+                    out_prefix: str | Path) -> Tuple[Path, Path, Path]:
+    """Write the pyrodigal ORFs of each neighbourhood to FASTA and GFF3 files.
+
+    Parameters:
+        seq_info_lists: one entry per neighbourhood, each a list of ORF dicts as
+            produced by ``call_orfs`` (so each carries ``nt_seq``/``aa_seq``).
+        out_prefix: path prefix; ``<prefix>.ffn`` (nucleotide), ``<prefix>.faa``
+            (protein) and ``<prefix>.gff`` (GFF3) are written.
+    Return:
+        the (ffn, faa, gff) paths written.
+    """
+    out_prefix = Path(out_prefix)
+    ffn_path = out_prefix.with_suffix(".ffn")
+    faa_path = out_prefix.with_suffix(".faa")
+    gff_path = out_prefix.with_suffix(".gff")
+    with open(ffn_path, "w") as ffn, open(faa_path, "w") as faa, \
+            open(gff_path, "w") as gff:
+        gff.write("##gff-version 3\n")
+        for seq_info in seq_info_lists:
+            for orf_index, gene_info in enumerate(seq_info, start=1):
+                seqid = str(gene_info["seq_name"])
+                orf_id = f"{seqid}_orf{orf_index}"
+                lo = min(gene_info["start_pos"], gene_info["end_pos"])
+                hi = max(gene_info["start_pos"], gene_info["end_pos"])
+                strand = "+" if gene_info.get("strand", 1) == 1 else "-"
+                partial = gene_info.get("partial", "00")
+                is_target = gene_info.get("target_amr") == "yes"
+                header = f"{orf_id} # {lo} # {hi} # {strand} # partial={partial}"
+                ffn.write(f">{header}\n{gene_info.get('nt_seq', '')}\n")
+                faa.write(f">{header}\n{gene_info.get('aa_seq', '')}\n")
+                gff.write(
+                    f"{seqid}\tpyrodigal\tCDS\t{lo}\t{hi}\t.\t{strand}\t0\t"
+                    f"ID={orf_id};partial={partial};target={'yes' if is_target else 'no'}\n"
+                )
+    return ffn_path, faa_path, gff_path
