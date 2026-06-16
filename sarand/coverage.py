@@ -1,16 +1,23 @@
 """Per-gene coverage calculation and coverage-consistency filtering of annotations."""
+from __future__ import annotations
+
+import argparse
 import copy
 import csv
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 from sarand.config import ANNOTATION_DIR
 from sarand.util.annotate import similar_annotation_exists
 from sarand.util.logger import LOG
 from sarand.util.naming import extract_name_from_file_name
 
+GeneInfo = Dict[str, Any]
+NodeInfo = Dict[str, Any]
 
-def read_path_coverage_info(path_info_file):
+
+def read_path_coverage_info(path_info_file: str | Path) -> List[List[NodeInfo]]:
     """
     Read the csv file listing the nodes (and their coverage) that make up each
     extracted sequence.
@@ -45,7 +52,8 @@ def read_path_coverage_info(path_info_file):
     return seq_info_list
 
 
-def find_gene_coverage(seq_info_list, path_info):
+def find_gene_coverage(seq_info_list: List[GeneInfo],
+                       path_info: List[NodeInfo]) -> List[float]:
     """
     Calculate the coverage of genes available in a sequence based on the coverage
     of the nodes representing them
@@ -100,7 +108,7 @@ def find_gene_coverage(seq_info_list, path_info):
     return coverage_list
 
 
-def find_amr_coverage_in_seq(seq_info):
+def find_amr_coverage_in_seq(seq_info: List[GeneInfo]) -> Tuple[float, int, bool]:
     """
     Find the target AMR within an annotated sequence and its coverage.
 
@@ -145,8 +153,9 @@ def find_amr_coverage_in_seq(seq_info):
 
 
 def filter_by_coverage_consistency(
-        seq_info_list_input, coverage_thr, amr_name, annotate_dir
-):
+        seq_info_list_input: List[List[GeneInfo]], coverage_thr: int,
+        amr_name: str, annotate_dir: str | Path,
+) -> Tuple[str | Path, int]:
     """
     Compare the coverage of each gene in the neighbourhood with that of the AMR
     and drop genes (plus everything upstream/downstream of them) whose coverage
@@ -256,7 +265,8 @@ def filter_by_coverage_consistency(
     return coverage_annotation, len(remained_seqs)
 
 
-def trim_annotations_by_coverage(params, amr_files, all_seq_info_lists):
+def trim_annotations_by_coverage(params: argparse.Namespace, amr_files: List[str],
+                                 all_seq_info_lists: List[List[List[GeneInfo]]]) -> List[str | Path]:
     """
     Filter each AMR's neighbourhood annotations by coverage consistency, writing
     a coverage_annotation csv per AMR.

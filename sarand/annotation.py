@@ -4,13 +4,19 @@ Each extracted neighbourhood sequence is run through pyrodigal ORF calling, the
 target AMR is located within it, per-gene coverage is computed, and the results
 are written to the annotation CSVs.
 """
+from __future__ import annotations
+
+import argparse
 import csv
 import shutil
 import sys
 from multiprocessing.pool import Pool
 from pathlib import Path
+from typing import Any, Dict, List, Optional, TextIO, Tuple
 
 from sarand.config import ANNOTATION_DIR, SEQ_NAME_PREFIX
+
+GeneInfo = Dict[str, Any]
 from sarand.coverage import find_gene_coverage, read_path_coverage_info
 from sarand.util.annotate import (
     annotation_already_exists,
@@ -23,8 +29,9 @@ from sarand.util.naming import extract_name_from_file_name
 from sarand.util.sequence import retrieve_AMR
 
 
-def write_annotation_row(annotation_writer, visual_annotation_writer, gene_info, found,
-                         len_seq=None):
+def write_annotation_row(annotation_writer: Any, visual_annotation_writer: Any,
+                         gene_info: GeneInfo, found: bool,
+                         len_seq: Optional[int] = None) -> None:
     """
     Write one annotation row to the detail file (and the unique/trimmed file when
     the annotation has not been seen before).
@@ -55,7 +62,7 @@ def write_annotation_row(annotation_writer, visual_annotation_writer, gene_info,
         visual_annotation_writer.writerow(row)
 
 
-def annotate_one_sequence(seq_pair):
+def annotate_one_sequence(seq_pair: Tuple[int, str]) -> List[GeneInfo]:
     """
     Worker for parallel annotation: call ORFs in a single extracted sequence.
     Parameters:
@@ -68,16 +75,16 @@ def annotate_one_sequence(seq_pair):
 
 
 def annotate_graph_sequences(
-        amr_name,
-        path_info_file,
-        neighborhood_seq_file,
-        annotate_dir,
-        core_num,
-        annotation_writer,
-        trimmed_annotation_writer,
-        gene_file,
-        error_file,
-):
+        amr_name: str,
+        path_info_file: str | Path | int,
+        neighborhood_seq_file: str | Path,
+        annotate_dir: str | Path,
+        core_num: int,
+        annotation_writer: Any,
+        trimmed_annotation_writer: Any,
+        gene_file: TextIO,
+        error_file: str | Path,
+) -> List[List[GeneInfo]]:
     """
     Annotate (in parallel) the neighbourhood sequences extracted for one AMR.
     Parameters:
@@ -173,14 +180,14 @@ def annotate_graph_sequences(
 
 
 def annotate_neighborhood(
-        amr_name,
-        neighborhood_seq_file,
-        path_info_file,
-        seq_length,
-        output_dir,
-        output_name="",
-        core_num=4,
-):
+        amr_name: str,
+        neighborhood_seq_file: str | Path,
+        path_info_file: str | Path | int,
+        seq_length: int,
+        output_dir: str | Path,
+        output_name: str = "",
+        core_num: int = 4,
+) -> Tuple[List[List[GeneInfo]], str]:
     """
     Annotate the neighbourhood sequences extracted from the assembly graph for one
     AMR and summarise the results into the annotation CSV files.
@@ -260,8 +267,12 @@ def annotate_neighborhood(
     return all_seq_info_list, str(trimmed_annotation_info_name)
 
 
-def find_seq_and_path_files(amr_name, sequences_file_names, path_info_file_names,
-                            seq_length):
+def find_seq_and_path_files(
+        amr_name: str,
+        sequences_file_names: List[str],
+        path_info_file_names: List[str],
+        seq_length: int,
+) -> Tuple[str | int, str | int]:
     """
     Return the extracted-sequence file and the path-info file produced for a given
     AMR at a given neighbourhood length (or -1 if not found).
@@ -277,7 +288,13 @@ def find_seq_and_path_files(amr_name, sequences_file_names, path_info_file_names
     return seq_file, path_file
 
 
-def annotate_all_amrs(params, seq_files, path_info_files, amr_files, debug: bool):
+def annotate_all_amrs(
+        params: argparse.Namespace,
+        seq_files: List[str],
+        path_info_files: List[str],
+        amr_files: List[str],
+        debug: bool,
+) -> Tuple[List[List[List[GeneInfo]]], List[str]]:
     """
     Annotate the neighbourhood sequences of every AMR.
     Parameters:

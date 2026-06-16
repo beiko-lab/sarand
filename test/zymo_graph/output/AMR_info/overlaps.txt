@@ -1,0 +1,24 @@
+PDC-8:PDC-5, PDC-1, PDC-7, PDC-10, PDC-3, PDC-2, PDC-9, PDC-6, PDC-4, PDC-73, PDC-74, PDC-75, PDC-76, PDC-77, PDC-78, PDC-79, PDC-80, PDC-81, PDC-82, PDC-83, PDC-84, PDC-85, PDC-86, PDC-87, PDC-88, PDC-89, PDC-90, PDC-91, PDC-92, PDC-93, PDC-65, PDC-55
+FosX:
+AAC(6;)-Iy:AAC(6;)-Iaa
+eptA:
+PC1_beta-lactamase_(blaZ):
+APH(3;)-IIb:
+fosA:
+lsaA:
+dfrE:
+arnA:
+bacA:
+OXA-50:OXA-485, OXA-486, OXA-488
+Escherichia_coli_ampC1_beta-lactamase:
+pmrF:
+Escherichia_coli_ampH:
+Listeria_monocytogenes_mprF:
+kdpE:
+ANT(4;)-Ib:
+Staphylococcus_aureus_FosB:
+basS:
+Escherichia_coli_ampC:
+Pseudomonas_aeruginosa_catB7:
+cprR:
+cprS:

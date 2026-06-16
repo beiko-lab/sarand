@@ -3,6 +3,9 @@
 Stages: find AMR genes in the graph -> extract their neighbourhoods -> ORF
 annotate the neighbourhoods -> filter the annotations by coverage consistency.
 """
+from __future__ import annotations
+
+import argparse
 import sys
 
 from sarand.amr_finder import find_all_amr_in_graph
@@ -12,7 +15,7 @@ from sarand.extract_neighborhood import sequence_neighborhood_main
 from sarand.util.logger import LOG
 
 
-def run_graph_pipeline(params):
+def run_graph_pipeline(params: argparse.Namespace) -> None:
     """Run the full assembly-graph sarand workflow."""
     LOG.info("Starting analysis...")
 

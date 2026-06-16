@@ -3,7 +3,7 @@ class FastaSeq:
 
     __slots__ = ('seq', 'fasta_id')
 
-    def __init__(self, seq: str, fasta_id: str):
+    def __init__(self, seq: str, fasta_id: str) -> None:
         """
         Parameters:
             seq: The sequence.

@@ -16,6 +16,8 @@ nucleotide files (CARD ``nucleotide_fasta_protein_homolog_model.fasta`` /
 NCBI ``AMR_CDS.fa``) are used. They are normalised to one sequence per line on
 install because the downstream parser reads the target FASTA line-by-line.
 """
+from __future__ import annotations
+
 import io
 import json
 import os
@@ -23,6 +25,7 @@ import tarfile
 import tempfile
 import urllib.request
 from pathlib import Path
+from typing import Optional, TextIO
 
 from Bio import SeqIO
 
@@ -58,18 +61,22 @@ def get_db_dir() -> Path:
 
 
 def _db_subdir(database: str) -> Path:
+    """Return the cache subdirectory for ``database``."""
     return get_db_dir() / database
 
 
 def _fasta_path(database: str) -> Path:
+    """Return the path of the installed FASTA for ``database``."""
     return _db_subdir(database) / _FASTA_NAME[database]
 
 
 def _meta_path(database: str) -> Path:
+    """Return the path of the version/metadata file for ``database``."""
     return _db_subdir(database) / "metadata.json"
 
 
 def _load_meta(database: str) -> dict:
+    """Read the cached metadata dict for ``database`` (empty dict if absent)."""
     path = _meta_path(database)
     if path.is_file():
         try:
@@ -80,6 +87,7 @@ def _load_meta(database: str) -> dict:
 
 
 def _save_meta(database: str, meta: dict) -> None:
+    """Write the metadata dict for ``database`` to its cache directory."""
     _meta_path(database).write_text(json.dumps(meta, indent=2) + "\n")
 
 
@@ -103,7 +111,7 @@ def get_target_fasta(database: str = "card") -> Path:
     )
 
 
-def _normalise_fasta(src_handle, dest: Path) -> int:
+def _normalise_fasta(src_handle: TextIO, dest: Path) -> int:
     """Write records from ``src_handle`` to ``dest`` as one sequence per line.
 
     The downstream target-gene parser reads the FASTA line-by-line (one
@@ -200,7 +208,7 @@ def update_database(database: str, force: bool = False) -> Path:
     raise ValueError(f"Unknown database {database!r}; choose from {DATABASES}")
 
 
-def _find_member(tf: tarfile.TarFile, suffix: str):
+def _find_member(tf: tarfile.TarFile, suffix: str) -> Optional[tarfile.TarInfo]:
     """Return the first archive member whose name ends with ``suffix`` (or None)."""
     for member in tf.getmembers():
         if member.name.endswith(suffix):

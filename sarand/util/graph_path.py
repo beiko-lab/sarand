@@ -1,17 +1,19 @@
 """Parsing of assembly-graph node paths and Bandage/BLAST alignment output."""
+from __future__ import annotations
+
 import collections
 import csv
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from sarand.external.bandage import BandageResult
 from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG
 
 
-def reverse_sign(sign):
+def reverse_sign(sign: str) -> str:
     """Reverse a strand sign (+/-)."""
     if sign == "-":
         return "+"
@@ -22,7 +24,7 @@ def reverse_sign(sign):
         sys.exit(1)
 
 
-def find_node_name(node):
+def find_node_name(node: str) -> str:
     """
     To remove specific characters and return the rest except the last character
     as the node name
@@ -30,14 +32,14 @@ def find_node_name(node):
     return re.sub("[]{}[]", "", node)[:-1]
 
 
-def find_node_name_orient(node):
+def find_node_name_orient(node: str) -> str:
     """
     To remove specific characters and return the rest as the name+orient of the node
     """
     return re.sub("[]{}[]", "", node)
 
 
-def exist_in_path(path, mynode):
+def exist_in_path(path: List[str], mynode: str) -> int:
     """
     To check if a given node exists in the path
     Parameters:
@@ -52,7 +54,7 @@ def exist_in_path(path, mynode):
     return -1
 
 
-def extract_nodes_in_path(path):
+def extract_nodes_in_path(path: str) -> Tuple[List[str], List[str], int, int]:
     """
     Parameters:
         path:	a list of nodes with -/+ tail and comma separated : e.g., '(1363) 69-, 2193+ (1786)'
@@ -85,7 +87,18 @@ def extract_nodes_in_path(path):
     return node_list, orientation_list, start_pos, end_pos
 
 
-def read_path_info_from_align_file(align_file, threshold=95):
+def read_path_info_from_align_file(
+        align_file: str | Path, threshold: float = 95
+) -> Tuple[bool, List[Dict[str, Any]]]:
+    """Parse a single-AMR Bandage alignment TSV into per-path node/position info.
+
+    Parameters:
+        align_file: the Bandage querypaths ``.tsv`` output.
+        threshold: minimum coverage and identity percentage to keep a path.
+    Return:
+        (found, paths_info) where ``found`` is True if any path passed the
+        threshold and ``paths_info`` is a list of node/orientation/position dicts.
+    """
     paths_info = []
     found = False
     with open(align_file) as tsvfile:
@@ -116,9 +129,19 @@ def read_path_info_from_align_file(align_file, threshold=95):
 def read_path_info_from_align_file_with_multiple_amrs(
         output_name: Path,
         ga: List[BandageResult],
-        threshold=99,
+        threshold: float = 99,
         debug: bool = False
 ) -> Dict[str, List[Dict[str, Any]]]:
+    """Group Bandage results by AMR into per-path node/position info.
+
+    Parameters:
+        output_name: directory used for optional debug output.
+        ga: the parsed Bandage results to filter and group.
+        threshold: minimum coverage and identity percentage to keep a path.
+        debug: if True, write the coverage/identity of every result to disk.
+    Return:
+        a mapping of AMR name -> list of node/orientation/position dicts.
+    """
     debug_to_write = list()
 
     paths_info_list = collections.defaultdict(list)

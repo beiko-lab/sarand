@@ -5,19 +5,25 @@ functional products, so 'gene' and 'product' are left empty. The target AMR
 gene within a neighbourhood is identified from its position (the lower-case
 region of the extracted sequence), not from any annotation label.
 """
+from __future__ import annotations
+
 import sys
+from pathlib import Path
+from typing import Any, Dict, List, Tuple
 
 import pyrodigal
 
 from sarand.util.logger import LOG
 from sarand.util.sequence import compare_two_sequences
 
+GeneInfo = Dict[str, Any]
+
 # pyrodigal gene finder reused across calls; metagenomic mode (no per-sequence
 # training) is required as the extracted neighbourhoods are short and varied.
 _ORF_FINDER = pyrodigal.GeneFinder(meta=True)
 
 
-def call_orfs(seq):
+def call_orfs(seq: str) -> List[GeneInfo]:
     """
     Call open reading frames (ORFs) in an extracted neighbourhood sequence using
     pyrodigal.
@@ -53,7 +59,9 @@ def call_orfs(seq):
     return seq_info
 
 
-def partition_genes_around_amr(sequence, seq_info):
+def partition_genes_around_amr(
+        sequence: str, seq_info: List[GeneInfo]
+) -> Tuple[bool, GeneInfo | list, List[GeneInfo], List[GeneInfo], List[GeneInfo]]:
     """
     Locate the target AMR gene among the called ORFs and partition the rest into
     upstream and downstream genes.
@@ -109,7 +117,8 @@ def partition_genes_around_amr(sequence, seq_info):
     return found, amr_info, up_info, down_info, seq_info
 
 
-def unnamed_genes_similar(gene_info1, gene_info2, output_dir, threshold=90):
+def unnamed_genes_similar(gene_info1: GeneInfo, gene_info2: GeneInfo,
+                          output_dir: str | Path, threshold: int = 90) -> bool:
     """Whether two unnamed (ORF-only) genes are significantly similar by blastn."""
     if gene_info1["gene"] != "" or gene_info2["gene"] != "":
         return False
@@ -124,7 +133,8 @@ def unnamed_genes_similar(gene_info1, gene_info2, output_dir, threshold=90):
     return compare_two_sequences(seq1, seq2, output_dir, threshold)
 
 
-def annotations_identical(seq_info1, seq_info2, out_dir, threshold=90):
+def annotations_identical(seq_info1: List[GeneInfo], seq_info2: List[GeneInfo],
+                          out_dir: str | Path, threshold: int = 90) -> bool:
     """Whether two annotated sequences have identical gene content."""
     if len(seq_info1) == len(seq_info2):
         identical_rows = 0
@@ -142,7 +152,9 @@ def annotations_identical(seq_info1, seq_info2, out_dir, threshold=90):
     return False
 
 
-def similar_annotation_exists(seq_info_list, all_seq_info_lists, out_dir, threshold=90):
+def similar_annotation_exists(seq_info_list: List[GeneInfo],
+                              all_seq_info_lists: List[List[GeneInfo]],
+                              out_dir: str | Path, threshold: int = 90) -> bool:
     """
     Whether the annotation of a new sequence already exists in the list of
     annotations extracted from other sequences (identical in 'gene', 'length',
@@ -154,7 +166,9 @@ def similar_annotation_exists(seq_info_list, all_seq_info_lists, out_dir, thresh
     return False
 
 
-def annotation_already_exists(seq_info_list, all_seq_info_lists, out_dir):
+def annotation_already_exists(seq_info_list: List[GeneInfo],
+                              all_seq_info_lists: List[List[GeneInfo]],
+                              out_dir: str | Path) -> bool:
     """Like ``similar_annotation_exists`` but requiring an exact (100%) match."""
     for seq_list in all_seq_info_lists:
         if annotations_identical(seq_info_list, seq_list, out_dir, 100):

@@ -1,4 +1,6 @@
 """FASTA I/O helpers and blastn-based sequence comparison."""
+from __future__ import annotations
+
 import tempfile
 from pathlib import Path
 from typing import Dict
@@ -10,7 +12,8 @@ from sarand.model.fasta_seq import FastaSeq
 from sarand.util.naming import amr_name_from_comment
 
 
-def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"):
+def create_fasta_file(seq: str, output_dir: str | Path, comment: str = "> sequence:\n",
+                      file_name: str = "temp") -> str:
     """
     To create a fasta file for a sequence
     Parameters:
@@ -36,7 +39,7 @@ def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"
     return str(myfile_name)
 
 
-def retrieve_AMR(file_path):
+def retrieve_AMR(file_path: str | Path) -> tuple[str, str]:
     """
     To read the AMR gene from the text file.
     Parameters:
@@ -55,15 +58,15 @@ def retrieve_AMR(file_path):
 
 
 def compare_two_sequences(
-        subject,
-        query,
-        output_dir,
-        threshold=90,
-        switch_allowed=True,
-        return_file=False,
-        subject_coverage=True,
-        blast_ext="",
-):
+        subject: str,
+        query: str,
+        output_dir: str | Path,
+        threshold: int = 90,
+        switch_allowed: bool = True,
+        return_file: bool = False,
+        subject_coverage: bool = True,
+        blast_ext: str = "",
+) -> bool:
     """
     To compare one sequence (shorter sequence) against the other one (longer
     sequence) using blastn.

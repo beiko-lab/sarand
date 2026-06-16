@@ -4,12 +4,14 @@ Target genes are aligned to the graph with Bandage+BLAST (grouped and run in a
 multiprocessing pool), hits with overlapping paths are de-duplicated, and the
 unique hits are written to disk.
 """
+from __future__ import annotations
+
 import collections
 import datetime
 from functools import partial
 from multiprocessing.pool import Pool
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
 from sarand.config import (
     AMR_ALIGN_DIR,
@@ -29,7 +31,12 @@ from sarand.util.naming import (
 from sarand.util.sequence import create_fasta_file
 
 
-def amr_path_overlap(found_amr_paths, new_paths, new_amr_len, overlap_percent=95):
+def amr_path_overlap(
+        found_amr_paths: List[List[Dict[str, Any]]],
+        new_paths: List[Dict[str, Any]],
+        new_amr_len: int,
+        overlap_percent: int = 95,
+) -> Tuple[bool, Optional[List[int]]]:
     """
     To check if all paths found for the new AMR seq overlap significantly (greater/equal
      than/to overlap percent) with the already found paths for other AMRs
@@ -72,7 +79,7 @@ def align_amrs_to_graph(
         gfa_file: Path,
         output_dir: Path,
         threshold: float,
-        amr_object,
+        amr_object: Tuple[Path, List[str]],
         keep_files: bool,
         debug: bool,
 ) -> Dict[str, List[Dict[str, Any]]]:
@@ -126,8 +133,8 @@ def find_amr_group_in_graph(
         keep_files: bool,
         core_num: int,
         debug: bool,
-        amr_object
-):
+        amr_object: Tuple[int, List[Tuple[str, str]]],
+) -> Dict[str, List[Dict[str, Any]]]:
     """
     Write a group of AMRs into a single file and align it against the graph.
     Parameters:
@@ -173,7 +180,11 @@ def find_amr_group_in_graph(
     return p_find_amr_align
 
 
-def collect_unique_amrs(amr_seq_title_list, amr_group_id, paths_info_group_list):
+def collect_unique_amrs(
+        amr_seq_title_list: List[Tuple[str, str]],
+        amr_group_id: Dict[str, int],
+        paths_info_group_list: List[Dict[str, List[Dict[str, Any]]]],
+) -> Tuple[List[str], List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
     Process the per-group alignment results, keeping AMRs with unique graph paths
     and grouping AMRs whose paths overlap.
@@ -215,7 +226,7 @@ def find_all_amr_in_graph(
         core_num: int,
         keep_files: bool,
         debug: bool,
-):
+) -> Tuple[List[str], List[List[Dict[str, Any]]]]:
     """
     Align every target gene in ``amr_sequences_file`` against the graph and
     return the unique hits and their paths.
@@ -289,7 +300,20 @@ def find_all_amr_in_graph(
     return unique_amr_files, unique_amr_paths
 
 
-def write_found_amrs_to_disk(output_dir: Path, unique_amr_seqs, unique_amr_infos):
+def write_found_amrs_to_disk(
+        output_dir: Path,
+        unique_amr_seqs: List[str],
+        unique_amr_infos: List[Dict[str, Any]],
+) -> List[str]:
+    """Write each unique AMR sequence to its own FASTA and record overlap groups.
+
+    Parameters:
+        output_dir: the run output directory.
+        unique_amr_seqs: the sequences of the de-duplicated AMR hits.
+        unique_amr_infos: per-hit metadata (name + list of overlapping AMRs).
+    Return:
+        the list of written per-AMR FASTA file paths.
+    """
     amr_dir = output_dir / AMR_DIR_NAME / AMR_SEQ_DIR
     amr_dir.mkdir(parents=True, exist_ok=True)
     overlap_file_name = output_dir / AMR_DIR_NAME / AMR_OVERLAP_FILE

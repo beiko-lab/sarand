@@ -1,7 +1,10 @@
 """argparse type helpers and startup dependency checks."""
+from __future__ import annotations
+
 import argparse
 import sys
 from pathlib import Path
+from typing import Callable
 
 from sarand.config import PROGRAM_VERSION_NA
 from sarand.external.bandage import Bandage
@@ -19,10 +22,11 @@ def check_file(path: str) -> Path:
     )
 
 
-def validate_range(value_type, minimum, maximum):
+def validate_range(value_type: type, minimum: float, maximum: float) -> Callable[[str], float]:
     """argparse type factory: ensure the value parses and is within [min, max]."""
 
-    def range_checker(arg):
+    def range_checker(arg: str) -> float:
+        """Parse ``arg`` as ``value_type`` and check it lies within the range."""
         if value_type is float:
             try:
                 val = float(arg)
@@ -41,7 +45,7 @@ def validate_range(value_type, minimum, maximum):
     return range_checker
 
 
-def assert_dependencies_exist(blastn=True, bandage=True):
+def assert_dependencies_exist(blastn: bool = True, bandage: bool = True) -> None:
     """Check the external tools sarand shells out to exist and report versions."""
     versions = list()
     missing = list()
