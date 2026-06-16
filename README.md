@@ -8,9 +8,7 @@
 
 Sarand is a tool to identify genes within an assembly graph and extract the local graph neighbourhood.
 It has primarily been developed for the analysis of Antimicrobial Resistance (AMR) genes within metagenomic assembly graphs.
-[CARD](card.mcmaster.ca) database is the default set of genes used for which neighborhoods are found but Sarand can support any user-supplied nucleotide fasta file of target genes.
-<!--- Currently this is fixed to using the [CARD](card.mcmaster.ca) database but will be expanded in the near future to support any user-supplied nucleotide fasta file of target genes.-->
-
+[CARD](card.mcmaster.ca) or [NCBI Reference Gene Catalog](https://www.ncbi.nlm.nih.gov/pathogens/refgene/#) databases are built-in for searching in a graph but Sarand can support any user-supplied nucleotide fasta file of target genes.
 
 ![sarand overview](sarand/docs/sarand_summary.png)
 
@@ -20,34 +18,10 @@ Sarand can be run using a conda environment or in a container (Docker or Singula
 
 - [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
 - [Bandage](https://github.com/rrwick/Bandage)
-- [cd-hit]()
-
-Gene (ORF) calling on the extracted neighbourhoods is performed in-process with
-[pyrodigal](https://github.com/althonos/pyrodigal), which is installed as a
-Python dependency, so no separate annotation tool or database is required.
-
-### 1a. Docker
-
-This is the easiest way to run Sarand, note that the `-v` argument maps a host directory to the Docker container.
-You need to replace `/host/path` and `/container/path` in the command below with the path to the directory containing your input GFA.
-Note that this will also be the location that the output is written to.
-
-The most simple way to approach this is by mapping `/host/path` and `/container/path` to the same directory to keep paths consistent.
-
-```shell
-docker run -v /host/path:/container/path -it somayeh8131/sarand:1.1.1 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
-```
-
-### 1b. Singularity
-
-As singularity will automatically map paths, you simply need to run it in the format of:
-
-```shell
-singularity run docker://somayeh8131/sarand:1.1.1 -i input.gfa -o output -a metaspades -k 55
-```
+- [cd-hit](https://github.com/weizhongli/cdhit)
 
 
-### 1c. Conda
+### 1a. Conda
 
 All of sarand's dependencies are installed into a single conda environment;
 Bandage and BLAST+ are simply expected on the `PATH`.
@@ -55,15 +29,33 @@ Bandage and BLAST+ are simply expected on the `PATH`.
 **Creating the environment:**
 
 ```shell
-conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 bandage=0.8.1 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython pyrodigal
+conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 gfapy=1.2.3 cd-hit=4.8.1 networkx gzip pandas python biopython pyrodigal
 ```
 
 **Installing sarand:**
 
 ```shell
-conda activate sarand-1.1.1
-# python -m pip install sarand==1.1.1
-pip install sarand==1.1.1
+git clone https://github.com/beiko-lab/sarand.git
+cd sarand
+conda activate sarand-2.0.1
+python -m pip install sarand
+```
+### 1b. Apptainer/Singularity
+
+This is the easiest way to run Sarand. As apptainer/singularity will automatically map paths, you simply need to run it in the format of:
+
+```shell
+singularity run docker://somayeh8131/sarand:1.1.1 -i input.gfa -o output -a metaspades -k 55
+```
+
+### 1c. Docker
+
+A docker container is also provided but note you'll need to provide an argument to the `-v` option in docker as this maps a host directory to the Docker container.
+Basically, just replace `/host/path` and `/container/path` in the command below with the path to the directory containing your input GFA.
+Note that this will also be the location that the output is written to.
+
+```shell
+docker run -v /host/path:/container/path -it somayeh8131/sarand:1.1.1 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
 ```
 
 ## 2. Testing
