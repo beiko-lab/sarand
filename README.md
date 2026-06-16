@@ -118,7 +118,15 @@ optional arguments:
                       positive neighbourhoods).
   -t TARGET_GENES, --target_genes TARGET_GENES
                       Target genes to search for in the assembly graph
-                      (fasta formatted). Default is the pre-installed CARD database
+                      (fasta formatted). Overrides --database; defaults to
+                      the selected --database.
+  -d {card,ncbi}, --database {card,ncbi}
+                      Reference target-gene database to use when
+                      --target_genes is not given. 'card' (bundled,
+                      updatable) or 'ncbi' (NCBI AMRFinderPlus; download
+                      first with --update --database ncbi). Default: card
+  --update            Download/refresh the selected --database to its
+                      latest release and exit (no assembly graph required)
   -x MIN_TARGET_IDENTITY, --min_target_identity MIN_TARGET_IDENTITY
                       Minimum identity/coverage to identify presence of
                       target gene in assembly graph
@@ -166,6 +174,31 @@ sarand -o <output_dir> -a metacherchant --meta_main_dir <meta_main_dir>
 To extract neighborhoods from contigs, execute Sarand using the following command:
 ```shell
 sarand -i <contigs_file> -o <output_dir> -a contig
+```
+
+**Reference databases (`--database` / `--update`):**
+
+By default Sarand searches for the CARD antimicrobial-resistance genes that are
+bundled with the package. Two reference databases of nucleotide target genes are
+supported and can be kept up to date without supplying your own `--target_genes`:
+
+* `card` (default) — the [CARD](https://card.mcmaster.ca) protein-homolog model
+  nucleotide sequences.
+* `ncbi` — the [NCBI AMRFinderPlus](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/)
+  reference gene CDS (`AMR_CDS.fa`).
+
+`--update` downloads the latest release of the selected database (only if newer
+than the local copy) and exits; the database is cached in a user-writable
+directory (`$SARAND_DB_DIR`, else `$XDG_DATA_HOME/sarand`, else
+`~/.local/share/sarand`) and used automatically on subsequent runs.
+
+```shell
+# refresh the bundled CARD database to the latest release
+sarand --update
+
+# download / refresh the NCBI AMRFinderPlus database, then search with it
+sarand --update --database ncbi
+sarand -i input.gfa -o output -a metaspades -k 55 --database ncbi
 ```
 
 ### 3a. Output

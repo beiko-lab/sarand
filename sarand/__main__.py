@@ -7,8 +7,8 @@ from pathlib import Path
 from sarand.__init__ import __version__
 from sarand.pipeline import run_graph_pipeline
 from sarand.util.logger import create_logger, get_logger
-from sarand.util.pkg import get_pkg_card_fasta_path
 from sarand.util.cli import assert_dependencies_exist, check_file, validate_range
+from sarand.databases import DATABASES, get_target_fasta, update_database
 from sarand.metacherchant import run_metacherchant_pipeline
 from sarand.contigs import run_contig_pipeline
 
@@ -38,9 +38,9 @@ def main():
         "-a",
         "--assembler",
         choices=["metaspades", "bcalm", "megahit", "metacherchant", "contig"],
-        required=True,
+        default=None,
         help="Assembler used to generate input GFA (required to correctly parse "
-             "coverage information)",
+             "coverage information). Required unless --update is given.",
     )
     parser.add_argument(
         "-k",
@@ -75,11 +75,27 @@ def main():
     parser.add_argument(
         "-t",
         "--target_genes",
-        default=get_pkg_card_fasta_path(),
+        default=None,
         type=check_file,
-        help="Target genes to "
-             "search for in the assembly graph (fasta formatted). "
-             " Default is the pre-installed CARD database",
+        help="Target genes to search for in the assembly graph (fasta "
+             "formatted). Overrides --database; defaults to the selected "
+             "--database.",
+    )
+    parser.add_argument(
+        "-d",
+        "--database",
+        choices=list(DATABASES),
+        default="card",
+        help="Reference target-gene database to search with when --target_genes "
+             "is not supplied: 'card' (bundled with sarand, updatable) or 'ncbi' "
+             "(NCBI AMRFinderPlus; download first with --update --database ncbi).",
+    )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        default=False,
+        help="Download/refresh the selected --database to its latest release and "
+             "exit. No assembly graph is required.",
     )
     parser.add_argument(
         "-x",
@@ -160,12 +176,20 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    # Enforce conditional requirement for input_gfa and max_kmer_size
+    # --update just refreshes a reference database and exits; no graph needed.
+    if args.update:
+        create_logger(verbose=args.verbose)
+        update_database(args.database)
+        sys.exit(0)
+
+    # Otherwise an assembler (and, depending on it, a graph / k-mer size) is required.
+    if args.assembler is None:
+        parser.error("one of the arguments -a/--assembler or --update is required")
     if args.assembler != "metacherchant" and args.input_gfa is None:
         parser.error("The --input_gfa (-i) argument is required.")
     if args.assembler != "metacherchant" and args.assembler != "contig" and args.max_kmer_size is None:
         parser.error("The --max_kmer_size (-k) argument is required.")
-        
+
     # Override the keep intermediate files option if debug is set
     if args.debug:
         args.keep_intermediate_files = True
@@ -197,6 +221,16 @@ def main():
 
     # check dependencies work
     assert_dependencies_exist()
+
+    # Resolve the target genes: an explicit -t wins, otherwise use the selected
+    # reference database (a downloaded/updated copy if present, else bundled CARD).
+    if args.target_genes is None:
+        try:
+            args.target_genes = get_target_fasta(args.database)
+        except FileNotFoundError as e:
+            log.error(str(e))
+            sys.exit(1)
+    log.info(f"Using target genes: {args.target_genes}")
 
     # convert argparse to config dictionary
     args.run_time = run_time
