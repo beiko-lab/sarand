@@ -1,27 +1,37 @@
 """
-File:		annotation_visualization.py
+File:		visualize_annotation.py
 Author:		Somayeh Kafaie
 Date:		September 2020
 Purpose:	To visualize sequences annotations and make their comparison easier
 
-To run:
-	python annotation_visualization.py --csvfile <annotation file path>
-    --title <the image title> --output <the output image name>
+This is a standalone helper script; it is not part of the installed sarand
+package. Run it directly against an annotation CSV produced by sarand
+(e.g. annotation_detail_<AMR>.csv or coverage_annotation_<thr>_<AMR>.csv):
 
+	python scripts/visualize_annotation.py --csvfile <annotation file path>
+	    --title <the image title> --output <the output image name>
+
+It depends on dna_features_viewer, matplotlib, numpy and pillow (all already
+required by sarand).
 """
-import tempfile
-
-from dna_features_viewer import GraphicFeature, GraphicRecord
-import matplotlib.pyplot as plt
-import numpy as np
-import math
-import sys
-from PIL import Image
 import argparse
-from csv import DictReader
+import logging
+import math
 import os
+import sys
+import tempfile
+from csv import DictReader
 
-from sarand.util.logger import LOG
+import numpy as np
+import matplotlib.pyplot as plt
+from dna_features_viewer import GraphicFeature, GraphicRecord
+from PIL import Image
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)-5.5s]	%(message)s',
+)
+LOG = logging.getLogger('visualize_annotation')
 
 
 def show_images(image_list, main_title, output, cols=1, title_list=None):
@@ -156,25 +166,21 @@ def visualize_annotation(input_csv_file, output, title=""):
 
 def main(args):
     """ """
-    if args.csvfile:
-        visualize_annotation(args.csvfile, args.output, args.title)
-    else:
-        LOG.error(
-            "please enter the path for the csv file containing the sequences annotation"
-        )
-        sys.exit()
+    if not os.path.isfile(args.csvfile):
+        LOG.error("annotation csv file not found: " + args.csvfile)
+        sys.exit(1)
+    visualize_annotation(args.csvfile, args.output, args.title)
 
 
 if __name__ == "__main__":
 
-    text = "This code is used to visualize the sequences annotation extracted from a csv file"
+    text = "Visualize the sequence annotations extracted by sarand from a csv file"
     parser = argparse.ArgumentParser(description=text)
     parser.add_argument(
         "--csvfile",
         "-C",
         type=str,
-        default="/media/Data/PostDoc/Dalhousie/Work/Test1/Experiments/Set30_13Sep2020/\
-    salmonella_10-1/annotation_1000/annotation_detail.csv",
+        required=True,
         help="the path of the csv file containing the sequences annotation",
     )
     parser.add_argument(

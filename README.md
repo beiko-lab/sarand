@@ -224,9 +224,23 @@ For each extracted sequence, the first line denotes the corresponding path, wher
 
 * `annotations/annotations_{params.neighbourhood_length}`: The annotation details are stored in this directory.
     * `annotations/annotations_{params.neighbourhood_length}/annotation_{AMR_NAME}_{params.neighbourhood_length}`: this directory contains all annotation details for a given AMR.
-    * `gene_comparison_<AMR_NAME>.png`: An image visualizing annotations
     * `annotation_detail_{AMR_NAME}.csv`: the list of annotations of all extracted sequences for an AMR gene
     * `trimmed_annotation_info_{AMR_NAME}.csv`: the list of unique annotations of all extracted sequences for an AMR gene
     * `coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`: the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_DIFFERENCE value.
     * `bakta_dir_extracted{NUM}_{DATE}`: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
     * `rgi_dir`: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.
+
+### 3b. Visualising annotations
+
+Sarand no longer renders annotation comparison images as part of the main run.
+A standalone helper script is provided to generate them on demand from any of
+the annotation CSVs above (for example `annotation_detail_{AMR_NAME}.csv` or
+`coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`):
+
+```shell
+python scripts/visualize_annotation.py --csvfile <annotation.csv> --output gene_comparison.png --title "<AMR_NAME>"
+```
+
+The script is not installed with the `sarand` package; run it directly from a
+checkout. It only needs `dna_features_viewer`, `matplotlib`, `numpy` and
+`pillow`, which are already dependencies of sarand.

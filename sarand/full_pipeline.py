@@ -26,7 +26,6 @@ from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Dict, List, Any
 
-from sarand.annotation_visualization import visualize_annotation
 from sarand.config import AMR_DIR_NAME, AMR_SEQ_DIR, AMR_ALIGN_DIR, AMR_OVERLAP_FILE, SEQ_NAME_PREFIX, \
     ANNOTATION_DIR
 from sarand.external.bandage import Bandage
@@ -956,9 +955,7 @@ def find_corrsponding_seq_path_file(
     return seq_file, path_file
 
 
-def seq_annotation_trim_main(
-        params, amr_files, all_seq_info_lists, annotation_files, visualize=False
-):
+def seq_annotation_trim_main(params, amr_files, all_seq_info_lists):
     """
     The core function to filter and remove genes that their coverage difference
     from AMR coverage is above a threshold
@@ -966,8 +963,6 @@ def seq_annotation_trim_main(
         params: the list of parameters imported from params.py
         amr_files: the list of files containing AMRs
         all_seq_info_lists: the list of annotations of neighborhood sequences extracted from the graph
-        annotation_files: the files containing annotation info
-        visualize: if True, visualize
     """
     coverage_annotation_list = []
     for i, amr_file in enumerate(amr_files):
@@ -982,34 +977,13 @@ def seq_annotation_trim_main(
             + "_"
             + str(params.neighbourhood_length),
         )
-        coverage_annotation = ""
-        remained_seqs = []
         if params.coverage_difference > 0:
-            (
-                coverage_annotation,
-                remained_seqs,
-            ) = check_coverage_consistency_remove_rest_seq(
+            coverage_annotation, _ = check_coverage_consistency_remove_rest_seq(
                 all_seq_info_lists[i],
                 params.coverage_difference,
                 restricted_amr_name,
                 annotate_dir,
             )
-        if visualize:
-            # create an image presenting the annotations for all sequences
-            if coverage_annotation != "":
-                visual_annotation_csv = coverage_annotation
-            else:
-                visual_annotation_csv = annotation_files[i]
-            visual_annotation = os.path.join(
-                annotate_dir,
-                "gene_comparison_"
-                + str(params.coverage_difference)
-                + "_"
-                + restricted_amr_name
-                + ".png",
-            )
-            visualize_annotation(visual_annotation_csv, output=visual_annotation)
-        if params.coverage_difference > 0:
             coverage_annotation_list.append(coverage_annotation)
     return coverage_annotation_list
 
@@ -1123,13 +1097,10 @@ def full_pipeline_main(params):
         params.debug
     )
 
-    all_seq_info_lists, annotation_file_list = seq_annotation_main(
+    all_seq_info_lists, _ = seq_annotation_main(
         params, seq_files, path_info_files, unique_amr_files, params.debug
     )
-    # never used? @Somayeh
-    coverage_annotation_list = seq_annotation_trim_main(
-        params, unique_amr_files, all_seq_info_lists, annotation_file_list, True
-    )
+    seq_annotation_trim_main(params, unique_amr_files, all_seq_info_lists)
 
     LOG.info("Sarand ran successfully")
 
