@@ -444,8 +444,6 @@ def test_metacherchant_main(params):
             nodes_info_file,
             params.neighbourhood_length,
             params.output_dir,
-            params.no_rgi,
-            params.rgi_include_loose,
             "_" + restricted_amr_name,
             params.num_cores,
         )

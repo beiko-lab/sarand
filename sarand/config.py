@@ -7,12 +7,9 @@ Configuration options for running dependencies through "conda run -n".
 If any of these environment variables are supplied, then the respective
 program will be run through "conda run -n name".
 """
-CONDA_BAKTA_NAME: Optional[str] = os.environ.get('CONDA_BAKTA_NAME')
-CONDA_RGI_NAME: Optional[str] = os.environ.get('CONDA_RGI_NAME')
 CONDA_BANDAGE_NAME: Optional[str] = os.environ.get('CONDA_BANDAGE_NAME')
 CONDA_BLAST_NAME: Optional[str] = os.environ.get('CONDA_BLAST_NAME')
 CONDA_EXE_NAME: Optional[str] = os.environ.get('CONDA_EXE_NAME', 'conda')
-CONDA_BAKTA_DB: Optional[str] = os.environ.get('BAKTA_DB')
 
 """
 To be returned if a program version check returns an error

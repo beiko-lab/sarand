@@ -6,18 +6,8 @@ Date:		March 2021
 Purpose:	To find the neighborhood of AMRs in a contig file, compare them with
 			that of the ref genomes and calculate the sentivity and precision
 
-To run:
-$ conda activate rgi
-$ python amr_neighborhood_in_contigs.py
-NOTE: It reads required parameters from params.py and the most important parameters need
-to be set correctly there are:
-params.seq_length, params.contig_file, params.amr_identity_threshold, params.amr_files,
-params.ref_ng_annotations_file, params.main_dir, params.output_dir,
-params.PROKKA_COMMAND_PREFIX, params.use_RGI,params.RGI_include_loose,
-params.ref_genomes_available
-NOTE: The result are available in the following directory:
-params.output_dir+'contigs_output_'+str(params.seq_length)
-
+Invoked via the main sarand CLI with `-a contig`. ORFs in the extracted
+neighbourhoods are called with pyrodigal (see sarand.utils.annotate_sequence).
 """
 
 ################################################################################
@@ -40,8 +30,7 @@ from sarand.utils import amr_name_from_comment, split_up_down_info,\
 NOT_FOUND_FILE = 'not_found_amrs_in_contigs.txt'
 
 
-def annotate_sequence_bundle(contig_ng_info, out_dir, no_RGI,
-								RGI_include_loose):
+def annotate_sequence_bundle(contig_ng_info, out_dir):
 	"""
 	"""
 	annotate_dir = os.path.join(out_dir,'contig_annotations')
@@ -56,16 +45,13 @@ def annotate_sequence_bundle(contig_ng_info, out_dir, no_RGI,
 		annotation_file_name =os.path.join(annotate_dir, 'contig_annotation_'+restricted_amr_name+'.csv')
 		with open(annotation_file_name, 'a') as fd:
 			writer = csv.writer(fd)
-			writer.writerow(['seq_name', 'seq_value', 'seq_length', 'gene', 
-							'product', 'length', 'start_pos', 'end_pos', 'RGI_prediction_type',
-							 'family', 'target_amr'])
+			writer.writerow(['seq_name', 'seq_value', 'seq_length', 'gene',
+							'product', 'length', 'start_pos', 'end_pos', 'target_amr'])
 		for index, amr_info in enumerate(amr_info_list[1]):
 			contig_name = amr_info['contig']
 			seq = amr_info['seq']
 			seq_description = 'contig_'+amr_name+'_'+contig_name.replace(' ','_').replace('.','').replace(',','')
-			annotation_prefix = 'contig_'+ restricted_amr_name +'__'+str(index)
-			seq_info = annotate_sequence(seq+"\n", annotation_prefix, annotate_dir,
-                    no_RGI, RGI_include_loose)
+			seq_info = annotate_sequence(seq+"\n")
 			found, _ , _, _, _ = split_up_down_info(seq, seq_info)
 			if not found:
 				LOG.error("no target amr was found in this contig sequence: "+contig_name)
@@ -77,8 +63,7 @@ def annotate_sequence_bundle(contig_ng_info, out_dir, no_RGI,
 										gene_info['gene'],
 										gene_info['product'], gene_info['length'],
 										gene_info['start_pos'], gene_info['end_pos'],
-										gene_info['RGI_prediction_type'],
-										gene_info['family'], gene_info['target_amr']])
+										gene_info['target_amr']])
 		LOG.info("NOTE: The annotation of neighborhood sequences in contigs for "+\
 			amr_name+"has been stroed in " + annotation_file_name)
 
@@ -234,8 +219,7 @@ def find_contig_amrs_main(params):
 	contig_ng_info = find_all_amrs_and_neighborhood(params.target_genes, params.input_gfa,
 								contig_dir, params.neighbourhood_length,
 								params.min_target_identity)
-	annotate_sequence_bundle(contig_ng_info, contig_dir,
-						params.no_rgi, params.rgi_include_loose,)
+	annotate_sequence_bundle(contig_ng_info, contig_dir)
 	LOG.info("neighborhood extraction and annotation from cotigs is done!")
 
 if __name__=="__main__":

@@ -16,12 +16,14 @@ It has primarily been developed for the analysis of Antimicrobial Resistance (AM
 
 ## 1. Installation
 
-Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires 4 key dependencies:
+Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires two key external dependencies:
 
-- [Bakta](https://github.com/oschwengers/bakta)
-- [RGI](https://github.com/arpcard/rgi)
 - [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
 - [Bandage](https://github.com/rrwick/Bandage)
+
+Gene (ORF) calling on the extracted neighbourhoods is performed in-process with
+[pyrodigal](https://github.com/althonos/pyrodigal), which is installed as a
+Python dependency, so no separate annotation tool or database is required.
 
 ### 1a. Docker
 
@@ -52,31 +54,10 @@ As there are dependency conflicts between the tools used by sarand, you will nee
 
 ```shell
 # 1. Create the sarand environment
-conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython
+conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython pyrodigal
 
-# 2. Create the bakta environment
-conda create -n bakta-1.8.1 -c conda-forge -c bioconda -y bakta=1.8.1
-
-# 3. Create the Bandage environment
+# 2. Create the Bandage environment
 conda create -n bandage-0.8.1 -c conda-forge -c bioconda -c defaults -y bandage=0.8.1
-
-# 4. Create the RGI environment
-conda create -n rgi-5.2.0 -c conda-forge -c bioconda -c defaults -y rgi=5.2.0
-```
-
-**Downloading and updating the Bakta database:**
-
-```shell
-cd /tmp
-wget https://zenodo.org/record/7669534/files/db-light.tar.gz
-tar -xzvf db-light.tar.gz
-rm db-light.tar.gz
-
-# Note: Here you will need to specify a path to keep the Bakta database
-# This example uses /db/bakta but you can use any path you like
-mkdir -p /db/bakta
-mv db-light /db/bakta
-conda run -n bakta-1.8.1 amrfinder_update --force_update --database /db/bakta/db-light/amrfinderplus-db
 ```
 
 **Configuring conda environments:**
@@ -86,10 +67,7 @@ these will be automatically used when the environment is active.
 
 ```shell
 conda activate sarand-1.1.1
-conda env config vars set CONDA_BAKTA_NAME=bakta-1.8.1
 conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
-conda env config vars set CONDA_RGI_NAME=rgi-5.2.0
-conda env config vars set BAKTA_DB=/db/bakta/db-light
 
 # Note: Here you can specify an alternate exe (e.g. micromamba, mamba).
 conda env config vars set CONDA_EXE_NAME=conda
@@ -126,8 +104,7 @@ usage: sarand [-h] [-v] -i INPUT_GFA -a ASSEMBLER
               -k MAX_KMER_SIZE [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
               [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
               [-l NEIGHBOURHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
-              [--verbose] [--no_rgi | --rgi_include_loose]
-              [--keep_intermediate_files] [--debug]
+              [--verbose] [--keep_intermediate_files] [--debug]
 
 Identify and extract the local neighbourhood of target genes (such as AMR)
 from a GFA formatted assembly graph
@@ -170,9 +147,6 @@ optional arguments:
                       directories
   --verbose           Provide verbose debugging output when logging,
                       and keep intermediate files
-  --no_rgi            Disable RGI based annotation of graph neighbourhoods
-  --rgi_include_loose Include loose criteria hits if using RGI to annotate
-                      graph neighbourhoods
   --keep_intermediate_files
                       Do not delete intermediate files.
   --debug               Creates additional files for debugging purposes.
@@ -222,13 +196,11 @@ Here is the list of important directories and files that can be seen there and a
 For each extracted sequence, the first line denotes the corresponding path, where the nodes representing the AMR sequence are placed in '[]'. The next line denotes the extracted sequence where the AMR sequence is in lower case letters and the neighborhood is in upper case letters.
     * `sequences_info/sequences_info_{params.neighbourhood_length}/paths_info/`: The information of nodes representing the AMR neighborhood including their name, the part of the sequence represented by each node (start position and end position) and their coverage, as well as the entire path coverage is stored in a file like `ng_sequences_{AMR_NAME}_{params.neighbourhood_length}_{DATE}.csv`
 
-* `annotations/annotations_{params.neighbourhood_length}`: The annotation details are stored in this directory.
+* `annotations/annotations_{params.neighbourhood_length}`: The annotation details are stored in this directory. Genes (ORFs) are called with pyrodigal, so each entry records the ORF coordinates; the `gene`/`product` columns are left empty as pyrodigal does not assign functional labels.
     * `annotations/annotations_{params.neighbourhood_length}/annotation_{AMR_NAME}_{params.neighbourhood_length}`: this directory contains all annotation details for a given AMR.
     * `annotation_detail_{AMR_NAME}.csv`: the list of annotations of all extracted sequences for an AMR gene
     * `trimmed_annotation_info_{AMR_NAME}.csv`: the list of unique annotations of all extracted sequences for an AMR gene
     * `coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`: the list of the annotations in which the gene coverage difference from the AMR gene coverage is less than GENE_COVERAGE_DIFFERENCE value.
-    * `bakta_dir_extracted{NUM}_{DATE}`: it contains the output of prokka for annotation of a sequence extracted from the neighborhood of the target AMR gene in the assembly graph.
-    * `rgi_dir`: contains RGI annotation details for all extracted neighborhood sequences of the target AMR gene.
 
 ### 3b. Visualising annotations
 

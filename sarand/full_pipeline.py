@@ -5,14 +5,8 @@ Date:		September 2020
 
 
 Purpose:	To extract the neighborhood of an AMR gene from an assembly graph,
-            annotate it and compare with the reference genome(s)
-
-To run:
-    python full_pipeline.py
-
-NOTE: all parameters can be set in params.py
-NOTE: if use_RGI = TRUE, make sure either RGI has been installed system-wide or
-    you already are in the environment RGI installed in!
+            annotate it (ORF calling via pyrodigal) and compare with the
+            reference genome(s)
 """
 import copy
 import csv
@@ -48,89 +42,35 @@ from sarand.utils import (
 
 
 def write_info_in_annotation_file(
-        annotation_writer, visual_annotation_writer, gene_info, no_RGI, found, len_seq=None
+        annotation_writer, visual_annotation_writer, gene_info, found, len_seq=None
 ):
     """
     To write annotation details into files
     Parameters:
         annotation_writer:	annotation file containing all annotations
         visual_annotation_writer: annotation file containing unique annotations
-        seq_description: a small description of the sequence used for naming
-        seq: the extracted dna sequence that has been annotated
         gene_info: annotation info
-        contig_name: the name of contig matching this extracted sequence (if there is any contig)
-        no_RGI: if True, RGI has not been used to annotate AMRs
         found: if True, the annotation info has already found in other annotated sequences
     """
     seq = gene_info["seq_value"]
     seq_description = gene_info["seq_name"]
     if len_seq is None:
         len_seq = len(seq)
-    if not no_RGI:
-        annotation_writer.writerow(
-            [
-                seq_description,
-                seq,
-                len_seq,
-                gene_info["gene"],
-                gene_info["product"],
-                gene_info["length"],
-                gene_info["start_pos"],
-                gene_info["end_pos"],
-                gene_info["RGI_prediction_type"],
-                gene_info["coverage"],
-                gene_info["family"],
-                gene_info["target_amr"],
-            ]
-        )
-        if not found:
-            visual_annotation_writer.writerow(
-                [
-                    seq_description,
-                    seq,
-                    len_seq,
-                    gene_info["gene"],
-                    # gene_info["prokka_gene_name"],
-                    gene_info["product"],
-                    gene_info["length"],
-                    gene_info["start_pos"],
-                    gene_info["end_pos"],
-                    gene_info["RGI_prediction_type"],
-                    gene_info["coverage"],
-                    gene_info["family"],
-                    gene_info["target_amr"],
-                ]
-            )
-    else:
-        annotation_writer.writerow(
-            [
-                seq_description,
-                seq,
-                len_seq,
-                gene_info["gene"],
-                gene_info["product"],
-                gene_info["length"],
-                gene_info["start_pos"],
-                gene_info["end_pos"],
-                gene_info["coverage"],
-                gene_info["target_amr"],
-            ]
-        )
-        if not found:
-            visual_annotation_writer.writerow(
-                [
-                    seq_description,
-                    seq,
-                    len_seq,
-                    gene_info["gene"],
-                    gene_info["product"],
-                    gene_info["length"],
-                    gene_info["start_pos"],
-                    gene_info["end_pos"],
-                    gene_info["coverage"],
-                    gene_info["target_amr"],
-                ]
-            )
+    row = [
+        seq_description,
+        seq,
+        len_seq,
+        gene_info["gene"],
+        gene_info["product"],
+        gene_info["length"],
+        gene_info["start_pos"],
+        gene_info["end_pos"],
+        gene_info["coverage"],
+        gene_info["target_amr"],
+    ]
+    annotation_writer.writerow(row)
+    if not found:
+        visual_annotation_writer.writerow(row)
 
 
 def seq_annotation_already_exist(seq_info_list, all_seq_info_lists, out_dir):
@@ -214,7 +154,7 @@ def find_gene_coverage(seq_info_list, path_info):
     coverage_list = []
     for seq_info in seq_info_list:
         sum_coverage = 0
-        # minus 1 because I guess in what prokka returns the sequence starts from position 1
+        # minus 1 because the ORF caller returns 1-based start positions
         start, end = seq_info["start_pos"] - 1, seq_info["end_pos"] - 1
         if start > end:
             start, end = end, start
@@ -422,27 +362,16 @@ def check_coverage_consistency_remove_rest_seq(
     return coverage_annotation, len(remained_seqs)
 
 
-def extract_seq_annotation(annotate_dir, no_RGI, RGI_include_loose, seq_pair):
+def extract_seq_annotation(seq_pair):
     """
     The function used in parallel anntation to call the function for annotating a sequence
     Parameters:
-        annotate_dir: the directory to store annotation output
-        no_RGI: if True we want to call RGI for annotating AMRs
-        RGI_include_loose: if True loose mode is used
         seq_pair: the index and the value of a sequence to be annotated
     Return:
         the list of annotated genes
     """
     counter, ext_seq = seq_pair
-    seq_description = "extracted" + str(counter)
-    seq_info_list = annotate_sequence(
-        ext_seq,
-        seq_description,
-        annotate_dir,
-        no_RGI,
-        RGI_include_loose,
-    )
-    return seq_info_list
+    return annotate_sequence(ext_seq)
 
 
 def extract_graph_seqs_annotation(
@@ -451,8 +380,6 @@ def extract_graph_seqs_annotation(
         neighborhood_seq_file,
         annotate_dir,
         core_num,
-        no_RGI,
-        RGI_include_loose,
         annotation_writer,
         trimmed_annotation_writer,
         gene_file,
@@ -466,8 +393,6 @@ def extract_graph_seqs_annotation(
         neighborhood_seq_file: the file containing extracted sequences
         annotate_dir: the directory to sore annotation results
         core_num: the number of core for parallel processing
-        no_RGI: if True RGI is not used for AMR annotation
-        RGI_include_loose: if True use loose mode in RGI
         annotation_writer: the file to store annotation results
         trimmed_annotation_writer: the file to store unique annotation results
         gene_file: the file to store gene nams in annotation
@@ -502,13 +427,10 @@ def extract_graph_seqs_annotation(
     if core_num == 1:
         seq_info_list = list()
         for x in sequence_list:
-            seq_info_list.append(extract_seq_annotation(annotate_dir, no_RGI, RGI_include_loose, x))
+            seq_info_list.append(extract_seq_annotation(x))
     else:
-        p_annotation = partial(
-            extract_seq_annotation, annotate_dir, no_RGI, RGI_include_loose
-        )
         with Pool(core_num) as p:
-            seq_info_list = p.map(p_annotation, sequence_list)
+            seq_info_list = p.map(extract_seq_annotation, sequence_list)
 
     # Further processing of result of parallel annotation
     all_seq_info_list = []
@@ -538,7 +460,6 @@ def extract_graph_seqs_annotation(
             coverage_list = find_gene_coverage(seq_info, path_info_list[counter - 1])
         # Check if this annotation has already been found
         found = seq_annotation_already_exist(seq_info, all_seq_info_list, annotate_dir)
-        # If it's a novel sequence correct annotation (if applicable) for cases that RGI doesn't have a hit but Prokka has
         if not found:
             all_seq_info_list.append(seq_info)
         myLine1 = seq_description + ":\t"
@@ -548,7 +469,7 @@ def extract_graph_seqs_annotation(
             gene_info["coverage"] = coverage
             gene_info["seq_name"] = seq_description
             write_info_in_annotation_file(
-                annotation_writer, trimmed_annotation_writer, gene_info, no_RGI, found
+                annotation_writer, trimmed_annotation_writer, gene_info, found
             )
             if gene_info["gene"] == "":
                 myLine1 += "UNKNOWN---"
@@ -567,8 +488,6 @@ def neighborhood_annotation(
         path_info_file,
         seq_length,
         output_dir,
-        no_RGI=False,
-        RGI_include_loose=False,
         output_name="",
         core_num=4,
 ):
@@ -583,8 +502,6 @@ def neighborhood_annotation(
         seq_length:	the length of neighborhood sequence extracted from each side of
             the AMR sequence (downstream and up stream)
         output_dir:	the path for the output directory
-        no_RGI:	RGI annotations not incorporated for AMR annotation
-        RGI_include_loose: Whether to include loose annotaions in RGI
         output_name:the name used to distinguish different output files usually based on the name of AMR
     Return:
         the address of files stroing annotation information (annotation_detail_name,
@@ -627,9 +544,7 @@ def neighborhood_annotation(
         "length": "length",
         "start_pos": "start_pos",
         "end_pos": "end_pos",
-        "RGI_prediction_type": "RGI_prediction_type",
         "coverage": "coverage",
-        "family": "family",
         "seq_name": "seq_name",
         "target_amr": "target_amr",
     }
@@ -637,7 +552,6 @@ def neighborhood_annotation(
         annotation_writer,
         trimmed_annotation_writer,
         gene_info,
-        no_RGI,
         False,
         "seq_length",
     )
@@ -653,8 +567,6 @@ def neighborhood_annotation(
         neighborhood_seq_file,
         annotate_dir,
         core_num,
-        no_RGI,
-        RGI_include_loose,
         annotation_writer,
         trimmed_annotation_writer,
         gene_file,
@@ -1038,8 +950,6 @@ def seq_annotation_main(params, seq_files, path_info_files, amr_files, debug: bo
             nodes_info_file,
             params.neighbourhood_length,
             params.output_dir,
-            params.no_rgi,
-            params.rgi_include_loose,
             "_" + restricted_amr_name,
             params.num_cores,
         )

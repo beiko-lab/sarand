@@ -7,22 +7,19 @@ Purpose:	containing all utility functions used in other files
 import argparse
 import collections
 import csv
-import datetime
 import os
 import re
-import shutil
 import sys
 import tempfile
 from pathlib import Path
 from typing import List, Dict, Any
 
+import pyrodigal
 from Bio import SeqIO
 
 from sarand.config import PROGRAM_VERSION_NA
-from sarand.external.bakta import Bakta
 from sarand.external.blastn import Blastn
 from sarand.external.bandage import Bandage, BandageResult
-from sarand.external.rgi import Rgi
 from sarand.model.fasta_seq import FastaSeq
 from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG
@@ -208,130 +205,49 @@ AM: This method is not used.
 #         sys.exit(1)
 
 
-def run_RGI(
-        input_file, output_dir, seq_description, include_loose=False, delete_rgi_files=False
-):
+# pyrodigal gene finder reused across calls; metagenomic mode (no per-sequence
+# training) is required as the extracted neighbourhoods are short and varied.
+_ORF_FINDER = pyrodigal.GeneFinder(meta=True)
+
+
+def annotate_sequence(seq):
     """
-    To run RGI and annotate AMRs in the sequence
-    # To ensure consistency between Prokka and RGI findings, we annotate found proteins
-    # by Prokka (instead of annotationg DNA sequences from scratch)
+    Call open reading frames (ORFs) in an extracted neighbourhood sequence using
+    pyrodigal.
+
+    pyrodigal performs gene (CDS) calling only; it does not assign gene names or
+    functional products, so 'gene' and 'product' are left empty. The target AMR
+    gene within the neighbourhood is identified downstream from its position (the
+    lower-case region of the extracted sequence), not from any annotation label.
+
     Parameters:
-        input_file: the file contating proteins annotated by Prokka
-        output_dir:  the path for the output directory
-        seq_description: a small description of the sequence used for naming
-        include_loose: Whether to include loose annotations
+        seq: the sequence to be annotated. The AMR gene is in lower case and the
+            flanking neighbourhood in upper case; a trailing newline is tolerated.
     Return:
-        the list of extracted annotation information for the sequence
+        the list of called ORFs and their details
     """
-    rgi_dir = os.path.join(output_dir, "rgi_dir")
-    os.makedirs(rgi_dir, exist_ok=True)
+    nt_seq = seq.rstrip("\n")
+    genes = _ORF_FINDER.find_genes(nt_seq.upper().encode())
 
-    output_file_name = os.path.join(
-        rgi_dir,
-        "rgi_output_"
-        + seq_description
-        + "_"
-        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M"),
-    )
-    # remove any potential * from the sequence
-    # delete_a_string_from_file("*", input_file) # TODO: Not used?
-
-    rgi = Rgi.run_for_sarand(
-        input_sequence=Path(input_file),
-        output_file=Path(output_file_name),
-        include_loose=include_loose,
-    )
-
-    # delete temp files
-    if delete_rgi_files and os.path.isfile(output_file_name + ".txt"):
-        os.remove(output_file_name + ".txt")
-    if delete_rgi_files and os.path.isfile(output_file_name + ".json"):
-        os.remove(output_file_name + ".json")
-
-    return rgi.result.data
-
-
-def annotate_sequence(
-        seq,
-        seq_description,
-        output_dir,
-        no_RGI=False,
-        RGI_include_loose=False,
-        delete_prokka_dir=False,
-):
-    """
-    To run Prokka for a sequence and extract required information from its
-        generated output files
-    Parameters:
-        seq:	the sequence to be annotated
-        seq_description: a small description of the sequence used for naming
-        output_dir:  the path for the output directory
-        no_RGI:	RGI annotations incorporated for AMR annotation
-    Return:
-        the list of extracted annotation information for the sequence
-    """
-    # write the sequence into a temporary file
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        seq_file_name = create_fasta_file(
-            seq,
-            tmp_dir,
-            file_name="temp_"
-                      + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                      + seq_description,
-        )
-        pid = os.getpid()
-        prokka_dir = (
-                "bakta_dir_"
-                + seq_description
-                + "_"
-                + str(pid)
-                + "_"
-                + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        )
-        prefix_name = "neighbourhood_" + seq_description
-
-        # Run Bakta
-        ba = Bakta.run_for_sarand(
-            genome=Path(seq_file_name),
-            prefix=prefix_name,
-            out_dir=Path(output_dir) / prokka_dir,
-        )
-
-    # This re-appends the sequence as per the original implementation, however
-    # this could be extracted from the JSON
-    seq_info = ba.result.get_for_sarand()
-    for seq_info_new_item in seq_info:
-        seq_info_new_item['seq_value'] = seq[:-1]
-
-    RGI_output_list = None
-    if not no_RGI:
-        RGI_output_list = run_RGI(
-            str(ba.params.path_faa.absolute()),
-            output_dir,
-            seq_description,
-            RGI_include_loose,
-            delete_prokka_dir,
-        )
-
-    # incorporate RGI findings into Prokka's
-    if RGI_output_list:
-        for item in RGI_output_list:
-            for gene_info in seq_info:
-                if item["ORF_ID"].split(" ")[0] == gene_info["locus_tag"]:
-                    gene_info["gene"] = item["gene"]
-                    gene_info["RGI_prediction_type"] = item["prediction_type"]
-                    gene_info["family"] = item["family"]
-                    break
-
-    # remove temporary files and folder
-    # if os.path.isfile(seq_file_name):
-    #     os.remove(seq_file_name)
-    if delete_prokka_dir:
-        try:
-            shutil.rmtree(prokka_dir)
-        except OSError as e:
-            LOG.error("Error: %s - %s." % (e.filename, e.strerror))
-
+    seq_info = []
+    for gene in genes:
+        # pyrodigal coordinates are 1-based inclusive; flip start/end on the
+        # reverse strand to match the original (Bakta) output convention
+        if gene.strand == 1:
+            start_pos, end_pos = gene.begin, gene.end
+        else:
+            start_pos, end_pos = gene.end, gene.begin
+        seq_info.append({
+            "gene": "",
+            "product": "",
+            "length": (gene.end - gene.begin) + 1,
+            "start_pos": start_pos,
+            "end_pos": end_pos,
+            "coverage": None,
+            "seq_value": nt_seq,
+            "seq_name": None,
+            "target_amr": None,
+        })
     return seq_info
 
 
@@ -669,15 +585,10 @@ def check_file(path: str) -> Path:
         )
 
 
-def assert_dependencies_exist(bakta=True, blastn=True, bandage=True, rgi=True):
+def assert_dependencies_exist(blastn=True, bandage=True):
     """Check all dependencies exist and work"""
     versions = list()
     missing = list()
-    if bakta:
-        bakta_v = Bakta.version()
-        versions.append(f'Bakta v{bakta_v}')
-        if bakta_v is PROGRAM_VERSION_NA:
-            missing.append('Bakta')
     if blastn:
         blastn_v = Blastn.version()
         versions.append(f'Blastn v{blastn_v}')
@@ -688,11 +599,6 @@ def assert_dependencies_exist(bakta=True, blastn=True, bandage=True, rgi=True):
         versions.append(f'Bandage v{ba_v}')
         if ba_v is PROGRAM_VERSION_NA:
             missing.append('Bandage')
-    if rgi:
-        rgi_v = Rgi.version()
-        versions.append(f'RGI v{rgi_v}')
-        if rgi_v is PROGRAM_VERSION_NA:
-            missing.append('RGI')
 
     if len(versions) > 0:
         LOG.info('All dependencies found: ' + ', '.join(versions))

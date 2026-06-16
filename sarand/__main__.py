@@ -116,20 +116,6 @@ def main():
         action='store_true',
         help='Provide verbose debugging output when logging, and keep intermediate files',
     )
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        "--no_rgi",
-        default=False,
-        action="store_false",
-        help="Disable RGI based annotation of graph neighbourhoods",
-    )
-    group.add_argument(
-        "--rgi_include_loose",
-        default=False,
-        action="store_true",
-        help="Include loose criteria hits if using RGI to annotate"
-             " graph neighbourhoods",
-    )
     parser.add_argument(
         "--keep_intermediate_files",
         default=False,
@@ -211,7 +197,7 @@ def main():
     log = get_logger()
 
     # check dependencies work
-    assert_dependencies_exist(bandage=True, rgi=not args.no_rgi)
+    assert_dependencies_exist()
 
     # convert argparse to config dictionary
     args.run_time = run_time
