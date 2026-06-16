@@ -1,0 +1,118 @@
+"""FASTA I/O helpers and blastn-based sequence comparison."""
+import os
+import tempfile
+from pathlib import Path
+from typing import Dict
+
+from Bio import SeqIO
+
+from sarand.external.blastn import Blastn
+from sarand.model.fasta_seq import FastaSeq
+from sarand.util.naming import amr_name_from_comment
+
+
+def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"):
+    """
+    To create a fasta file for a sequence
+    Parameters:
+        seq: the sequence to be written into the file
+        output_dir: the output directory address
+        comment: the comment to be written into fasta file
+        file_name: the name of the fasta file
+    Return:
+        the address of the fasta file
+    """
+    myfile_name = os.path.join(output_dir, file_name + ".fasta")
+    if os.path.isfile(myfile_name):
+        os.remove(myfile_name)
+    with open(myfile_name, 'w') as myfile:
+        myfile.write(comment)
+        if not comment.endswith("\n"):
+            myfile.write("\n")
+        myfile.write(seq)
+        if not seq.endswith("\n"):
+            myfile.write("\n")
+    return myfile_name
+
+
+def retrieve_AMR(file_path):
+    """
+    To read the AMR gene from the text file.
+    Parameters:
+        file_path:	the address of the file containing the AMR gene
+    Return:
+        the sequence of the AMR gene in lower case
+    """
+    amr_name = ""
+    with open(file_path) as fp:
+        for line in fp:
+            # skip comment line
+            if line.startswith(">"):
+                amr_name = amr_name_from_comment(line[:-1])
+                continue
+            return line, amr_name
+
+
+def compare_two_sequences(
+        subject,
+        query,
+        output_dir,
+        threshold=90,
+        switch_allowed=True,
+        return_file=False,
+        subject_coverage=True,
+        blast_ext="",
+):
+    """
+    To compare one sequence (shorter sequence) against the other one (longer
+    sequence) using blastn.
+    """
+    # make sure subject is the longer sequence
+    if switch_allowed and len(subject) < len(query):
+        subject, query = query, subject
+
+    # Write to a temporary directory to prevent any race condition when this is
+    # called via the recursion of the neighbourhood extraction.
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        query_file_name = os.path.join(tmp_dir, "query.fasta")
+        with open(query_file_name, "w") as query_file:
+            query_file.write("> query \n")
+            query_file.write(query)
+        subject_file_name = os.path.join(tmp_dir, "subject.fasta")
+        with open(subject_file_name, "w") as subject_file:
+            subject_file.write("> subject \n")
+            subject_file.write(subject)
+
+        blastn = Blastn.run_for_sarand_compare_two_sequences(
+            query=Path(query_file_name),
+            subject=Path(subject_file_name)
+        )
+
+        if return_file:
+            raise NotImplementedError('Unable to return file.')
+
+        for row in blastn.results:
+            identity = int(row.pident)
+            coverage = int(row.length / len(subject) * 100)
+            q_coverage = row.qcovhsp
+
+            if subject_coverage and identity >= threshold and coverage >= threshold:
+                return True
+            if not subject_coverage and identity >= threshold and q_coverage >= threshold:
+                return True
+    return False
+
+
+def extract_amr_sequences(path: Path) -> Dict[str, FastaSeq]:
+    """Extract the AMR sequences from a FASTA file."""
+    out = dict()
+    with path.open() as f:
+        for record in SeqIO.parse(f, "fasta"):
+            amr_name = amr_name_from_comment(record.description)
+            if amr_name in out:
+                raise ValueError(f"Duplicate AMR name {amr_name} in {path}")
+            out[amr_name] = FastaSeq(
+                seq=str(record.seq),
+                fasta_id=str(record.description)
+            )
+    return out

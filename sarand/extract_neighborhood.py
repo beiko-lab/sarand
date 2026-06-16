@@ -30,7 +30,7 @@ import networkx as nx
 
 from sarand.util.logger import LOG
 from sarand.config import AMR_SEQ_DIR, SEQ_DIR_NAME, SEQ_NAME_PREFIX
-from sarand.utils import retrieve_AMR
+from sarand.util.sequence import retrieve_AMR
 
 OUT_DIR = "output"
 TEMP_DIR = "temp"

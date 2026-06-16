@@ -6,12 +6,12 @@ import sys
 from pathlib import Path
 
 from sarand.__init__ import __version__
-from sarand.full_pipeline import full_pipeline_main
+from sarand.pipeline import run_graph_pipeline
 from sarand.util.logger import create_logger, get_logger
 from sarand.util.pkg import get_pkg_card_fasta_path
-from sarand.utils import assert_dependencies_exist, check_file, validate_range
-from sarand.test_metacherchant import test_metacherchant_main
-from sarand.amr_neighborhood_in_contigs import find_contig_amrs_main
+from sarand.util.cli import assert_dependencies_exist, check_file, validate_range
+from sarand.metacherchant import run_metacherchant_pipeline
+from sarand.contigs import run_contig_pipeline
 
 def main():
     """
@@ -205,14 +205,13 @@ def main():
     # logging file
     log.info(f"Sarand initialized: output={args.output_dir}")
 
-    # execute main workflow
+    # execute the workflow for the chosen assembler
     if args.assembler == "metacherchant":
-        test_metacherchant_main(args)
+        run_metacherchant_pipeline(args)
     elif args.assembler == "contig":
-        find_contig_amrs_main(args)
+        run_contig_pipeline(args)
     else:
-        # execute main workflow
-        full_pipeline_main(args)
+        run_graph_pipeline(args)
 
 
 if __name__ == "__main__":

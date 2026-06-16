@@ -1,13 +1,13 @@
 
 """
-File:		amr_neighborhood_in_contigs.py
-Aythor:		Somayeh Kafaie
+File:		contigs.py
+Author:		Somayeh Kafaie
 Date:		March 2021
 Purpose:	To find the neighborhood of AMRs in a contig file, compare them with
 			that of the ref genomes and calculate the sentivity and precision
 
 Invoked via the main sarand CLI with `-a contig`. ORFs in the extracted
-neighbourhoods are called with pyrodigal (see sarand.utils.annotate_sequence).
+neighbourhoods are called with pyrodigal (see sarand.util.annotate.call_orfs).
 """
 
 ################################################################################
@@ -23,9 +23,9 @@ from gfapy.sequence import rc
 
 from sarand.util.logger import LOG
 from sarand.config import AMR_SEQ_DIR
-from sarand.utils import amr_name_from_comment, split_up_down_info,\
-		annotate_sequence,restricted_amr_name_from_modified_name,\
-		create_fasta_file
+from sarand.util.annotate import call_orfs, partition_genes_around_amr
+from sarand.util.naming import amr_name_from_comment, restricted_amr_name_from_modified_name
+from sarand.util.sequence import create_fasta_file
 
 NOT_FOUND_FILE = 'not_found_amrs_in_contigs.txt'
 
@@ -51,8 +51,8 @@ def annotate_sequence_bundle(contig_ng_info, out_dir):
 			contig_name = amr_info['contig']
 			seq = amr_info['seq']
 			seq_description = 'contig_'+amr_name+'_'+contig_name.replace(' ','_').replace('.','').replace(',','')
-			seq_info = annotate_sequence(seq+"\n")
-			found, _ , _, _, _ = split_up_down_info(seq, seq_info)
+			seq_info = call_orfs(seq+"\n")
+			found, _ , _, _, _ = partition_genes_around_amr(seq, seq_info)
 			if not found:
 				LOG.error("no target amr was found in this contig sequence: "+contig_name)
 			with open(annotation_file_name, 'a') as fd:
@@ -204,7 +204,7 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
         		
 	return zip(amr_list, ng_lists)
 
-def find_contig_amrs_main(params):
+def run_contig_pipeline(params):
 	"""
 	"""
 	#creating a directory for results

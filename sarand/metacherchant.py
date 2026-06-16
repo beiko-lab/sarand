@@ -17,16 +17,16 @@ import subprocess
 from pathlib import Path
 
 from sarand.util.logger import LOG
-from sarand.utils import (
+from sarand.util.naming import (
     restricted_amr_name_from_modified_name,
     amr_name_from_comment,
-    read_path_info_from_align_file,
-    create_fasta_file,
 )
-from sarand.new_extract_neighborhood import sequence_neighborhood_main
-from sarand.full_pipeline import (
-    neighborhood_annotation,
-    find_corrsponding_seq_path_file,
+from sarand.util.graph_path import read_path_info_from_align_file
+from sarand.util.sequence import create_fasta_file
+from sarand.extract_neighborhood import sequence_neighborhood_main
+from sarand.annotation import (
+    annotate_neighborhood,
+    find_seq_and_path_files,
 )
 from sarand.config import SEQ_NAME_PREFIX, ANNOTATION_DIR, AMR_DIR_NAME, \
     AMR_SEQ_DIR, SEQ_DIR_NAME, AMR_ALIGN_DIR
@@ -296,7 +296,7 @@ def gene_alignment_extraction_metacherchant(gfa_file, output_dir,
 
 	return [path_info]
 
-def test_metacherchant_main(params):
+def run_metacherchant_pipeline(params):
     """
     Main runner function for testing metacherchant
     """
@@ -418,7 +418,7 @@ def test_metacherchant_main(params):
         LOG.info('Annnnnotation for '+amr_name+' ...')
         restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
         amr_file = find_corresponding_amr_file(restricted_amr_name, ref_amr_files)
-        neighborhood_file, nodes_info_file = find_corrsponding_seq_path_file(
+        neighborhood_file, nodes_info_file = find_seq_and_path_files(
             restricted_amr_name,
             neighborhood_files,
             nodes_info_files,
@@ -432,7 +432,7 @@ def test_metacherchant_main(params):
                 + restricted_amr_name
             )
             sys.exit(1)
-        all_seq_info_list, annotation_file = neighborhood_annotation(
+        all_seq_info_list, annotation_file = annotate_neighborhood(
             amr_name,
             neighborhood_file,
             nodes_info_file,
