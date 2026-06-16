@@ -549,7 +549,7 @@ def check_add_temp_for_similarity(temp_mergepaths, input_file, output_file, simi
         '-o', output_file,          # Output file
         '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
         '-n', '5',                   # Word length (default is 5)
-        '-T', '14'
+        '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
     ]
     # Execute the command
     try:
@@ -578,7 +578,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', "temp_file.fasta",          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '14'
+            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -603,7 +603,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', output_file,          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '14'
+            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -624,7 +624,7 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
             '-o', output_file,          # Output file
             '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
             '-n', '5',                   # Word length (default is 5)
-            '-T', '14'
+            '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
         ]
         # Execute the command
         try:
@@ -653,7 +653,8 @@ def check_for_similarity(mergepaths, input_file, output_file, similarity):
         '-i', input_file,           # Input file
         '-o', output_file,          # Output file
         '-c', str(similarity),                # Sequence identity threshold (e.g., 90%)
-        '-n', '5'                   # Word length (default is 5)
+        '-n', '5',                  # Word length (default is 5)
+        '-T', '1',  # single thread; per-AMR parallelism is handled by the pool
     ]
 
     # Execute the command
