@@ -29,7 +29,7 @@ Bandage and BLAST+ are simply expected on the `PATH`.
 **Creating the environment:**
 
 ```shell
-conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 gfapy=1.2.3 cd-hit=4.8.1 networkx gzip pandas python biopython pyrodigal
+conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
 ```
 
 **Installing sarand:**

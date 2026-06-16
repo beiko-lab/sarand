@@ -12,18 +12,11 @@ USER root
 
 # Create a single conda environment containing all of sarand's dependencies
 RUN micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
-        blast=2.14.0 \
-        bandage=0.8.1 \
-        dna_features_viewer=3.1.2 \
-        numpy \
-        matplotlib-base \
+        blast=2.17.0 \
+        bandage=0.9.0 \
         gfapy=1.2.3 \
-        cd-hit=4.6.8 \
+        cd-hit=4.8.1 \
         networkx \
-        gzip \
-        pandas \
-        python \
-        pillow \
         biopython \
         pyrodigal
 
@@ -31,8 +24,9 @@ RUN micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
 # Comment this out and replace it with the commented section below once in PyPI
 RUN mkdir -p /tmp/sarand
 COPY ./sarand /tmp/sarand/sarand
-COPY ./setup.py /tmp/sarand/setup.py
+COPY ./pyproject.toml /tmp/sarand/pyproject.toml
 COPY ./README.md /tmp/sarand/README.md
+COPY ./LICENSE.txt /tmp/sarand/LICENSE.txt
 RUN micromamba run -n sarand pip install /tmp/sarand && \
     micromamba clean --all --yes && \
     rm -rf /tmp/sarand

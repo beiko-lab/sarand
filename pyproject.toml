@@ -19,13 +19,8 @@ keywords = [
     "Context extraction",
 ]
 dependencies = [
-    "dna_features_viewer",
     "networkx",
-    "numpy",
-    "pillow",
-    "matplotlib",
     "gfapy",
-    "pandas",
     "biopython",
     "pyrodigal"
 ]
