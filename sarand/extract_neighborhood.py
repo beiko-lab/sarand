@@ -15,7 +15,6 @@ To run:
 ################################################################################
 
 import sys
-import os
 import datetime
 import threading
 import time
@@ -24,6 +23,7 @@ import subprocess
 import shutil
 from functools import partial
 from multiprocessing.pool import Pool
+from pathlib import Path
 
 import gfapy
 import networkx as nx
@@ -146,7 +146,7 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
     source = f"{params.output_dir}/clustered_{amr_gene_node}_{len_amr}_{up_down}.fasta"
     destination = f"{params.output_dir}/final_down_up/clustered_{amr_gene_node}_{len_amr}_{up_down}.fasta"
 
-    if os.path.exists(destination):
+    if Path(destination).exists():
         print(f"yes {amr_gene_node} in {up_down} found ")
         file_name["file_name"] = destination
         return
@@ -566,7 +566,7 @@ def check_add_temp_for_similarity(temp_mergepaths, input_file, output_file, simi
 
 def check_similarity_down_up_streams(paths, input_file, output_file, similarity):
 
-    if(os.path.exists(input_file)):
+    if Path(input_file).exists():
         with open(input_file, 'w') as file:
             for path, seq in paths.items():
                 file.write("> " + str(path) + "\n")
@@ -721,17 +721,22 @@ def neighborhood_sequence_extraction(
     #print("amr_name :", amr_name)
     #print("len amr paths :", len(amr_paths))
     # csv file for path_info
-    os.makedirs(os.path.join(params.output_dir, SEQ_DIR_NAME,
-        SEQ_DIR_NAME + "_" + str(params.neighbourhood_length), "paths_info"), exist_ok=True)
-    paths_info_file = os.path.join(
-        params.output_dir,
-        SEQ_DIR_NAME,
-        SEQ_DIR_NAME + "_" + str(params.neighbourhood_length),
-        "paths_info",
-        SEQ_NAME_PREFIX + amr_name + "_" + str(params.neighbourhood_length)
-        + "_"
-        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        + ".csv",
+    length_dir = (
+        Path(params.output_dir)
+        / SEQ_DIR_NAME
+        / (SEQ_DIR_NAME + "_" + str(params.neighbourhood_length))
+    )
+    paths_info_dir = length_dir / "paths_info"
+    paths_info_dir.mkdir(parents=True, exist_ok=True)
+    # kept as str: the returned file path is substring-matched downstream
+    paths_info_file = str(
+        paths_info_dir
+        / (
+            SEQ_NAME_PREFIX + amr_name + "_" + str(params.neighbourhood_length)
+            + "_"
+            + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+            + ".csv"
+        )
     )
 
     with open(paths_info_file, "a") as fd:
@@ -739,21 +744,22 @@ def neighborhood_sequence_extraction(
         writer.writerow(["sequence", "node", "coverage", "start", "end", "path_coverage"])
 
     # Extract the sequenc of AMR neighborhood
-    LOG.debug(f"Calling extract_neighborhood_sequence for {os.path.basename(amr_name)}...")
+    LOG.debug(f"Calling extract_neighborhood_sequence for {Path(amr_name).name}...")
     seq_counter = 0
     output_name = SEQ_NAME_PREFIX + amr_name
-    seq_output_dir = os.path.join(params.output_dir, SEQ_DIR_NAME,
-        SEQ_DIR_NAME + "_" + str(params.neighbourhood_length),AMR_SEQ_DIR)
-    os.makedirs(seq_output_dir, exist_ok=True)
+    seq_output_dir = length_dir / AMR_SEQ_DIR
+    seq_output_dir.mkdir(parents=True, exist_ok=True)
     threshold = params.neighbourhood_length
-    seq_file = os.path.join(
-        seq_output_dir,
-        output_name
-        + "_"
-        + str(threshold)
-        + "_"
-        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-        + ".txt",
+    seq_file = str(
+        seq_output_dir
+        / (
+            output_name
+            + "_"
+            + str(threshold)
+            + "_"
+            + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
+            + ".txt"
+        )
     )
     for amr_path in amr_paths:
         find_downstream = True
@@ -1166,15 +1172,14 @@ def sequence_neighborhood_main(
         amr_seq_align_info,
         debug: bool
 ):
-    sequence_dir = os.path.join(
-        params.output_dir,
-        SEQ_DIR_NAME,
-        f'{SEQ_DIR_NAME}_{params.neighbourhood_length}',
+    output_dir = Path(params.output_dir)
+    sequence_dir = (
+        output_dir / SEQ_DIR_NAME / f'{SEQ_DIR_NAME}_{params.neighbourhood_length}'
     )
-    os.makedirs(sequence_dir, exist_ok=True)
+    sequence_dir.mkdir(parents=True, exist_ok=True)
 
-    os.makedirs(f"{params.output_dir}/final_result", exist_ok=True)
-    os.makedirs(f"{params.output_dir}/final_down_up", exist_ok=True)
+    (output_dir / "final_result").mkdir(parents=True, exist_ok=True)
+    (output_dir / "final_down_up").mkdir(parents=True, exist_ok=True)
     # Read GFA file
     gfa_graph = gfapy.Gfa.from_file(gfa_file)
     directed_graph = create_directed_graph_nx(gfa_graph)
@@ -1202,13 +1207,11 @@ def sequence_neighborhood_main(
             lists = list(p.imap(p_extraction, amr_seq_align_info))
     seq_files, path_info_files = zip(*lists)
     LOG.info("delete files")
-    for item in os.listdir(params.output_dir):
-        item_path = os.path.join(params.output_dir, item)
-
+    for item_path in Path(params.output_dir).iterdir():
         # Check if it is a file, and if so, delete it
-        if os.path.isfile(item_path):
-            if not (item_path.endswith('.log') or item_path.endswith('.txt')):
-                os.remove(item_path)
+        if item_path.is_file():
+            if item_path.suffix not in ('.log', '.txt'):
+                item_path.unlink()
 
 
 

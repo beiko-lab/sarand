@@ -1,8 +1,8 @@
 """Per-gene coverage calculation and coverage-consistency filtering of annotations."""
 import copy
 import csv
-import os
 import sys
+from pathlib import Path
 
 from sarand.config import ANNOTATION_DIR
 from sarand.util.annotate import similar_annotation_exists
@@ -218,9 +218,8 @@ def filter_by_coverage_consistency(
             remained_seqs.append(seq_info)
 
     # Initialize coverage file
-    coverage_annotation = os.path.join(
-        annotate_dir,
-        "coverage_annotation_" + str(coverage_thr) + "_" + amr_name + ".csv",
+    coverage_annotation = Path(annotate_dir) / (
+        "coverage_annotation_" + str(coverage_thr) + "_" + amr_name + ".csv"
     )
     with open(coverage_annotation, "w") as fd:
         writer = csv.writer(fd)
@@ -270,14 +269,11 @@ def trim_annotations_by_coverage(params, amr_files, all_seq_info_lists):
     for i, amr_file in enumerate(amr_files):
         restricted_amr_name = extract_name_from_file_name(amr_file)
         # remove some extracted sequences based on coverage consistency
-        annotate_dir = os.path.join(
-            params.output_dir,
-            ANNOTATION_DIR,
-            ANNOTATION_DIR + "_" + str(params.neighbourhood_length),
-            "annotation_"
-            + restricted_amr_name
-            + "_"
-            + str(params.neighbourhood_length),
+        annotate_dir = (
+            Path(params.output_dir)
+            / ANNOTATION_DIR
+            / (ANNOTATION_DIR + "_" + str(params.neighbourhood_length))
+            / ("annotation_" + restricted_amr_name + "_" + str(params.neighbourhood_length))
         )
         if params.coverage_difference > 0:
             coverage_annotation, _ = filter_by_coverage_consistency(

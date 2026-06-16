@@ -47,19 +47,19 @@ def extract_files(gfiles, message):
     """
     if isinstance(gfiles, list):
         # check if these are files (not directories)
-        if os.path.isfile(gfiles[0]):
+        if Path(gfiles[0]).is_file():
             return gfiles
         else:
             LOG.error(message)
             sys.exit(1)
-        # elif os.path.isdir(gfiles[0])
-    elif os.path.isfile(gfiles):
+        # elif Path(gfiles[0]).is_dir()
+    elif Path(gfiles).is_file():
         return [gfiles]
-    elif os.path.isdir(gfiles):
+    elif Path(gfiles).is_dir():
         myfiles = [
-            os.path.join(gfiles, f)
-            for f in os.listdir(gfiles)
-            if os.path.isfile(os.path.join(gfiles, f))
+            str(f)
+            for f in Path(gfiles).iterdir()
+            if f.is_file()
         ]
         return myfiles
     elif message != "":
@@ -71,11 +71,13 @@ def find_annotation_file(annotation_file, out_dir,amr_name, seq_len):
     """
     if annotation_file!='':
         return annotation_file
-    annotate_dir = os.path.join(out_dir, ANNOTATION_DIR, ANNOTATION_DIR+'_'+str(seq_len),
-                                    'annotation_'+amr_name+'_'+str(seq_len))
-    for f in os.listdir(annotate_dir):
-        if f=='trimmed_annotation_info_'+amr_name+'.csv':
-            return os.path.join(annotate_dir, f)
+    annotate_dir = (
+        Path(out_dir) / ANNOTATION_DIR / (ANNOTATION_DIR+'_'+str(seq_len))
+        / ('annotation_'+amr_name+'_'+str(seq_len))
+    )
+    for f in annotate_dir.iterdir():
+        if f.name=='trimmed_annotation_info_'+amr_name+'.csv':
+            return str(f)
     return ''
 
 def find_sequence_file(seq_file, sequence_dir, amr_name, seq_len):
@@ -84,12 +86,11 @@ def find_sequence_file(seq_file, sequence_dir, amr_name, seq_len):
     #seq_file has already been found
     if seq_file!='':
         return seq_file
-    seq_dir = os.path.join(sequence_dir, 'sequences')
-    for f in os.listdir(seq_dir):
-        if f.startswith(SEQ_NAME_PREFIX+amr_name+'_'+str(seq_len)) and\
-            os.path.isfile(os.path.join(seq_dir, f)) and\
-            os.path.splitext(f)[1]=='.txt':
-            return os.path.join(seq_dir, f)
+    seq_dir = Path(sequence_dir) / 'sequences'
+    for f in seq_dir.iterdir():
+        if f.name.startswith(SEQ_NAME_PREFIX+amr_name+'_'+str(seq_len)) and\
+            f.is_file() and f.suffix=='.txt':
+            return str(f)
     return ''
 
 def extract_amr_info_from_file(amr_info_file):
@@ -111,7 +112,7 @@ def find_corresponding_amr_file(amr_name, amr_files):
     """
     """
     for amr_file in amr_files:
-        if os.path.splitext(os.path.basename(amr_file))[0]==amr_name:
+        if Path(amr_file).stem==amr_name:
             return amr_file
     LOG.error("Error: No amr_file for amr "+amr_name+" was found!")
     sys.exit()
@@ -140,9 +141,9 @@ def find_amr_related_nodes(amr_file, gfa_file, output_dir,
 		A list of dictionaries each denoting an AMR path
 	"""
 	#Run bandage+blast
-	output_name=os.path.join(output_dir, output_pre+'_align_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
-	if os.path.isfile(output_name+'.tsv'):
-		os.remove(output_name+'.tsv')
+	output_name=str(Path(output_dir) / (output_pre+'_align_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')))
+	if Path(output_name+'.tsv').is_file():
+		Path(output_name+'.tsv').unlink()
 	bandage_command = subprocess.run(['Bandage',
                     "querypaths", gfa_file, amr_file,
 					output_name, "--pathnodes", "50", "--minpatcov",
@@ -180,7 +181,7 @@ def order_path_nodes(path_nodes, amr_file, out_dir, threshold = 90):
 		#write the sequence into a fasta file
 		query_file = create_fasta_file(node.sequence, out_dir, comment = ">"+node.name+"\n", file_name = 'query')
 		#run blast query for alignement
-		blast_file_name = os.path.join(out_dir,'blast.csv')
+		blast_file_name = Path(out_dir) / 'blast.csv'
 		blast_file = open(blast_file_name, "w")
 		cmd = ['blastn',
                         '-query', query_file, "-subject", amr_file,
@@ -268,7 +269,7 @@ def gene_alignment_extraction_metacherchant(gfa_file, output_dir,
 	Return:
 		the name of file containing the list of extracted sequences/paths
 	"""
-	with open(os.path.join(output_dir, "metacherchant_no_path.txt"), 'a') as no_path_file:
+	with open(Path(output_dir) / "metacherchant_no_path.txt", 'a') as no_path_file:
 		no_path_file.write(amr_file+'\n')
 	# try:
 	# 	myGraph = gfapy.Gfa.from_file(gfa_file)
@@ -279,7 +280,7 @@ def gene_alignment_extraction_metacherchant(gfa_file, output_dir,
 	path_nodes = extract_amr_align_from_file(gfa_file)
 	#find the order of these nodes in the amr path
 	ordered_path_nodes, orientations = order_path_nodes(path_nodes, amr_file,
-									os.path.join(output_dir,AMR_ALIGN_DIR), threshold)
+									Path(output_dir) / AMR_ALIGN_DIR, threshold)
 	node_list = [e.name for e in ordered_path_nodes]
 
 	last_segment = ordered_path_nodes[-1]
@@ -302,16 +303,16 @@ def run_metacherchant_pipeline(params):
     """
     LOG.info("Starting testing Metacherchant...")
 
-    amr_info_file = os.path.join(params.meta_main_dir, "AMR_seqs_full.fasta")
+    amr_info_file = Path(params.meta_main_dir) / "AMR_seqs_full.fasta"
     amr_names, amr_seqs = extract_amr_info_from_file(amr_info_file)
-    amr_files = os.path.join(params.meta_main_dir ,AMR_DIR_NAME, AMR_SEQ_DIR)
+    amr_files = Path(params.meta_main_dir) / AMR_DIR_NAME / AMR_SEQ_DIR
     ref_amr_files = extract_files(amr_files, 'please provide the address of the AMR gene(s)')
     #if params.ref_genomes_available:
     #    df = pd.read_csv(params.ref_ng_annotations_file, skipinitialspace=True,  keep_default_na=False)
     #    amr_groups = df.groupby('target_amr')
-    sequence_dir = os.path.join(params.output_dir, SEQ_DIR_NAME)
-    if not os.path.exists(sequence_dir):
-        os.makedirs(sequence_dir)
+    sequence_dir = Path(params.output_dir) / SEQ_DIR_NAME
+    if not sequence_dir.exists():
+        sequence_dir.mkdir(parents=True)
     ##to make use of previously generated alignment files
     #align_files = []
     #align_dir = os.path.join(sequence_dir, 'alignment_files')
@@ -330,9 +331,9 @@ def run_metacherchant_pipeline(params):
     #average_precision = 0
     #average_sensitivity = 0
     #no_align_file = open(os.path.join(params.output_dir, 'no_align_found.txt'), 'w')
-    align_dir = os.path.join(params.output_dir, AMR_ALIGN_DIR)
-    if not os.path.exists(align_dir):
-        os.makedirs(align_dir)
+    align_dir = Path(params.output_dir) / AMR_ALIGN_DIR
+    if not align_dir.exists():
+        align_dir.mkdir(parents=True)
     amr_seq_align_info = []
     seq_files = []
     path_info_files = []
@@ -357,7 +358,7 @@ def run_metacherchant_pipeline(params):
         #        amr_pair = (amr_file,paths_info)
         #    else:
         #gfa_file = params.output_dir+'output/'+str(i+1)+'/graph.gfa'
-        gfa_file = os.path.join(params.meta_main_dir, 'output', restricted_amr_name, 'graph.gfa')
+        gfa_file = Path(params.meta_main_dir) / 'output' / restricted_amr_name / 'graph.gfa'
         command = "sed -e 's/\tCL:z:GREEN//g' -i "+gfa_file
         print(command)
         os.system(command)

@@ -1,5 +1,4 @@
 """FASTA I/O helpers and blastn-based sequence comparison."""
-import os
 import tempfile
 from pathlib import Path
 from typing import Dict
@@ -22,9 +21,9 @@ def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"
     Return:
         the address of the fasta file
     """
-    myfile_name = os.path.join(output_dir, file_name + ".fasta")
-    if os.path.isfile(myfile_name):
-        os.remove(myfile_name)
+    myfile_name = Path(output_dir) / (file_name + ".fasta")
+    if myfile_name.is_file():
+        myfile_name.unlink()
     with open(myfile_name, 'w') as myfile:
         myfile.write(comment)
         if not comment.endswith("\n"):
@@ -32,7 +31,9 @@ def create_fasta_file(seq, output_dir, comment="> sequence:\n", file_name="temp"
         myfile.write(seq)
         if not seq.endswith("\n"):
             myfile.write("\n")
-    return myfile_name
+    # Returned as a plain string: callers concatenate this path into messages
+    # and pass it to subprocesses.
+    return str(myfile_name)
 
 
 def retrieve_AMR(file_path):
@@ -74,18 +75,18 @@ def compare_two_sequences(
     # Write to a temporary directory to prevent any race condition when this is
     # called via the recursion of the neighbourhood extraction.
     with tempfile.TemporaryDirectory() as tmp_dir:
-        query_file_name = os.path.join(tmp_dir, "query.fasta")
+        query_file_name = Path(tmp_dir) / "query.fasta"
         with open(query_file_name, "w") as query_file:
             query_file.write("> query \n")
             query_file.write(query)
-        subject_file_name = os.path.join(tmp_dir, "subject.fasta")
+        subject_file_name = Path(tmp_dir) / "subject.fasta"
         with open(subject_file_name, "w") as subject_file:
             subject_file.write("> subject \n")
             subject_file.write(subject)
 
         blastn = Blastn.run_for_sarand_compare_two_sequences(
-            query=Path(query_file_name),
-            subject=Path(subject_file_name)
+            query=query_file_name,
+            subject=subject_file_name
         )
 
         if return_file:

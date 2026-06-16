@@ -6,7 +6,6 @@ unique hits are written to disk.
 """
 import collections
 import datetime
-import os
 from functools import partial
 from multiprocessing.pool import Pool
 from pathlib import Path
@@ -94,12 +93,11 @@ def align_amrs_to_graph(
     LOG.debug(
         'Checking if AMR gene "' + str(amr_names) + '" exists in the assembly graph...'
     )
-    output_name = os.path.join(
-        output_dir,
+    output_name = Path(output_dir) / (
         extract_name_from_file_name(cat_file)
         + "_align_"
-        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
-        "")
+        + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    )
 
     # Run Bandage+BLAST
     aligner_path = output_name if keep_files else None
@@ -146,9 +144,7 @@ def find_amr_group_in_graph(
     """
     g_id, amr_group = amr_object
     # read info of the group into a single file
-    cat_file = os.path.join(
-        output_dir, AMR_DIR_NAME, "amr_group_" + str(g_id) + ".fasta"
-    )
+    cat_file = Path(output_dir) / AMR_DIR_NAME / ("amr_group_" + str(g_id) + ".fasta")
     file_group = []
     with open(cat_file, "w") as writer:
         for amr_info in amr_group:
@@ -172,8 +168,8 @@ def find_amr_group_in_graph(
         try_dump_to_disk(p_find_amr_align, Path(align_dir) / 'debug_p_find_amr_align.json')
 
     # Remove temporary AMR file
-    if os.path.isfile(cat_file):
-        os.remove(cat_file)
+    if cat_file.is_file():
+        cat_file.unlink()
     return p_find_amr_align
 
 
@@ -232,8 +228,8 @@ def find_all_amr_in_graph(
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
     """
-    align_dir = os.path.join(output_dir, AMR_DIR_NAME, AMR_ALIGN_DIR)
-    os.makedirs(align_dir, exist_ok=True)
+    align_dir = Path(output_dir) / AMR_DIR_NAME / AMR_ALIGN_DIR
+    align_dir.mkdir(parents=True, exist_ok=True)
 
     # generate the groups and store the group of each amr
     group_num = 5
@@ -295,7 +291,7 @@ def find_all_amr_in_graph(
 
 def write_found_amrs_to_disk(output_dir: Path, unique_amr_seqs, unique_amr_infos):
     amr_dir = output_dir / AMR_DIR_NAME / AMR_SEQ_DIR
-    os.makedirs(amr_dir, exist_ok=True)
+    amr_dir.mkdir(parents=True, exist_ok=True)
     overlap_file_name = output_dir / AMR_DIR_NAME / AMR_OVERLAP_FILE
 
     unique_amr_files = list()

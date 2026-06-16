@@ -5,7 +5,6 @@ target AMR is located within it, per-gene coverage is computed, and the results
 are written to the annotation CSVs.
 """
 import csv
-import os
 import shutil
 import sys
 from multiprocessing.pool import Pool
@@ -198,29 +197,20 @@ def annotate_neighborhood(
     """
     LOG.info("Annotating " + amr_name)
     # initializing required files and directories
-    annotate_dir = os.path.join(
-        output_dir,
-        ANNOTATION_DIR,
-        ANNOTATION_DIR + "_" + str(seq_length),
-        "annotation" + output_name + "_" + str(seq_length),
+    annotations_dir = (
+        Path(output_dir) / ANNOTATION_DIR / (ANNOTATION_DIR + "_" + str(seq_length))
     )
-    if os.path.exists(annotate_dir):
+    annotate_dir = annotations_dir / ("annotation" + output_name + "_" + str(seq_length))
+    if annotate_dir.exists():
         try:
             shutil.rmtree(annotate_dir)
         except OSError as e:
             LOG.error("Error: %s - %s." % (e.filename, e.strerror))
-    os.makedirs(annotate_dir)
-    error_file = os.path.join(
-        output_dir,
-        ANNOTATION_DIR,
-        ANNOTATION_DIR + "_" + str(seq_length),
-        "not_found_annotation_amrs_in_graph.txt",
-    )
-    annotation_detail_name = os.path.join(
-        annotate_dir, "annotation_detail" + output_name + ".csv"
-    )
-    trimmed_annotation_info_name = os.path.join(
-        annotate_dir, "trimmed_annotation_info" + output_name + ".csv"
+    annotate_dir.mkdir(parents=True)
+    error_file = annotations_dir / "not_found_annotation_amrs_in_graph.txt"
+    annotation_detail_name = annotate_dir / ("annotation_detail" + output_name + ".csv")
+    trimmed_annotation_info_name = annotate_dir / (
+        "trimmed_annotation_info" + output_name + ".csv"
     )
     annotation_detail = open(annotation_detail_name, mode="w", newline="")
     trimmed_annotation_info = open(trimmed_annotation_info_name, mode="w", newline="")
@@ -244,9 +234,7 @@ def annotate_neighborhood(
         False,
         "seq_length",
     )
-    gene_file_name = os.path.join(
-        annotate_dir, "seq_comparison_genes" + output_name + ".txt"
-    )
+    gene_file_name = annotate_dir / ("seq_comparison_genes" + output_name + ".txt")
     gene_file = open(gene_file_name, "w")
 
     # annotate the sequences extracted from the assembly graph
@@ -262,16 +250,14 @@ def annotate_neighborhood(
         error_file,
     )
     LOG.debug(
-        "The comparison of neighborhood sequences are available in "
-        + annotation_detail_name
-        + ", "
-        + gene_file_name
+        f"The comparison of neighborhood sequences are available in "
+        f"{annotation_detail_name}, {gene_file_name}"
     )
     annotation_detail.close()
     trimmed_annotation_info.close()
     gene_file.close()
 
-    return all_seq_info_list, trimmed_annotation_info_name
+    return all_seq_info_list, str(trimmed_annotation_info_name)
 
 
 def find_seq_and_path_files(amr_name, sequences_file_names, path_info_file_names,

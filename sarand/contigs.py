@@ -12,12 +12,11 @@ neighbourhoods are called with pyrodigal (see sarand.util.annotate.call_orfs).
 
 ################################################################################
 
-import os
 import sys
-import glob
 import csv
 import collections
 import subprocess
+from pathlib import Path
 from Bio import SeqIO
 from gfapy.sequence import rc
 
@@ -33,16 +32,16 @@ NOT_FOUND_FILE = 'not_found_amrs_in_contigs.txt'
 def annotate_sequence_bundle(contig_ng_info, out_dir):
 	"""
 	"""
-	annotate_dir = os.path.join(out_dir,'contig_annotations')
-	if not os.path.exists(annotate_dir):
-		os.makedirs(annotate_dir)
+	annotate_dir = Path(out_dir) / 'contig_annotations'
+	if not annotate_dir.exists():
+		annotate_dir.mkdir(parents=True)
 	for amr_info_list in contig_ng_info:
 		amr_name = amr_info_list[0]
 		restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
 		# mydir = annotate_dir+restricted_amr_name
 		# if not os.path.exists(mydir):
 		# 	os.makedirs(mydir)
-		annotation_file_name =os.path.join(annotate_dir, 'contig_annotation_'+restricted_amr_name+'.csv')
+		annotation_file_name = str(annotate_dir / ('contig_annotation_'+restricted_amr_name+'.csv'))
 		with open(annotation_file_name, 'a') as fd:
 			writer = csv.writer(fd)
 			writer.writerow(['seq_name', 'seq_value', 'seq_length', 'gene',
@@ -88,8 +87,8 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 	if genome_file == '':
 		LOG.error('Please enter the address of contig file!')
 		sys.exit()
-	blast_file_name = os.path.join(out_dir, 'blast_out_contig.csv')
-	if not os.path.isfile(blast_file_name):
+	blast_file_name = Path(out_dir) / 'blast_out_contig.csv'
+	if not blast_file_name.is_file():
 		# Find the length of each AMR sequence
 		amr_objects = extract_amr_length(target_genes_file)
 		#creat blast database from the (meta)genome file
@@ -101,9 +100,9 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 						"-outfmt", "10", "-evalue", "0.5", "-perc_identity", str(threshold-1),
 						"-num_threads", "4"], stdout=blast_file, check= True)
 		blast_file.close()
-	AMR_dir = os.path.join(out_dir, AMR_SEQ_DIR)
-	ng_file = os.path.join(out_dir, 'AMR_contig_neighborhood.fasta')
-	if not os.path.exists(AMR_dir) or not os.path.isfile(ng_file):
+	AMR_dir = Path(out_dir) / AMR_SEQ_DIR
+	ng_file = Path(out_dir) / 'AMR_contig_neighborhood.fasta'
+	if not AMR_dir.exists() or not ng_file.is_file():
 		#Read the blast result
 		amr_list = []
 		amr = collections.namedtuple('amr', 'amr_name seq_name identity matched_length q_start q_end c_start c_end')
@@ -119,8 +118,8 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 		amr_end_list = []
 		record_name_list = []
 		amr_name_list = []
-		if not os.path.exists(AMR_dir):
-			os.makedirs(AMR_dir)
+		if not AMR_dir.exists():
+			AMR_dir.mkdir(parents=True)
         # find the start and end of AMR for all found cases above the threshold
 		for record in amr_list:
 			if int(float(record.identity))>=threshold:
@@ -195,23 +194,21 @@ def find_all_amrs_and_neighborhood(target_genes_file, genome_file, out_dir,
 						ng_lists[amr_index].append(ng_item)
 
 	#delete tempoarary blastdb created for genome_file
-	directory = os.path.dirname(genome_file)
-	base = os.path.basename(genome_file)
-	pattern = os.path.join(directory, f"{base}.*")
-	for filepath in glob.glob(pattern):
-    		if filepath != genome_file and os.path.isfile(filepath):
-        		os.remove(filepath)
-        		
+	genome_path = Path(genome_file)
+	for filepath in genome_path.parent.glob(genome_path.name + ".*"):
+		if filepath != genome_path and filepath.is_file():
+			filepath.unlink()
+
 	return zip(amr_list, ng_lists)
 
 def run_contig_pipeline(params):
 	"""
 	"""
 	#creating a directory for results
-	contig_dir = os.path.join(params.output_dir, 'contigs_output_'+str(params.neighbourhood_length))
-	if not os.path.exists(contig_dir):
-		os.makedirs(contig_dir)
-	found_file = os.path.join(contig_dir , NOT_FOUND_FILE)
+	contig_dir = Path(params.output_dir) / ('contigs_output_'+str(params.neighbourhood_length))
+	if not contig_dir.exists():
+		contig_dir.mkdir(parents=True)
+	found_file = contig_dir / NOT_FOUND_FILE
 
 	#read card sequences and do neighborhood extraction and annotations for blast hits
 	# here we assume params.input_gfa is representing the contig file from which

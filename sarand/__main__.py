@@ -1,6 +1,5 @@
 import argparse
 import datetime
-import os
 import shutil
 import sys
 from pathlib import Path
@@ -172,10 +171,10 @@ def main():
         args.keep_intermediate_files = True
 
     # Setup the output logger path
-    logger_output_path = os.path.join(args.output_dir, f"run_{run_time}.log")
+    logger_output_path = Path(args.output_dir) / f"run_{run_time}.log"
 
     # Check if the output directory exists
-    if os.path.exists(args.output_dir):
+    if Path(args.output_dir).exists():
         if not args.force:
             log = create_logger(verbose=args.verbose)
             log.error(
@@ -185,12 +184,12 @@ def main():
             sys.exit(1)
         else:
             shutil.rmtree(args.output_dir)
-            os.makedirs(args.output_dir)
+            Path(args.output_dir).mkdir(parents=True)
             log = create_logger(output=logger_output_path, verbose=args.verbose)
             log.info(f"Overwriting previously created {args.output_dir}")
 
     else:
-        os.makedirs(args.output_dir)
+        Path(args.output_dir).mkdir(parents=True)
         create_logger(output=logger_output_path, verbose=args.verbose)
 
     # Get the logger

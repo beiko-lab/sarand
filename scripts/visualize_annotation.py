@@ -17,10 +17,10 @@ required by sarand).
 import argparse
 import logging
 import math
-import os
 import sys
 import tempfile
 from csv import DictReader
+from pathlib import Path
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -150,14 +150,11 @@ def visualize_annotation(input_csv_file, output, title=""):
                 sequence_length=seq_length_list[counter], features=features
             )
             ax, _ = record.plot(figure_width=10)
-            ax.figure.savefig(
-                os.path.join(temp_dir, "temp" + str(counter) + ".jpg"), bbox_inches="tight"
-            )
-            """
-            AM: Plots must be closed otherwise matplotlib will throw an error.
-            """
+            temp_jpg = Path(temp_dir) / f"temp{counter}.jpg"
+            ax.figure.savefig(temp_jpg, bbox_inches="tight")
+            # Plots must be closed otherwise matplotlib will throw an error.
             plt.close()
-            img = Image.open(os.path.join(temp_dir, "temp" + str(counter) + ".jpg"))
+            img = Image.open(temp_jpg)
             image_list.append(img)
         show_images(
             image_list=image_list, main_title=title, output=output, title_list=title_list
@@ -166,7 +163,7 @@ def visualize_annotation(input_csv_file, output, title=""):
 
 def main(args):
     """ """
-    if not os.path.isfile(args.csvfile):
+    if not Path(args.csvfile).is_file():
         LOG.error("annotation csv file not found: " + args.csvfile)
         sys.exit(1)
     visualize_annotation(args.csvfile, args.output, args.title)

@@ -1,10 +1,10 @@
 """Helpers for deriving and normalising AMR and file names."""
-import os
+from pathlib import Path
 
 
 def extract_name_from_file_name(file_name):
     """Return the base name of a file without its directory or extension."""
-    return os.path.splitext(os.path.basename(file_name))[0]
+    return Path(file_name).stem
 
 
 def amr_name_from_comment(amr_comment):
