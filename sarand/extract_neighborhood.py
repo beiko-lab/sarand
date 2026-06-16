@@ -16,12 +16,13 @@ To run:
 
 import sys
 import datetime
+import gc
 import threading
 import time
 import csv
 import subprocess
 import shutil
-from multiprocessing.pool import Pool
+import multiprocessing
 from pathlib import Path
 
 import gfapy
@@ -1224,14 +1225,26 @@ def sequence_neighborhood_main(
             #if(amr_name == "TEM-181") :
             lists.append(neighborhood_sequence_extraction(directed_graph, reverse_directed_graph, params, x))
     else:
-        # Send the large graph to each worker once (via the initializer) instead
-        # of re-pickling it for every task through imap.
-        with Pool(
-            params.num_cores,
-            initializer=_init_extraction_worker,
-            initargs=(directed_graph, reverse_directed_graph, params),
-        ) as p:
-            lists = list(p.imap(_extract_in_worker, amr_seq_align_info))
+        # The workers only traverse (never mutate) the graph, so share a single
+        # physical copy via copy-on-write fork inheritance rather than giving each
+        # worker its own. Under "fork" the initargs are inherited, not pickled;
+        # gc.freeze() stops the cyclic collector from touching (and thus copying)
+        # the shared pages in the children. Fall back to the default context
+        # (which pickles one copy per worker) where fork is unavailable.
+        try:
+            ctx = multiprocessing.get_context("fork")
+        except ValueError:
+            ctx = multiprocessing.get_context()
+        gc.freeze()
+        try:
+            with ctx.Pool(
+                params.num_cores,
+                initializer=_init_extraction_worker,
+                initargs=(directed_graph, reverse_directed_graph, params),
+            ) as p:
+                lists = list(p.imap(_extract_in_worker, amr_seq_align_info))
+        finally:
+            gc.unfreeze()
     seq_files, path_info_files = zip(*lists)
     LOG.info("delete files")
     for item_path in Path(params.output_dir).iterdir():
