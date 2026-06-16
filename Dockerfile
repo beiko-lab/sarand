@@ -10,15 +10,10 @@ ARG VER
 
 USER root
 
-# Set the conda environment names to run dependencies
-ENV CONDA_BANDAGE_NAME='bandage'
-ENV CONDA_EXE_NAME='micromamba'
-
-# Create the conda environments
-RUN micromamba create -n ${CONDA_BANDAGE_NAME} -c conda-forge -c bioconda -c defaults -y  \
-            bandage=0.8.1 && \
-    micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
+# Create a single conda environment containing all of sarand's dependencies
+RUN micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
         blast=2.14.0 \
+        bandage=0.8.1 \
         dna_features_viewer=3.1.2 \
         numpy \
         matplotlib-base \

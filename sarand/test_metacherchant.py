@@ -29,7 +29,7 @@ from sarand.full_pipeline import (
     find_corrsponding_seq_path_file,
 )
 from sarand.config import SEQ_NAME_PREFIX, ANNOTATION_DIR, AMR_DIR_NAME, \
-    AMR_SEQ_DIR, SEQ_DIR_NAME, CONDA_BANDAGE_NAME, CONDA_EXE_NAME, AMR_ALIGN_DIR
+    AMR_SEQ_DIR, SEQ_DIR_NAME, AMR_ALIGN_DIR
 RUN_BANDAGE = False
 
 def extract_files(gfiles, message):
@@ -143,7 +143,7 @@ def find_amr_related_nodes(amr_file, gfa_file, output_dir,
 	output_name=os.path.join(output_dir, output_pre+'_align_'+datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
 	if os.path.isfile(output_name+'.tsv'):
 		os.remove(output_name+'.tsv')
-	bandage_command = subprocess.run([CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME, 'Bandage',
+	bandage_command = subprocess.run(['Bandage',
                     "querypaths", gfa_file, amr_file,
 					output_name, "--pathnodes", "50", "--minpatcov",
 					str((threshold-1)/100.0), "--minmeanid", str((threshold-1)/100.0),
@@ -182,7 +182,6 @@ def order_path_nodes(path_nodes, amr_file, out_dir, threshold = 90):
 		#run blast query for alignement
 		blast_file_name = os.path.join(out_dir,'blast.csv')
 		blast_file = open(blast_file_name, "w")
-		#cmd = [CONDA_EXE_NAME,'run', '-n', CONDA_BLAST_NAME, 'blastn',
 		cmd = ['blastn',
                         '-query', query_file, "-subject", amr_file,
 			"-task", "blastn", "-outfmt", "10", "-max_target_seqs", "10",
@@ -198,11 +197,6 @@ def order_path_nodes(path_nodes, amr_file, out_dir, threshold = 90):
 		stdout, stderr = proc.communicate()
 		if proc.returncode != 0:
 			raise RuntimeError(f'blastn failed: {stderr}')
-		#blast_command = subprocess.run([CONDA_EXE_NAME,'run', '-n',CONDA_BLAST_NAME,
-                #        "-query", query_file, "-subject", amr_file,
-		#				"-task", "blastn", "-outfmt", "10", "-max_target_seqs", "10",
-		#				"-evalue", "0.5", "-perc_identity", str(threshold-1)],
-		#				stdout=blast_file, check= True)
 		blast_file.close()
 		# command = 'blastn -query '+query_file+' -subject '+amr_file+\
 		# 	' -task blastn -outfmt 10 -max_target_seqs 10 -evalue 0.5 -perc_identity '+\

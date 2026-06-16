@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional, List
 
-from sarand.config import PROGRAM_VERSION_NA, CONDA_BANDAGE_NAME, CONDA_EXE_NAME
+from sarand.config import PROGRAM_VERSION_NA
 from sarand.util.logger import LOG
 
 ##???????
@@ -322,10 +322,6 @@ class Bandage:
 
         # Display the command to be run
         cmd = params.as_cmd()
-
-        # If this is being run in the Docker container, then activate the env first
-        if CONDA_BANDAGE_NAME:
-            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME] + cmd
         LOG.info(' '.join(map(str, cmd)))
 
         # Run the command
@@ -424,8 +420,6 @@ class Bandage:
     def version() -> str:
         """Returns the version of Bandage on the path."""
         cmd = ['Bandage', '--version']
-        if CONDA_BANDAGE_NAME:
-            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,

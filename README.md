@@ -48,29 +48,13 @@ singularity run docker://somayeh8131/sarand:1.1.1 -i input.gfa -o output -a meta
 
 ### 1c. Conda
 
-As there are dependency conflicts between the tools used by sarand, you will need to create multiple conda environments.
+All of sarand's dependencies are installed into a single conda environment;
+Bandage and BLAST+ are simply expected on the `PATH`.
 
-**Creating environments:**
-
-```shell
-# 1. Create the sarand environment
-conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython pyrodigal
-
-# 2. Create the Bandage environment
-conda create -n bandage-0.8.1 -c conda-forge -c bioconda -c defaults -y bandage=0.8.1
-```
-
-**Configuring conda environments:**
-
-Here you will specify environment variables that are specific to the `sarand-1.1.1` environment,
-these will be automatically used when the environment is active.
+**Creating the environment:**
 
 ```shell
-conda activate sarand-1.1.1
-conda env config vars set CONDA_BANDAGE_NAME=bandage-0.8.1
-
-# Note: Here you can specify an alternate exe (e.g. micromamba, mamba).
-conda env config vars set CONDA_EXE_NAME=conda
+conda create -n sarand-1.1.1 -c conda-forge -c bioconda -y blast=2.14.0 bandage=0.8.1 dna_features_viewer=3.1.2 numpy matplotlib-base gfapy=1.2.3 cd-hit=4.6.8 networkx gzip pandas python pillow biopython pyrodigal
 ```
 
 **Installing sarand:**
