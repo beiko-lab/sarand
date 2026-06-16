@@ -288,7 +288,7 @@ def find_seq_and_path_files(
     return seq_file, path_file
 
 
-def annotate_all_amrs(
+def annotate_all_neighbourhoods(
         params: argparse.Namespace,
         seq_files: List[str],
         path_info_files: List[str],

@@ -1,4 +1,4 @@
-"""Stage 1 of the graph pipeline: locate target (AMR) genes in the assembly graph.
+"""Stage 1 of the graph pipeline: locate target genes in the assembly graph.
 
 Target genes are aligned to the graph with Bandage+BLAST (grouped and run in a
 multiprocessing pool), hits with overlapping paths are de-duplicated, and the
@@ -218,23 +218,25 @@ def collect_unique_amrs(
     return unique_amr_seqs, unique_amr_infos, unique_amr_paths
 
 
-def find_all_amr_in_graph(
+def find_all_target_in_graph(
         gfa_file: Path,
         output_dir: str,
-        amr_sequences_file: Path,
-        amr_threshold: float,
+        target_sequences_file: Path,
+        min_target_identity: float,
+        min_target_coverage: float,
         core_num: int,
         keep_files: bool,
         debug: bool,
 ) -> Tuple[List[str], List[List[Dict[str, Any]]]]:
     """
-    Align every target gene in ``amr_sequences_file`` against the graph and
+    Align every target gene in ``target_sequences_file`` against the graph and
     return the unique hits and their paths.
     Parameters:
         gfa_file: the address of the assembly graph
         output_dir: the address of the output directory
-        amr_sequences_file: the address of the file containing the sequence of all AMRs from CARD
-        amr_threshold: the threshold for coverage and identity
+        target_sequences_file: the address of the file containing the sequence of all AMRs from CARD
+        min_target_identity: minimum target identity
+        min_target_coverage: minimum target coverage
         core_num: the number of used cores
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
@@ -250,7 +252,7 @@ def find_all_amr_in_graph(
     amr_seq_title_list = []
     # Read AMR sequences one by one
     amr_counter = 0
-    with open(amr_sequences_file) as fp:
+    with open(target_sequences_file) as fp:
         for line in fp:
             if line.startswith(">"):
                 amr_title = line
@@ -269,7 +271,8 @@ def find_all_amr_in_graph(
         gfa_file,
         Path(align_dir),
         Path(output_dir),
-        amr_threshold,
+        min_target_identity,
+        min_target_coverage,
         keep_files,
         core_num,
         debug,

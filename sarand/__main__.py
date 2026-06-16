@@ -92,7 +92,15 @@ def main() -> None:
         "--min_target_identity",
         default=95,
         type=validate_range(float, 0.1, 100),
-        help="Minimum identity/coverage to identify presence of target gene in assembly graph",
+        help="Minimum identity for target gene hits in assembly graph",
+    )
+
+    parser.add_argument(
+        "-c",
+        "--min_target_coverage",
+        default=95,
+        type=validate_range(float, 0.1, 100),
+        help="Minimum coverage for target gene hits in assembly graph",
     )
     parser.add_argument(
         "-l",
