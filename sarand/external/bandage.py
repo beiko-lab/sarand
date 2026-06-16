@@ -282,20 +282,20 @@ class BandageResult:
         return float(re.sub("[%]", "", self.mean_hit_identity))
 
     @property
-    def amr_name(self) -> str:
-        amr_str = self.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
-        return BandageResult.restricted_amr_name_from_modified_name(amr_str)
+    def target_name(self) -> str:
+        target_str = self.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
+        return BandageResult.restricted_target_name_from_modified_name(target_str)
 
     @staticmethod
-    def restricted_amr_name_from_modified_name(amr_name):
+    def restricted_target_name_from_modified_name(target_name):
         """Lifted from utils to avoid circular imports
         TODO: Refactor utils to avoid calls to Bandage?
         """
-        amr_name1 = amr_name.replace(";", "SS")
-        amr_name1 = "".join(
-            e for e in amr_name1 if e.isalpha() or e.isnumeric() or e == "_" or e == "-"
+        target_name1 = target_name.replace(";", "SS")
+        target_name1 = "".join(
+            e for e in target_name1 if e.isalpha() or e.isnumeric() or e == "_" or e == "-"
         )
-        return amr_name1
+        return target_name1
 
 
 class Bandage:
@@ -340,7 +340,8 @@ class Bandage:
             cls,
             gfa: Path,
             reads: Path,
-            threshold: float,
+            min_target_identity: float,
+            min_target_coverage: float,
             extra_params: Optional[BandageParams] = None,
             out_dir: Optional[Path] = None,
     ) -> 'Bandage':
@@ -354,9 +355,8 @@ class Bandage:
                 graph=gfa,
                 reads=reads,
                 outputfile=out_dir / 'bandage',
-                minpatcov = ((threshold - 1) / 100.0),
-                minmeanid = ((threshold - 1) / 100.0),
-                minhitcov = ((threshold - 1) / 100.0),
+                minmeanid = (min_target_identity / 100.0),
+                minhitcov = (min_target_coverage / 100.0),
             )
             if extra_params:
                 params.update_from_object(extra_params)
@@ -379,9 +379,8 @@ class Bandage:
                     graph=gfa,
                     reads=reads,
                     outputfile=tmp_dir / 'bandage',
-                    minpatcov = ((threshold - 1) / 100.0),
-                    minmeanid = ((threshold - 1) / 100.0),
-                    minhitcov = ((threshold - 1) / 100.0),
+                    minmeanid = (min_target_identity / 100.0),
+                    minhitcov = (min_target_coverage / 100.0),
                 )
                 if extra_params:
                     params.update_from_object(extra_params)

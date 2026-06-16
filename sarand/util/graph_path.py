@@ -88,9 +88,11 @@ def extract_nodes_in_path(path: str) -> Tuple[List[str], List[str], int, int]:
 
 
 def read_path_info_from_align_file(
-        align_file: str | Path, threshold: float = 95
+        align_file: str | Path, 
+        min_target_identity: float = 95,
+        min_target_coverage: float = 95,
 ) -> Tuple[bool, List[Dict[str, Any]]]:
-    """Parse a single-AMR Bandage alignment TSV into per-path node/position info.
+    """Parse a single-target Bandage alignment TSV into per-path node/position info.
 
     Parameters:
         align_file: the Bandage querypaths ``.tsv`` output.
@@ -108,7 +110,7 @@ def read_path_info_from_align_file(
         for row in reader:
             coverage = float(re.sub("[%]", "", row[3]))
             identity = float(re.sub("[%]", "", row[5]))
-            if int(coverage) >= threshold and int(identity) >= threshold:
+            if int(coverage) >= min_target_coverage and int(identity) >= min_target_identity:
                 found = True
                 cell_info = row[1].strip()
                 nodes, orientation_list, start_pos, end_pos = extract_nodes_in_path(
@@ -126,13 +128,14 @@ def read_path_info_from_align_file(
     return found, paths_info
 
 
-def read_path_info_from_align_file_with_multiple_amrs(
+def read_path_info_from_align_file_with_multiple_targets(
         output_name: Path,
         ga: List[BandageResult],
-        threshold: float = 99,
+        min_target_identity: float = 95,
+        min_target_coverage: float = 95,
         debug: bool = False
 ) -> Dict[str, List[Dict[str, Any]]]:
-    """Group Bandage results by AMR into per-path node/position info.
+    """Group Bandage results by target into per-path node/position info.
 
     Parameters:
         output_name: directory used for optional debug output.
@@ -140,13 +143,13 @@ def read_path_info_from_align_file_with_multiple_amrs(
         threshold: minimum coverage and identity percentage to keep a path.
         debug: if True, write the coverage/identity of every result to disk.
     Return:
-        a mapping of AMR name -> list of node/orientation/position dicts.
+        a mapping of target name -> list of node/orientation/position dicts.
     """
     debug_to_write = list()
 
     paths_info_list = collections.defaultdict(list)
     for result in ga:
-        amr_name = result.amr_name
+        target_name = result.target_name
         coverage = result.coverage_pct
         identity = result.identity_pct
 
@@ -155,12 +158,12 @@ def read_path_info_from_align_file_with_multiple_amrs(
             debug_to_write.append({
                 'id': result.identity,
                 'path': f'({result.path_start}) {result.path} ({result.path_end})',
-                'amr': amr_name,
+                'target': target_name,
                 'coverage': coverage,
                 'identity': identity
             })
 
-        if coverage >= threshold and identity >= threshold:
+        if coverage >= min_target_coverage and identity >= min_target_identity:
             nodes, orientation_list = result.path_to_sarand
             start_pos = result.path_start
             end_pos = result.path_end
@@ -170,7 +173,7 @@ def read_path_info_from_align_file_with_multiple_amrs(
                 "start_pos": start_pos,
                 "end_pos": end_pos,
             }
-            paths_info_list[amr_name].append(path_info)
+            paths_info_list[target_name].append(path_info)
 
     if debug:
         try_dump_to_disk(

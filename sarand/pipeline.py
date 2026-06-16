@@ -8,7 +8,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from sarand.target_finder import find_all_target_in_graph
+from sarand.target_finder import find_all_targets_in_graph
 from sarand.annotation import annotate_all_neighbourhoods
 from sarand.coverage import trim_annotations_by_coverage
 from sarand.extract_neighborhood import sequence_neighborhood_main
@@ -22,7 +22,7 @@ def run_graph_pipeline(params: argparse.Namespace) -> None:
     # Stage 1: find the target genes in the assembly graph
     # this uses Bandage's BLAST implementation for graphs
     LOG.info(f"Finding target genes {params.target_genes} in the assembly graph: {params.input_gfa}")
-    unique_target_files, unique_target_path_list = find_all_target_in_graph(
+    unique_target_files, unique_target_path_list = find_all_targets_in_graph(
         params.input_gfa,
         params.output_dir,
         params.target_genes,
@@ -45,6 +45,9 @@ def run_graph_pipeline(params: argparse.Namespace) -> None:
     target_seq_align_info = []
     for i, target_file in enumerate(unique_target_files):
         target_seq_align_info.append((target_file, unique_target_path_list[i]))
+    
+    # breakpoint
+    assert False
 
     # Stage 2: extract the neighbourhood sequences
     seq_files, path_info_files = sequence_neighborhood_main(

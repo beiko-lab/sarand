@@ -21,7 +21,7 @@ from sarand.config import (
 )
 from sarand.external.bandage import Bandage
 from sarand.util.file import try_dump_to_disk
-from sarand.util.graph_path import read_path_info_from_align_file_with_multiple_amrs
+from sarand.util.graph_path import read_path_info_from_align_file_with_multiple_targets
 from sarand.util.logger import LOG
 from sarand.util.naming import (
     target_name_from_comment,
@@ -31,28 +31,28 @@ from sarand.util.naming import (
 from sarand.util.sequence import create_fasta_file
 
 
-def amr_path_overlap(
-        found_amr_paths: List[List[Dict[str, Any]]],
+def target_path_overlap(
+        found_target_paths: List[List[Dict[str, Any]]],
         new_paths: List[Dict[str, Any]],
-        new_amr_len: int,
+        new_target_len: int,
         overlap_percent: int = 95,
 ) -> Tuple[bool, Optional[List[int]]]:
     """
-    To check if all paths found for the new AMR seq overlap significantly (greater/equal
-     than/to overlap percent) with the already found paths for other AMRs
+    To check if all paths found for the new target seq overlap significantly (greater/equal
+     than/to overlap percent) with the already found paths for other targets 
     Parameters:
-         found_amr_paths:  	the paths already found for AMR genes
-        new_paths: 			the paths found for the new AMR gene
+         found_target_paths:  	the paths already found for target genes
+        new_paths: 			the paths found for the new target gene
         overlap_percent:	the threshold for overlap
     Return:
-        False only if every paths in new_paths have overlap with at least one path in found_amr_paths
-        True if we can find at least one path that is unique and not available in found_amr_paths
-        Also, it returns the list of indeces from found_amr_paths that had overlap with a path in new_paths
+        False only if every paths in new_paths have overlap with at least one path in found_target_paths
+        True if we can find at least one path that is unique and not available in found_target_paths
+        Also, it returns the list of indeces from found_target_paths that had overlap with a path in new_paths
     """
     id_list = []
     for new_path in new_paths:
         found = False
-        for i, paths in enumerate(found_amr_paths):
+        for i, paths in enumerate(found_target_paths):
             for path in paths:
                 if (
                         path["nodes"] == new_path["nodes"]
@@ -62,7 +62,7 @@ def amr_path_overlap(
                     diff_length = max(
                         path["start_pos"] - new_path["start_pos"], 0
                     ) + max(new_path["end_pos"] - path["end_pos"], 0)
-                    percent = (1 - (float(diff_length) / (new_amr_len))) * 100
+                    percent = (1 - (float(diff_length) / (new_target_len))) * 100
                     if percent >= overlap_percent:
                         found = True
                         if i not in id_list:
@@ -75,30 +75,33 @@ def amr_path_overlap(
     return False, None
 
 
-def align_amrs_to_graph(
+def align_targets_to_graph(
         gfa_file: Path,
         output_dir: Path,
-        threshold: float,
-        amr_object: Tuple[Path, List[str]],
+        min_target_identity: float,
+        min_target_coverage: float,
+        target_object: Tuple[Path, List[str]],
         keep_files: bool,
         debug: bool,
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Align a group of AMR sequences to the assembly graph with Bandage+BLAST and
-    return, per AMR, the graph paths whose coverage and identity meet the
-    threshold.
+    Align a group of target sequences to the assembly graph with Bandage+BLAST and
+    return, per target, the graph paths whose coverage and identity meet the
+    thresholds.
     Parameters:
         gfa_file: the address of the assembly graph
         output_dir: the address of the output directory
         threshold: the threshold for coverage and identity
-        amr_object: the concatenated AMR file and the list of AMR file names
+        min_target_identity: float,
+        min_target_coverage: float,
+        target_object: the concatenated AMR file and the list of AMR file names
         keep_files: True if intermediate files should be kept, False otherwise.
         debug: True if additional debug files should be created, False otherwise.
     """
-    cat_file, amr_files = amr_object
-    target_names = [extract_name_from_file_name(e) for e in amr_files]
+    cat_file, target_files = target_object
+    target_names = [extract_name_from_file_name(e) for e in target_files]
     LOG.debug(
-        'Checking if AMR gene "' + str(target_names) + '" exists in the assembly graph...'
+        'Checking if target gene "' + str(target_names) + '" can be found in the assembly graph...'
     )
     output_name = Path(output_dir) / (
         extract_name_from_file_name(cat_file)
@@ -111,14 +114,16 @@ def align_amrs_to_graph(
     aligner = Bandage.run_for_sarand(
         gfa=gfa_file,
         reads=cat_file,
-        threshold=threshold,
+        min_target_identity=min_target_identity,
+        min_target_coverage=min_target_coverage,
         out_dir=aligner_path,
     )
-
-    paths_info_list = read_path_info_from_align_file_with_multiple_amrs(
+    
+    paths_info_list = read_path_info_from_align_file_with_multiple_targets(
         output_name=output_dir,
         ga=aligner.results,
-        threshold=threshold,
+        min_target_identity=min_target_identity,
+        min_target_coverage=min_target_coverage,
         debug=debug,
     )
 
@@ -129,96 +134,99 @@ def find_target_group_in_graph(
         gfa_file: Path,
         align_dir: Path,
         output_dir: Path,
-        amr_threshold: float,
+        min_target_identity: float,
+        min_target_coverage: float,
         keep_files: bool,
         core_num: int,
         debug: bool,
-        amr_object: Tuple[int, List[Tuple[str, str]]],
+        target_object: Tuple[int, List[Tuple[str, str]]],
 ) -> Dict[str, List[Dict[str, Any]]]:
     """
-    Write a group of AMRs into a single file and align it against the graph.
+    Write a group of target sequences into a single file and align it against the graph.
     Parameters:
         gfa_file: the file containing the assembly graph
         align_dir: the directory for storing alignment info
         output_dir: the directory to store the list of AMRs in a single file
-        amr_threshold: the threshold for identity and coverage used in alignment
+        min_target_identity: minimum target identity
+        min_target_coverage: minimum target coverage
         keep_files: True if intermediate files should be kept, False otherwise.
         core_num: the number of cores used
         debug: True if additional debug files should be created, False otherwise.
-        amr_object: the list of AMRs and their ids
+        target_object: the list of AMRs and their ids
     Return:
         the alignment info for AMRs
     """
-    g_id, amr_group = amr_object
+    g_id, target_group = target_object
     # read info of the group into a single file
-    cat_file = Path(output_dir) / TARGET_DIR_NAME / ("amr_group_" + str(g_id) + ".fasta")
+    cat_file = Path(output_dir) / TARGET_DIR_NAME / ("target_group_" + str(g_id) + ".fasta")
     file_group = []
     with open(cat_file, "w") as writer:
-        for amr_info in amr_group:
-            amr_seq, target_title = amr_info
+        for target_info in target_group:
+            target_seq, target_title = target_info
             writer.write(target_title)
-            writer.write(amr_seq)
+            writer.write(target_seq)
             target_name1 = target_name_from_comment(target_title)
-            amr_file_name = restricted_target_name_from_modified_name(target_name1)
-            file_group.append(amr_file_name + ".fasta")
+            target_file_name = restricted_target_name_from_modified_name(target_name1)
+            file_group.append(target_file_name + ".fasta")
 
     # Run Bandage+BLAST
-    p_find_amr_align = align_amrs_to_graph(
+    p_find_target_align = align_targets_to_graph(
         gfa_file=gfa_file,
         output_dir=Path(align_dir),
-        threshold=amr_threshold,
-        amr_object=(cat_file, file_group),
+        min_target_identity=min_target_identity,
+        min_target_coverage=min_target_coverage,
+        target_object=(cat_file, file_group),
         keep_files=keep_files,
         debug=debug,
     )
     if debug:
-        try_dump_to_disk(p_find_amr_align, Path(align_dir) / 'debug_p_find_amr_align.json')
+        try_dump_to_disk(p_find_target_align, Path(align_dir) / 'debug_p_find_target_align.json')
 
-    # Remove temporary AMR file
+    # Remove temporary target file
     if cat_file.is_file():
         cat_file.unlink()
-    return p_find_amr_align
+    return p_find_target_align
 
 
-def collect_unique_amrs(
+def collect_unique_targets(
         target_seq_title_list: List[Tuple[str, str]],
         target_group_id: Dict[str, int],
         paths_info_group_list: List[Dict[str, List[Dict[str, Any]]]],
 ) -> Tuple[List[str], List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
-    Process the per-group alignment results, keeping AMRs with unique graph paths
-    and grouping AMRs whose paths overlap.
+    Process the per-group alignment results, keeping targets with unique graph paths
+    and group targets whose paths overlap.
     """
-    unique_amr_seqs = []
-    unique_amr_infos = []
-    unique_amr_paths = []
-    for amr_object in target_seq_title_list:
-        target_name = target_name_from_comment(amr_object[1])
+    unique_target_seqs = []
+    unique_target_infos = []
+    unique_target_paths = []
+    for target_object in target_seq_title_list:
+        target_name = target_name_from_comment(target_object[1])
         id = target_group_id[target_name]
         restricted_target_name = restricted_target_name_from_modified_name(target_name)
         if restricted_target_name in paths_info_group_list[id]:
             LOG.debug(target_name + " was found!")
             path_info = paths_info_group_list[id][restricted_target_name]
-            overlap, amr_ids = amr_path_overlap(
-                unique_amr_paths, path_info, len(amr_object[0]) - 1
+            overlap, target_ids = target_path_overlap(
+                unique_target_paths, path_info, len(target_object[0]) - 1
             )
             if not overlap:
-                unique_amr_seqs.append(amr_object[0])
-                amr_info = {"name": amr_object[1], "overlap_list": []}
-                unique_amr_infos.append(amr_info)
-                unique_amr_paths.append(path_info)
+                unique_target_seqs.append(target_object[0])
+                target_info = {"name": target_object[1], "overlap_list": []}
+                unique_target_infos.append(target_info)
+                unique_target_paths.append(path_info)
             else:
-                if len(amr_ids) > 1:
-                    LOG.error("an AMR has overlap with more than one group")
-                # add this AMR to the right group of AMRs all having overlaps
-                for id in amr_ids:
-                    if target_name not in unique_amr_infos[id]["overlap_list"]:
-                        unique_amr_infos[id]["overlap_list"].append(target_name)
+                if len(target_ids) > 1:
+                    LOG.error("A target hit has overlap with more than one group")
+                # add this target to the right group of targets all sharing overlaps
+                for id in target_ids:
+                    if target_name not in unique_target_infos[id]["overlap_list"]:
+                        unique_target_infos[id]["overlap_list"].append(target_name)
 
-    return unique_amr_seqs, unique_amr_infos, unique_amr_paths
+    return unique_target_seqs, unique_target_infos, unique_target_paths
 
 
-def find_all_target_in_graph(
+def find_all_targets_in_graph(
         gfa_file: Path,
         output_dir: str,
         target_sequences_file: Path,
@@ -264,7 +272,7 @@ def find_all_target_in_graph(
             target_group_id[target_name] = id
             target_counter += 1
 
-    amr_objects = [(i, e) for i, e in enumerate(target_file_groups)]
+    target_objects = [(i, e) for i, e in enumerate(target_file_groups)]
     # parallel run Bandage+BLAST
     p_find_target = partial(
         find_target_group_in_graph,
@@ -278,66 +286,66 @@ def find_all_target_in_graph(
         debug,
     )
     with Pool(core_num) as p:
-        paths_info_group_list = p.map(p_find_amr, amr_objects)
-
-    unique_amr_seqs, unique_amr_infos, unique_amr_paths = collect_unique_amrs(
+        paths_info_group_list = p.map(p_find_target, target_objects)
+        
+    unique_target_seqs, unique_target_infos, unique_target_paths = collect_unique_targets(
         target_seq_title_list, target_group_id, paths_info_group_list)
 
     if debug:
         try_dump_to_disk(
             [
-                {'unique_amr_seqs': s, 'unique_amr_infos': i, 'unique_amr_paths': p}
-                for s, i, p in zip(unique_amr_seqs, unique_amr_infos, unique_amr_paths)
+                {'unique_target_seqs': s, 'unique_target_infos': i, 'unique_target_paths': p}
+                for s, i, p in zip(unique_target_seqs, unique_target_infos, unique_target_paths)
             ],
-            Path(align_dir) / 'debug_get_unique_amr_info.json'
+            Path(align_dir) / 'debug_get_unique_target_info.json'
         )
 
-    # write the sequence of found AMRs that don't have overlapped paths with
-    # others + the list of groups in which all AMRs have overlapped paths
-    unique_amr_files = write_found_amrs_to_disk(
+    # write the sequence of found target seqs that don't have overlapped paths with
+    # others + the list of groups in which all targets have overlapping paths
+    unique_target_files = write_found_targets_to_disk(
         output_dir=Path(output_dir),
-        unique_amr_seqs=unique_amr_seqs,
-        unique_amr_infos=unique_amr_infos
+        unique_target_seqs=unique_target_seqs,
+        unique_target_infos=unique_target_infos
     )
 
-    return unique_amr_files, unique_amr_paths
+    return unique_target_files, unique_target_paths
 
 
-def write_found_amrs_to_disk(
+def write_found_targets_to_disk(
         output_dir: Path,
-        unique_amr_seqs: List[str],
-        unique_amr_infos: List[Dict[str, Any]],
+        unique_target_seqs: List[str],
+        unique_target_infos: List[Dict[str, Any]],
 ) -> List[str]:
-    """Write each unique AMR sequence to its own FASTA and record overlap groups.
+    """Write each unique target sequence to its own FASTA and record overlap groups.
 
     Parameters:
         output_dir: the run output directory.
-        unique_amr_seqs: the sequences of the de-duplicated AMR hits.
-        unique_amr_infos: per-hit metadata (name + list of overlapping AMRs).
+        unique_target_seqs: the sequences of the de-duplicated target sequence hits.
+        unique_target_infos: per-hit metadata (name + list of overlapping target hits).
     Return:
-        the list of written per-AMR FASTA file paths.
+        the list of written per-target FASTA file paths.
     """
-    amr_dir = output_dir / TARGET_DIR_NAME / TARGET_SEQ_DIR
-    amr_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = output_dir / TARGET_DIR_NAME / TARGET_SEQ_DIR
+    target_dir.mkdir(parents=True, exist_ok=True)
     overlap_file_name = output_dir / TARGET_DIR_NAME / TARGET_OVERLAP_FILE
 
-    unique_amr_files = list()
+    unique_target_files = list()
 
     with overlap_file_name.open('w') as f:
-        for i, seq in enumerate(unique_amr_seqs):
-            target_name = target_name_from_comment(unique_amr_infos[i]["name"])
+        for i, seq in enumerate(unique_target_seqs):
+            target_name = target_name_from_comment(unique_target_infos[i]["name"])
             restricted_target_name = restricted_target_name_from_modified_name(target_name)
-            amr_file = create_fasta_file(
+            target_file = create_fasta_file(
                 seq,
-                str(amr_dir.absolute()),
-                f'>{unique_amr_infos[i]["name"]}',
+                str(target_dir.absolute()),
+                f'>{unique_target_infos[i]["name"]}',
                 restricted_target_name
             )
-            unique_amr_files.append(amr_file)
+            unique_target_files.append(target_file)
             f.write(target_name + ":")
-            if unique_amr_infos[i]["overlap_list"]:
-                f.write(", ".join(e for e in unique_amr_infos[i]["overlap_list"]))
+            if unique_target_infos[i]["overlap_list"]:
+                f.write(", ".join(e for e in unique_target_infos[i]["overlap_list"]))
                 f.write("\n")
             else:
                 f.write("\n")
-    return unique_amr_files
+    return unique_target_files

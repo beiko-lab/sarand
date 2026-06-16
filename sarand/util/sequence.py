@@ -9,7 +9,7 @@ from Bio import SeqIO
 
 from sarand.external.blastn import Blastn
 from sarand.model.fasta_seq import FastaSeq
-from sarand.util.naming import amr_name_from_comment
+from sarand.util.naming import target_name_from_comment
 
 
 def create_fasta_file(seq: str, output_dir: str | Path, comment: str = "> sequence:\n",
@@ -47,14 +47,14 @@ def retrieve_AMR(file_path: str | Path) -> tuple[str, str]:
     Return:
         the sequence of the AMR gene in lower case
     """
-    amr_name = ""
+    target_name = ""
     with open(file_path) as fp:
         for line in fp:
             # skip comment line
             if line.startswith(">"):
-                amr_name = amr_name_from_comment(line[:-1])
+                target_name = target_name_from_comment(line[:-1])
                 continue
-            return line, amr_name
+            return line, target_name
 
 
 def compare_two_sequences(
@@ -112,10 +112,10 @@ def extract_amr_sequences(path: Path) -> Dict[str, FastaSeq]:
     out = dict()
     with path.open() as f:
         for record in SeqIO.parse(f, "fasta"):
-            amr_name = amr_name_from_comment(record.description)
-            if amr_name in out:
-                raise ValueError(f"Duplicate AMR name {amr_name} in {path}")
-            out[amr_name] = FastaSeq(
+            target_name = target_name_from_comment(record.description)
+            if target_name in out:
+                raise ValueError(f"Duplicate AMR name {target_name} in {path}")
+            out[target_name] = FastaSeq(
                 seq=str(record.seq),
                 fasta_id=str(record.description)
             )
