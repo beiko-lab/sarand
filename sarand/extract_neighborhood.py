@@ -21,7 +21,6 @@ import time
 import csv
 import subprocess
 import shutil
-from functools import partial
 from multiprocessing.pool import Pool
 from pathlib import Path
 
@@ -1167,6 +1166,30 @@ if __name__ == "__main__":
     pass
 
 
+# Worker-process globals for neighbourhood extraction. The assembly graph is
+# large, so rather than binding it into a per-task callable (which re-pickles the
+# whole graph for every AMR), it is handed to each worker once via the pool
+# initializer and read from these globals during extraction.
+_WORKER_DIRECTED_GRAPH = None
+_WORKER_REVERSE_GRAPH = None
+_WORKER_PARAMS = None
+
+
+def _init_extraction_worker(directed_graph, reverse_directed_graph, params):
+    """Pool initializer: store the graph in each worker process once."""
+    global _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS
+    _WORKER_DIRECTED_GRAPH = directed_graph
+    _WORKER_REVERSE_GRAPH = reverse_directed_graph
+    _WORKER_PARAMS = params
+
+
+def _extract_in_worker(amr_info):
+    """Per-task worker: only the small per-AMR payload is pickled per call."""
+    return neighborhood_sequence_extraction(
+        _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, amr_info
+    )
+
+
 def sequence_neighborhood_main(
         params,
         gfa_file,
@@ -1184,6 +1207,7 @@ def sequence_neighborhood_main(
     # Read GFA file
     gfa_graph = gfapy.Gfa.from_file(gfa_file)
     directed_graph = create_directed_graph_nx(gfa_graph)
+    del gfa_graph  # no longer needed; free the gfapy structure before extraction
 
     reverse_directed_graph = directed_graph.reverse()
     for edge in reverse_directed_graph.edges:
@@ -1200,12 +1224,14 @@ def sequence_neighborhood_main(
             #if(amr_name == "TEM-181") :
             lists.append(neighborhood_sequence_extraction(directed_graph, reverse_directed_graph, params, x))
     else:
-        p_extraction = partial(
-            neighborhood_sequence_extraction,
-            directed_graph, reverse_directed_graph, params
-        )
-        with Pool(params.num_cores) as p:
-            lists = list(p.imap(p_extraction, amr_seq_align_info))
+        # Send the large graph to each worker once (via the initializer) instead
+        # of re-pickling it for every task through imap.
+        with Pool(
+            params.num_cores,
+            initializer=_init_extraction_worker,
+            initargs=(directed_graph, reverse_directed_graph, params),
+        ) as p:
+            lists = list(p.imap(_extract_in_worker, amr_seq_align_info))
     seq_files, path_info_files = zip(*lists)
     LOG.info("delete files")
     for item_path in Path(params.output_dir).iterdir():
