@@ -202,7 +202,7 @@ def get_paths_from_big_nx_graph_4(directed_graph, amr_gene_node, len_amr, up_dow
             else:
                 selected_paths[p] = get_sequnce_path(ego_nx_graph, p, threshold, len_amr, up_down)
 
-   if(len(selected_paths)):
+    if(len(selected_paths)):
         check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{amr_gene_node}.fasta", source, params.similarity)
 
     ##### move to final paths

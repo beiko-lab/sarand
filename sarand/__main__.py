@@ -181,14 +181,14 @@ def main() -> None:
         Path(args.output_dir).mkdir(parents=True)
         create_logger(output=logger_output_path, verbose=args.verbose)
 
-    # Get the logger
+    # initialise the logger
     log = get_logger()
 
     # check dependencies work
     assert_dependencies_exist()
 
-    # Resolve the target genes: an explicit -t wins, otherwise use the selected
-    # reference database (a downloaded/updated copy if present, else bundled CARD).
+    # resolve the target genes: an explicit -t wins, otherwise use the selected
+    # reference database (by default bundled CARD homolog nucleotide sequences).
     if args.target_genes is None:
         try:
             args.target_genes = get_target_fasta(args.database)
@@ -197,11 +197,11 @@ def main() -> None:
             sys.exit(1)
     log.info(f"Using target genes: {args.target_genes}")
 
-    # convert argparse to config dictionary
+    # insert run_time into config dictionary
     args.run_time = run_time
 
     # logging file
-    log.info(f"Sarand initialized: output={args.output_dir}")
+    log.info(f"Output directory: output={args.output_dir}")
 
     # execute the workflow for the chosen assembler
     run_graph_pipeline(args)

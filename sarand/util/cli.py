@@ -9,6 +9,7 @@ from typing import Callable
 from sarand.config import PROGRAM_VERSION_NA
 from sarand.external.bandage import Bandage
 from sarand.external.blastn import Blastn
+from sarand.external.cdhit import Cdhit
 from sarand.util.logger import LOG
 
 
@@ -45,7 +46,7 @@ def validate_range(value_type: type, minimum: float, maximum: float) -> Callable
     return range_checker
 
 
-def assert_dependencies_exist(blastn: bool = True, bandage: bool = True) -> None:
+def assert_dependencies_exist(blastn: bool = True, bandage: bool = True, cdhit: bool = True) -> None:
     """Check the external tools sarand shells out to exist and report versions."""
     versions = list()
     missing = list()
@@ -59,6 +60,12 @@ def assert_dependencies_exist(blastn: bool = True, bandage: bool = True) -> None
         versions.append(f'Bandage v{ba_v}')
         if ba_v is PROGRAM_VERSION_NA:
             missing.append('Bandage')
+
+    if cdhit:
+        cdhit_v = Cdhit.version()
+        versions.append(f'CD-HIT v{cdhit_v}')
+        if cdhit_v is PROGRAM_VERSION_NA:
+            missing.append("CD-HIT")
 
     if len(versions) > 0:
         LOG.info('All dependencies found: ' + ', '.join(versions))
