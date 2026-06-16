@@ -1,7 +1,7 @@
 """Top-level orchestration of the main (assembly-graph) sarand pipeline.
 
-Stages: find target genes in the graph -> extract their neighbourhoods -> ORF
-annotate the neighbourhoods -> filter the annotations by coverage consistency.
+Stages: find target genes in the graph -> extract their neighborhoods -> ORF
+annotate the neighborhoods -> filter the annotations by coverage consistency.
 """
 from __future__ import annotations
 
@@ -9,9 +9,9 @@ import argparse
 import sys
 
 from sarand.target_finder import find_all_targets_in_graph
-from sarand.annotation import annotate_all_neighbourhoods
+from sarand.annotation import annotate_all_neighborhoods
 from sarand.coverage import trim_annotations_by_coverage
-from sarand.extract_neighborhood import extract_target_neighbourhoods
+from sarand.extract_neighborhood import extract_target_neighborhoods
 from sarand.util.logger import LOG
 
 
@@ -46,16 +46,16 @@ def run_graph_pipeline(params: argparse.Namespace) -> None:
     for i, target_file in enumerate(unique_target_files):
         target_seq_align_info.append((target_file, unique_target_path_list[i]))
     
-    # Stage 2: extract the neighbourhood sequences
-    seq_files, path_info_files = extract_target_neighbourhoods(
+    # Stage 2: extract the neighborhood sequences
+    seq_files, path_info_files = extract_target_neighborhoods(
         params,
         params.input_gfa,
         target_seq_align_info,
         params.debug
     )
 
-    # Stage 3: annotate the neighbourhoods
-    all_seq_info_lists, _ = annotate_all_neighbourhoods(
+    # Stage 3: annotate the neighborhoods
+    all_seq_info_lists, _ = annotate_all_neighborhoods(
         params, seq_files, path_info_files, unique_target_files, params.debug
     )
 

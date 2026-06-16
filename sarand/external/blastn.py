@@ -33,6 +33,7 @@ class BlastnParams:
             evalue: Optional[float] = None,
             perc_identity: Optional[float] = None,
     ):
+        """Store the blastn parameters (query/subject paths, task, output format, filters)."""
         self.query: Path = query
         self.subject: Path = subject
         self.task: str = task
@@ -75,6 +76,7 @@ class BlastnResult:
             length: int,
             qcovhsp: int,
     ):
+        """Store one blastn hit's percent identity, alignment length and query coverage."""
         self.pident: float = pident
         self.length: int = length
         self.qcovhsp: int = qcovhsp
@@ -100,6 +102,7 @@ class Blastn:
     __slots__ = ('params', 'results')
 
     def __init__(self, params: BlastnParams, results: List[BlastnResult]):
+        """Wrap a completed blastn run (its params and parsed results)."""
         self.params: BlastnParams = params
         self.results: List[BlastnResult] = results
 

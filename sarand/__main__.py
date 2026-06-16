@@ -15,7 +15,7 @@ def main() -> None:
     run_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     parser = argparse.ArgumentParser(
         description="Identify, extract, deduplicate, and coverage-filter the local "
-                    "neighbourhoods of target genes (e.g., AMR genes) "
+                    "neighborhoods of target genes (e.g., AMR genes) "
                     "from a GFA-formatted assembly graph",
         prog="sarand",
     )
@@ -48,7 +48,7 @@ def main() -> None:
         "--extraction_timeout",
         default=10000,
         type=int,
-        help="Maximum number of minutes to spend traversing each target gene neighbourhood "
+        help="Maximum number of minutes to spend traversing each target gene neighborhood "
              " (high complexity subgraphs can be computationally demanding to traverse fully).",
     )
     parser.add_argument(
@@ -63,8 +63,8 @@ def main() -> None:
         "--coverage_difference",
         default=30,
         type=validate_range(int, -1, 500),
-        help="Maximum coverage difference within a path to retain when filtering graph neighbourhoods. "
-             "Use -1 to indicate no coverage threshold (this will likely lead to chimeric false neighbourhoods)."
+        help="Maximum coverage difference within a path to retain when filtering graph neighborhoods. "
+             "Use -1 to indicate no coverage threshold (this will likely lead to chimeric false neighborhoods)."
     )
     parser.add_argument(
         "-t",
@@ -104,10 +104,10 @@ def main() -> None:
     )
     parser.add_argument(
         "-l",
-        "--neighbourhood_length",
+        "--neighborhood_length",
         default=1000,
         type=validate_range(int, 0, 100000),
-        help="Maximum gene neighbourhood length to extract surrounding each target gene hit in the assembly graph (bp).",
+        help="Maximum gene neighborhood length to extract surrounding each target gene hit in the assembly graph (bp).",
     )
     parser.add_argument(
         "-o",
@@ -144,7 +144,7 @@ def main() -> None:
         "--deduplication_identity",
         default=0.9,
         type=validate_range(float, 0, 1),
-        help="CD-HIT identity threshold for deduplicating extracted neighbourhoods",
+        help="CD-HIT identity threshold for deduplicating extracted neighborhoods",
     )
 
 

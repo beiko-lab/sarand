@@ -60,6 +60,18 @@ def calculate_coverage(node, max_kmer_size, node_name, assembler):
 
 
 def get_sequence_path(directed_graph, path, threshold, len_target, up_down):
+    """
+    Reconstruct the nucleotide sequence spelled out by a node path, trimmed to
+    ``threshold`` bases on the requested side of the target gene.
+    Parameters:
+        directed_graph: the assembly graph
+        path: the ordered list of node names making up the path
+        threshold: maximum number of bases to keep
+        len_target: length of the target-gene portion contributed by the first node
+        up_down: "down" for a downstream path, "up" for an upstream path
+    Return:
+        the (trimmed) path sequence as a string
+    """
     sequence = ""
     if (up_down == "down"):
         sequence = directed_graph.nodes[path[0]]['sequence'][-len_target:]
@@ -79,6 +91,7 @@ def get_sequence_path(directed_graph, path, threshold, len_target, up_down):
 
 
 def reverse_complement(sequence):
+    """Return the reverse complement of a DNA ``sequence``."""
     complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A'}
     reverse_sequence = sequence[::-1]
     reverse_complement_sequence = ''.join(
@@ -87,6 +100,14 @@ def reverse_complement(sequence):
 
 
 def create_directed_graph_nx(gfa_graph):
+    """
+    Build a networkx directed graph from a gfapy GFA graph.
+
+    Each segment becomes two nodes ("+" for the segment sequence and "-" for its
+    reverse complement) and every GFA link becomes a pair of directed edges
+    (forward and the reverse-complement direction) weighted by the non-overlapping
+    sequence length.
+    """
     directed_graph = nx.DiGraph()
 
     # create nodes
@@ -137,10 +158,25 @@ def create_directed_graph_nx(gfa_graph):
 ##### compare downstream and upstreams seperately for similarity (new job)
 #### final method for get path
 def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, up_down, params, stop_flag, file_name):
+    """
+    Enumerate the paths radiating from a target-gene node out to the neighborhood
+    length, cluster their sequences with cd-hit, and record the resulting file.
 
+    The search is bounded by ``stop_flag`` (set by the caller on timeout). The
+    clustered paths are written to a fasta under ``final_down_up`` and the path of
+    that file is stored in ``file_name["file_name"]`` (empty string if no paths).
+    Parameters:
+        directed_graph: the (forward or reversed) assembly graph to traverse
+        target_gene_node: the node to start the traversal from
+        len_target: bases of the target gene contributed by the start node
+        up_down: "down" for downstream traversal, "up" for upstream
+        params: the parsed CLI parameters
+        stop_flag: threading.Event used to abort the traversal on timeout
+        file_name: dict whose "file_name" key receives the output path
+    """
     stop_flag.clear()
     print("flag: ", stop_flag.is_set())
-    threshold = params.neighbourhood_length
+    threshold = params.neighborhood_length
 
     source = f"{params.output_dir}/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
     destination = f"{params.output_dir}/final_down_up/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
@@ -170,7 +206,6 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     print("yes len of ego_nx_graph : ", len(ego_nx_graph.nodes))
     paths = {tuple([target_gene_node]):len_target}
 
-    counter_for_paths = 0
     print("flag: ", stop_flag.is_set())
     while not stop_flag.is_set() and len(paths)>0:
         #while(len(paths)>0):
@@ -212,7 +247,25 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     #return destination
 
 def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
-    threshold = params.neighbourhood_length
+    """
+    Join the upstream paths, the target gene, and the downstream paths into full
+    neighborhood sequences and cluster them into the per-target result fasta.
+
+    The target gene is written in lower case (with any portion already covered by
+    the gene's own node trimmed via ``len_before_target``/``len_after_target``) so
+    it can be located again during annotation.
+    Parameters:
+        upstream_paths_file: file of clustered upstream paths ("" if none)
+        downstream_paths_file: file of clustered downstream paths ("" if none)
+        target: the list of node names making up the target gene
+        target_name: the target gene name (used for the output file)
+        target_seq: the target gene nucleotide sequence
+        len_before_target: bases of the start node preceding the target gene
+        len_after_target: bases of the end node following the target gene
+        params: the parsed CLI parameters
+        seq_file: the cumulative per-target neighborhood sequence file
+    """
+    threshold = params.neighborhood_length
 
     mergepaths = {}
     if (upstream_paths_file != "" and downstream_paths_file == ""):
@@ -290,14 +343,18 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
 
 
-def check_add_temp_for_similarity(temp_mergepaths, input_file, output_file, similarity):
-
-    write_paths_file(input_file, temp_mergepaths)
-    Cdhit.cluster(input_file, output_file, similarity)
-    shutil.copyfile(output_file, input_file)
-
 def check_similarity_down_up_streams(paths, input_file, output_file, similarity):
-
+    """
+    Cluster the given up/downstream ``paths`` with cd-hit, accumulating the unique
+    sequences into ``output_file``, and return the number of clusters.
+    Parameters:
+        paths: a {path: sequence} dict of candidate paths
+        input_file: scratch fasta written for cd-hit input
+        output_file: fasta accumulating the clustered (unique) sequences
+        similarity: cd-hit identity threshold
+    Return:
+        the number of clusters currently in ``output_file``
+    """
     if Path(input_file).exists():
         write_paths_file(input_file, paths)
         Cdhit.cluster(input_file, "temp_file.fasta", similarity)
@@ -328,11 +385,26 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
 
 
 def check_for_similarity(mergepaths, input_file, output_file, similarity):
+    """
+    Append the merged neighborhood sequences to ``input_file`` and cluster them
+    with cd-hit into ``output_file`` to drop near-duplicates.
+    Parameters:
+        mergepaths: a {path: sequence} dict of merged neighborhood sequences
+        input_file: fasta the sequences are appended to (cd-hit input)
+        output_file: fasta receiving the clustered result
+        similarity: cd-hit identity threshold
+    """
     write_paths_file(input_file, mergepaths, mode='a')
     Cdhit.cluster(input_file, output_file, similarity)
 
 def write_paths_info_to_file(paths_info_list, paths_info_file):
-    """ """
+    """
+    Compute per-path coverage and append the per-node path info rows to the
+    path-info CSV.
+    Parameters:
+        paths_info_list: the list of per-node info dicts produced for every path
+        paths_info_file: the CSV file to append the rows to
+    """
     # calculate path coverage
     coverage_list = []
     sequence_num= -1
@@ -375,7 +447,21 @@ def write_paths_info_to_file(paths_info_list, paths_info_file):
 def neighborhood_sequence_extraction(
     directed_graph, reverse_directed_graph, params, target_info
 ):
-    #print(params.output_dir)
+    """
+    Extract the up/downstream neighborhood sequences for a single target gene.
+
+    For each alignment hit of the target the upstream and downstream paths are
+    enumerated (each in a timed-out worker thread), merged with the target gene
+    into full neighborhood sequences, and the per-node path/coverage info is
+    written out.
+    Parameters:
+        directed_graph: the forward assembly graph
+        reverse_directed_graph: the reversed assembly graph (for upstream search)
+        params: the parsed CLI parameters
+        target_info: a (target_file_path, target_hits) pair
+    Return:
+        (seq_file, paths_info_file): the neighborhood sequence and path-info files
+    """
     # Define a flag for stopping the loop
     stop_flag_downstream = threading.Event()
     stop_flag_upstream = threading.Event()
@@ -393,13 +479,13 @@ def neighborhood_sequence_extraction(
         Path(params.output_dir)
         / SEQ_DIR_NAME
     )
-    paths_info_dir = length_dir / "neighbourhood_paths"
+    paths_info_dir = length_dir / "neighborhood_paths"
     paths_info_dir.mkdir(parents=True, exist_ok=True)
     # kept as str: the returned file path is substring-matched downstream
     paths_info_file = str(
         paths_info_dir
         / (
-            SEQ_NAME_PREFIX + target_name + "_" + str(params.neighbourhood_length)
+            SEQ_NAME_PREFIX + target_name + "_" + str(params.neighborhood_length)
             + "_"
             + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
             + ".csv"
@@ -410,13 +496,12 @@ def neighborhood_sequence_extraction(
         writer = csv.writer(fd)
         writer.writerow(["sequence", "node", "coverage", "start", "end", "path_coverage"])
 
-    # Extract the sequence of target neighbourhood
+    # Extract the sequence of target neighborhood
     LOG.debug(f"Calling extract_neighborhood_sequences for {Path(target_name).name}...")
-    seq_counter = 0
     output_name = SEQ_NAME_PREFIX + target_name
     seq_output_dir = length_dir / NEIGHBORHOOD_SEQ_DIR
     seq_output_dir.mkdir(parents=True, exist_ok=True)
-    threshold = params.neighbourhood_length
+    threshold = params.neighborhood_length
     seq_file = str(
         seq_output_dir
         / (
@@ -456,10 +541,10 @@ def neighborhood_sequence_extraction(
         print("len before: ", len_before_target)
 
 
-        if len_after_target >= params.neighbourhood_length:
+        if len_after_target >= params.neighborhood_length:
             find_downstream = False
 
-        if len_before_target >= params.neighbourhood_length:
+        if len_before_target >= params.neighborhood_length:
             find_upstream = False
 
         #print(find_downstream)
@@ -535,7 +620,7 @@ def neighborhood_sequence_extraction(
             		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
 
 
-    path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighbourhood_length, params.max_kmer_size, params.assembler)
+    path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighborhood_length, params.max_kmer_size, params.assembler)
 
     write_paths_info_to_file(path_info_list, paths_info_file)
 
@@ -544,6 +629,22 @@ def neighborhood_sequence_extraction(
 
 
 def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer_size, assembler):
+    """
+    Build per-node path/coverage info for every extracted neighborhood sequence.
+
+    For each path it walks the upstream nodes, the target-gene node(s), and the
+    downstream nodes, recording each node's coverage and its start/end offset
+    within the assembled sequence.
+    Parameters:
+        seq_file: the file of extracted neighborhood sequences (path -> sequence)
+        ego_graph: the assembly graph the nodes belong to
+        target_hits: the alignment hits used to locate the target gene in a path
+        threshold: the neighborhood length
+        max_kmer_size: the assembler's max k-mer size (for coverage calculation)
+        assembler: the assembler name (for coverage calculation)
+    Return:
+        a flat list of per-node info dicts (sequence, node, coverage, start, end)
+    """
     paths_info_list = []
     paths = read_paths_file(seq_file)
     counter = 0
@@ -802,7 +903,7 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
     #print("paths info list : ", paths_info_list)
     return paths_info_list
 
-# Worker-process globals for neighbourhood extraction. The assembly graph is
+# Worker-process globals for neighborhood extraction. The assembly graph is
 # large, so rather than binding it into a per-task callable (which re-pickles the
 # whole graph for every target), it is handed to each worker once via the pool
 # initializer and read from these globals during extraction.
@@ -826,12 +927,26 @@ def _extract_in_worker(target_info):
     )
 
 
-def extract_target_neighbourhoods(
+def extract_target_neighborhoods(
         params,
         gfa_file,
         target_seq_align_info,
         debug: bool
 ):
+    """
+    Extract the neighborhood sequences for every target gene found in the graph.
+
+    Builds the directed (and reversed) assembly graph from the GFA file once, then
+    runs neighborhood extraction for each target (in a multiprocessing pool unless
+    single-threaded), and cleans up the scratch files afterwards.
+    Parameters:
+        params: the parsed CLI parameters
+        gfa_file: the assembly graph in GFA format
+        target_seq_align_info: list of (target_file_path, target_hits) pairs
+        debug: kept for interface compatibility
+    Return:
+        (seq_files, path_info_files): the per-target sequence and path-info files
+    """
     output_dir = Path(params.output_dir)
     sequence_dir = output_dir / SEQ_DIR_NAME
     sequence_dir.mkdir(parents=True, exist_ok=True)
@@ -852,10 +967,6 @@ def extract_target_neighbourhoods(
     if params.num_cores == 1:
         lists = list()
         for x in target_seq_align_info:
-            file_path, target_hits = x
-            #LOG.debug("target_file = " + file_path)
-            target_name = file_path.split("/")[-1].split(".")[0]
-            #if(target_name == "TEM-181") :
             lists.append(neighborhood_sequence_extraction(directed_graph, reverse_directed_graph, params, x))
     else:
         # The workers only traverse (never mutate) the graph, so share a single

@@ -2,7 +2,7 @@
 
 pyrodigal performs gene (CDS) calling only; it does not assign gene names or
 functional products, so 'gene' and 'product' are left empty. The target AMR
-gene within a neighbourhood is identified from its position (the lower-case
+gene within a neighborhood is identified from its position (the lower-case
 region of the extracted sequence), not from any annotation label.
 """
 from __future__ import annotations
@@ -19,18 +19,18 @@ from sarand.util.sequence import compare_two_sequences
 GeneInfo = Dict[str, Any]
 
 # pyrodigal gene finder reused across calls; metagenomic mode (no per-sequence
-# training) is required as the extracted neighbourhoods are short and varied.
+# training) is required as the extracted neighborhoods are short and varied.
 _ORF_FINDER = pyrodigal.GeneFinder(meta=True)
 
 
 def call_orfs(seq: str) -> List[GeneInfo]:
     """
-    Call open reading frames (ORFs) in an extracted neighbourhood sequence using
+    Call open reading frames (ORFs) in an extracted neighborhood sequence using
     pyrodigal.
 
     Parameters:
         seq: the sequence to be annotated. The AMR gene is in lower case and the
-            flanking neighbourhood in upper case; a trailing newline is tolerated.
+            flanking neighborhood in upper case; a trailing newline is tolerated.
     Return:
         the list of called ORFs and their details
     """
@@ -56,7 +56,7 @@ def call_orfs(seq: str) -> List[GeneInfo]:
             "seq_name": None,
             "target_amr": None,
             # retain pyrodigal's ORF output so the called ORFs can be written
-            # out later (e.g. for the coverage-filtered neighbourhoods)
+            # out later (e.g. for the coverage-filtered neighborhoods)
             "strand": gene.strand,
             "partial": f"{int(gene.partial_begin)}{int(gene.partial_end)}",
             "nt_seq": gene.sequence(),
@@ -174,10 +174,10 @@ def similar_annotation_exists(seq_info_list: List[GeneInfo],
 
 def write_orf_files(seq_info_lists: List[List[GeneInfo]],
                     out_prefix: str | Path) -> Tuple[Path, Path, Path]:
-    """Write the pyrodigal ORFs of each neighbourhood to FASTA and GFF3 files.
+    """Write the pyrodigal ORFs of each neighborhood to FASTA and GFF3 files.
 
     Parameters:
-        seq_info_lists: one entry per neighbourhood, each a list of ORF dicts as
+        seq_info_lists: one entry per neighborhood, each a list of ORF dicts as
             produced by ``call_orfs`` (so each carries ``nt_seq``/``aa_seq``).
         out_prefix: path prefix; ``<prefix>.ffn`` (nucleotide), ``<prefix>.faa``
             (protein) and ``<prefix>.gff`` (GFF3) are written.

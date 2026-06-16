@@ -3,12 +3,8 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Dict
-
-from Bio import SeqIO
 
 from sarand.external.blastn import Blastn
-from sarand.model.fasta_seq import FastaSeq
 from sarand.util.naming import target_name_from_comment
 
 
@@ -41,11 +37,12 @@ def create_fasta_file(seq: str, output_dir: str | Path, comment: str = "> sequen
 
 def retrieve_target(file_path: str | Path) -> tuple[str, str]:
     """
-    To read the target gene from the text file.
+    Read the target gene sequence and name from a FASTA file.
     Parameters:
-        file_path:	the address of the file containing the AMR gene
+        file_path:	the address of the file containing the target gene
     Return:
-        the sequence of the AMR gene in lower case
+        (sequence, target_name): the first sequence line and the name parsed from
+        the FASTA header
     """
     target_name = ""
     with open(file_path) as fp:
@@ -76,7 +73,7 @@ def compare_two_sequences(
         subject, query = query, subject
 
     # Write to a temporary directory to prevent any race condition when this is
-    # called via the recursion of the neighbourhood extraction.
+    # called via the recursion of the neighborhood extraction.
     with tempfile.TemporaryDirectory() as tmp_dir:
         query_file_name = Path(tmp_dir) / "query.fasta"
         with open(query_file_name, "w") as query_file:
@@ -105,18 +102,3 @@ def compare_two_sequences(
             if not subject_coverage and identity >= threshold and q_coverage >= threshold:
                 return True
     return False
-
-
-def extract_amr_sequences(path: Path) -> Dict[str, FastaSeq]:
-    """Extract the AMR sequences from a FASTA file."""
-    out = dict()
-    with path.open() as f:
-        for record in SeqIO.parse(f, "fasta"):
-            target_name = target_name_from_comment(record.description)
-            if target_name in out:
-                raise ValueError(f"Duplicate AMR name {target_name} in {path}")
-            out[target_name] = FastaSeq(
-                seq=str(record.seq),
-                fasta_id=str(record.description)
-            )
-    return out

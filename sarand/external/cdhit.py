@@ -1,10 +1,8 @@
 import re
 import subprocess
-from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
-from sarand.config import PROGRAM_VERSION_NA
 from sarand.util.logger import LOG
 
 _RE_VERSION = re.compile(r'		====== CD-HIT version ([0-9]+\.[0-9]+\.[0-9]+) \(built on .*\) ======')
@@ -24,6 +22,7 @@ class CdhitParams:
             word_length: int,
             threads: int,
     ):
+        """Store the cd-hit parameters (input/output paths, identity, word length, threads)."""
         self.input_file: Path = input_file
         self.output_file: Path = output_file
         self.identity: float = identity
@@ -55,6 +54,7 @@ class Cdhit:
     __slots__ = ('params')
 
     def __init__(self, params: CdhitParams):
+        """Wrap a completed cd-hit run described by ``params``."""
         self.params: CdhitParams = params
 
     @classmethod
@@ -103,7 +103,7 @@ class Cdhit:
 
     @staticmethod
     def version() -> str:
-        """Returns the version of blastn on the path."""
+        """Return the version of the cd-hit binary on the path."""
         cmd = ['cd-hit', '-h']
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
@@ -114,6 +114,4 @@ class Cdhit:
         re_hit = _RE_VERSION.match(stdout)
         if re_hit:
             return re_hit.group(1)
-        else:
-            raise Exception('valid cd-hit binary not found')
-        return PROGRAM_VERSION_NA
+        raise Exception('valid cd-hit binary not found')

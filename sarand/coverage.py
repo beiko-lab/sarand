@@ -157,7 +157,7 @@ def filter_by_coverage_consistency(
         amr_name: str, annotate_dir: str | Path,
 ) -> Tuple[str | Path, int]:
     """
-    Compare the coverage of each gene in the neighbourhood with that of the AMR
+    Compare the coverage of each gene in the neighborhood with that of the AMR
     and drop genes (plus everything upstream/downstream of them) whose coverage
     differs from the AMR's by more than ``coverage_thr``. Writes the surviving
     annotations to ``coverage_annotation_<thr>_<amr_name>.csv``.
@@ -266,7 +266,7 @@ def filter_by_coverage_consistency(
 
 
 def _gene_path(seq_info: List[GeneInfo]) -> str:
-    """Return the ordered ORF coordinates of a neighbourhood as 'lo-hi;lo-hi;...'."""
+    """Return the ordered ORF coordinates of a neighborhood as 'lo-hi;lo-hi;...'."""
     return ";".join(
         f"{min(g['start_pos'], g['end_pos'])}-{max(g['start_pos'], g['end_pos'])}"
         for g in seq_info
@@ -288,22 +288,33 @@ def _target_coverage(seq_info: List[GeneInfo]) -> Any:
     return ""
 
 
-def write_combined_final_neighbourhoods(
-        final_neighbourhoods: List[Tuple[str, List[GeneInfo]]],
+def _target_gene_coords(seq_info: List[GeneInfo]) -> str:
+    """Return the 'lo-hi' coordinates of the target ORF (flagged target_amr='yes')."""
+    for gene_info in seq_info:
+        if gene_info.get("target_amr") == "yes":
+            return (
+                f"{min(gene_info['start_pos'], gene_info['end_pos'])}"
+                f"-{max(gene_info['start_pos'], gene_info['end_pos'])}"
+            )
+    return ""
+
+
+def write_combined_final_neighborhoods(
+        final_neighborhoods: List[Tuple[str, List[GeneInfo]]],
         fasta_file: str | Path,
         csv_file: str | Path,
 ) -> None:
     """
-    Write the combined outputs for the final (coverage-filtered) neighbourhoods:
-    a single FASTA of the neighbourhood sequences and a single CSV summarising the
+    Write the combined outputs for the final (coverage-filtered) neighborhoods:
+    a single FASTA of the neighborhood sequences and a single CSV summarising the
     target gene, ORF path and coverages of each.
     Parameters:
-        final_neighbourhoods: (target_name, seq_info) pairs, one per neighbourhood
+        final_neighborhoods: (target_name, seq_info) pairs, one per neighborhood
         fasta_file: path of the combined FASTA to write
         csv_file: path of the combined summary CSV to write
     """
     with open(fasta_file, "w") as fd:
-        for target_name, seq_info in final_neighbourhoods:
+        for target_name, seq_info in final_neighborhoods:
             seq_name = seq_info[0]["seq_name"]
             fd.write(f">{target_name}_{seq_name}\n{seq_info[0]['seq_value']}\n")
 
@@ -313,11 +324,11 @@ def write_combined_final_neighbourhoods(
             ["target_name", "seq_name", "target_gene", "gene_path",
              "target_coverage", "coverages"]
         )
-        for target_name, seq_info in final_neighbourhoods:
+        for target_name, seq_info in final_neighborhoods:
             writer.writerow([
                 target_name,
                 seq_info[0]["seq_name"],
-                target_name,
+                _target_gene_coords(seq_info),
                 _gene_path(seq_info),
                 _format_coverage(_target_coverage(seq_info)),
                 ";".join(_format_coverage(g["coverage"]) for g in seq_info),
@@ -327,28 +338,28 @@ def write_combined_final_neighbourhoods(
 def trim_annotations_by_coverage(params: argparse.Namespace, target_files: List[str],
                                  all_seq_info_lists: List[List[List[GeneInfo]]]) -> List[str | Path]:
     """
-    Determine the final neighbourhoods for each target and write the combined
+    Determine the final neighborhoods for each target and write the combined
     outputs under ``final_neighborhoods``.
 
-    When ``--coverage_difference`` is positive each target's neighbourhood
+    When ``--coverage_difference`` is positive each target's neighborhood
     annotations are filtered by coverage consistency (writing a per-target
-    coverage_annotation csv); otherwise every annotated neighbourhood is kept as
-    final. For each target the called ORFs of its final neighbourhoods are written
+    coverage_annotation csv); otherwise every annotated neighborhood is kept as
+    final. For each target the called ORFs of its final neighborhoods are written
     (``orfs_<target>.{ffn,faa,gff}``), and across all targets a single combined
-    FASTA of the final neighbourhood sequences and a single combined summary CSV
+    FASTA of the final neighborhood sequences and a single combined summary CSV
     are written.
     Parameters:
         params: the parsed CLI parameters
         target_files: the list of files containing target genes
-        all_seq_info_lists: the annotations of the neighbourhood sequences
+        all_seq_info_lists: the annotations of the neighborhood sequences
     """
     annotations_dir = Path(params.output_dir) / ANNOTATION_DIR
     coverage_annotation_list: List[str | Path] = []
-    final_neighbourhoods: List[Tuple[str, List[GeneInfo]]] = []
+    final_neighborhoods: List[Tuple[str, List[GeneInfo]]] = []
     for i, target_file in enumerate(target_files):
         restricted_target_name = extract_name_from_file_name(target_file)
         annotate_dir = annotations_dir / (
-            "annotation_" + restricted_target_name + "_" + str(params.neighbourhood_length)
+            "annotation_" + restricted_target_name + "_" + str(params.neighborhood_length)
         )
         if params.coverage_difference > 0:
             # remove extracted sequences with inconsistent coverage
@@ -360,19 +371,19 @@ def trim_annotations_by_coverage(params: argparse.Namespace, target_files: List[
             )
             coverage_annotation_list.append(coverage_annotation)
         else:
-            # no coverage threshold: every annotated neighbourhood is final
+            # no coverage threshold: every annotated neighborhood is final
             remained_seqs = all_seq_info_lists[i]
 
-        # write the pyrodigal ORFs called per final neighbourhood
+        # write the pyrodigal ORFs called per final neighborhood
         write_orf_files(remained_seqs, annotate_dir / ("orfs_" + restricted_target_name))
 
         for seq_info in remained_seqs:
             if seq_info:
-                final_neighbourhoods.append((restricted_target_name, seq_info))
+                final_neighborhoods.append((restricted_target_name, seq_info))
 
-    write_combined_final_neighbourhoods(
-        final_neighbourhoods,
-        annotations_dir / "final_neighbourhoods.fasta",
-        annotations_dir / "final_neighbourhoods.csv",
+    write_combined_final_neighborhoods(
+        final_neighborhoods,
+        annotations_dir / "final_neighborhoods.fasta",
+        annotations_dir / "final_neighborhoods.csv",
     )
     return coverage_annotation_list

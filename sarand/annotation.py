@@ -1,6 +1,6 @@
-"""Stage 3 of the graph pipeline: ORF-annotate the extracted neighbourhoods.
+"""Stage 3 of the graph pipeline: ORF-annotate the extracted neighborhoods.
 
-Each extracted neighbourhood sequence is run through pyrodigal ORF calling, the
+Each extracted neighborhood sequence is run through pyrodigal ORF calling, the
 target gene is located within it, per-gene coverage is computed, and the results
 are written to the annotation CSV.
 """
@@ -75,7 +75,7 @@ def annotate_graph_sequences(
         error_file: str | Path,
 ) -> List[List[GeneInfo]]:
     """
-    Annotate (in parallel) the neighbourhood sequences extracted for one target.
+    Annotate (in parallel) the neighborhood sequences extracted for one target.
     Parameters:
         target_name: the name of the target gene
         path_info_file: the information of nodes representing the extracted sequence
@@ -164,13 +164,13 @@ def annotate_neighborhood(
         core_num: int = 4,
 ) -> Tuple[List[List[GeneInfo]], str]:
     """
-    Annotate the neighbourhood sequences extracted from the assembly graph for one
+    Annotate the neighborhood sequences extracted from the assembly graph for one
     target and summarise the results into the annotation CSV.
     Parameters:
         target_name: the name of the target gene
-        neighborhood_seq_file: the file containing all extracted neighbourhood sequences
+        neighborhood_seq_file: the file containing all extracted neighborhood sequences
         path_info_file: the per-node path/coverage info file
-        seq_length: the length of neighbourhood sequence extracted from each side
+        seq_length: the length of neighborhood sequence extracted from each side
         output_dir: the path for the output directory
         output_name: the suffix used to distinguish output files (usually the target name)
         core_num: the number of cores for parallel processing
@@ -227,7 +227,7 @@ def find_seq_and_path_files(
 ) -> Tuple[str | int, str | int]:
     """
     Return the extracted-sequence file and the path-info file produced for a given
-    target at a given neighbourhood length (or -1 if not found).
+    target at a given neighborhood length (or -1 if not found).
     """
     seq_file = -1
     for file_name in sequences_file_names:
@@ -240,7 +240,7 @@ def find_seq_and_path_files(
     return seq_file, path_file
 
 
-def annotate_all_neighbourhoods(
+def annotate_all_neighborhoods(
         params: argparse.Namespace,
         seq_files: List[str],
         path_info_files: List[str],
@@ -248,10 +248,10 @@ def annotate_all_neighbourhoods(
         debug: bool,
 ) -> Tuple[List[List[List[GeneInfo]]], List[str]]:
     """
-    Annotate the neighbourhood sequences of every target.
+    Annotate the neighborhood sequences of every target.
     Parameters:
         params: the parsed CLI parameters
-        seq_files: the list of neighbourhood sequence files
+        seq_files: the list of neighborhood sequence files
         path_info_files: the list of per-node path/coverage files
         target_files: the list of files containing target genes
         debug: True if additional files should be created, False otherwise.
@@ -280,7 +280,7 @@ def annotate_all_neighbourhoods(
             restricted_target_name,
             neighborhood_files,
             nodes_info_files,
-            params.neighbourhood_length,
+            params.neighborhood_length,
         )
         if neighborhood_file == -1:
             LOG.error(
@@ -294,7 +294,7 @@ def annotate_all_neighbourhoods(
             target_name,
             neighborhood_file,
             nodes_info_file,
-            params.neighbourhood_length,
+            params.neighborhood_length,
             params.output_dir,
             "_" + restricted_target_name,
             params.num_cores,

@@ -207,6 +207,7 @@ class BandageResult:
             e_value_product: float,
             sequence: str
     ):
+        """Store the columns of a single Bandage querypaths tsv row."""
         self.query: str = query
         self.path_with_start_end: str = path_with_start_end
         self.length: int = length
@@ -225,17 +226,21 @@ class BandageResult:
         self.sequence: str = sequence
 
     def __repr__(self):
+        """Represent the result by its query string."""
         return self.query
 
     @property
     def identity(self) -> str:
+        """The raw query string (which carries the target gene identifier)."""
         return self.query
     @property
     def path(self) -> str:
+        """The node path with the leading/trailing position annotations stripped."""
         return (re.sub(r"\((.*?)\)", "", self.path_with_start_end)).strip()
 
     @property
     def path_start(self) -> int:
+        """The start offset within the first node (0 if not annotated)."""
         if self.path_with_start_end.startswith("("):
             index = self.path_with_start_end.find(")")
             return int(self.path_with_start_end[1 : index])
@@ -243,6 +248,7 @@ class BandageResult:
 
     @property
     def path_end(self) -> int:
+        """The end offset within the last node (0 if not annotated)."""
         if self.path_with_start_end.endswith(")"):
             index = self.path_with_start_end.rfind("(")
             return int(self.path_with_start_end[index + 1 : -1])
@@ -283,6 +289,7 @@ class BandageResult:
 
     @property
     def target_name(self) -> str:
+        """The filesystem-safe target gene name parsed from the query string."""
         target_str = self.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
         return BandageResult.restricted_target_name_from_modified_name(target_str)
 
@@ -311,6 +318,7 @@ class Bandage:
             stdout: Optional[str] = None,
             stderr: Optional[str] = None,
     ):
+        """Wrap a completed Bandage run (its params, parsed results and output)."""
         self.params: BandageParams = params
         self.results: List[BandageResult] = results
         self.stdout: Optional[str] = stdout
@@ -391,7 +399,7 @@ class Bandage:
 
     @staticmethod
     def read_file(path: Path) -> List[BandageResult]:
-
+        """Parse a Bandage querypaths tsv file into a list of BandageResult."""
         out = list()
         with path.open() as f:
             for line in f.readlines()[1:]:
