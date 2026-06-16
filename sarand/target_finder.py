@@ -24,9 +24,9 @@ from sarand.util.file import try_dump_to_disk
 from sarand.util.graph_path import read_path_info_from_align_file_with_multiple_amrs
 from sarand.util.logger import LOG
 from sarand.util.naming import (
-    amr_name_from_comment,
+    target_name_from_comment,
     extract_name_from_file_name,
-    restricted_amr_name_from_modified_name,
+    restricted_target_name_from_modified_name,
 )
 from sarand.util.sequence import create_fasta_file
 
@@ -96,9 +96,9 @@ def align_amrs_to_graph(
         debug: True if additional debug files should be created, False otherwise.
     """
     cat_file, amr_files = amr_object
-    amr_names = [extract_name_from_file_name(e) for e in amr_files]
+    target_names = [extract_name_from_file_name(e) for e in amr_files]
     LOG.debug(
-        'Checking if AMR gene "' + str(amr_names) + '" exists in the assembly graph...'
+        'Checking if AMR gene "' + str(target_names) + '" exists in the assembly graph...'
     )
     output_name = Path(output_dir) / (
         extract_name_from_file_name(cat_file)
@@ -155,11 +155,11 @@ def find_target_group_in_graph(
     file_group = []
     with open(cat_file, "w") as writer:
         for amr_info in amr_group:
-            amr_seq, amr_title = amr_info
-            writer.write(amr_title)
+            amr_seq, target_title = amr_info
+            writer.write(target_title)
             writer.write(amr_seq)
-            amr_name1 = amr_name_from_comment(amr_title)
-            amr_file_name = restricted_amr_name_from_modified_name(amr_name1)
+            target_name1 = target_name_from_comment(target_title)
+            amr_file_name = restricted_target_name_from_modified_name(target_name1)
             file_group.append(amr_file_name + ".fasta")
 
     # Run Bandage+BLAST
@@ -181,8 +181,8 @@ def find_target_group_in_graph(
 
 
 def collect_unique_amrs(
-        amr_seq_title_list: List[Tuple[str, str]],
-        amr_group_id: Dict[str, int],
+        target_seq_title_list: List[Tuple[str, str]],
+        target_group_id: Dict[str, int],
         paths_info_group_list: List[Dict[str, List[Dict[str, Any]]]],
 ) -> Tuple[List[str], List[Dict[str, Any]], List[List[Dict[str, Any]]]]:
     """
@@ -192,13 +192,13 @@ def collect_unique_amrs(
     unique_amr_seqs = []
     unique_amr_infos = []
     unique_amr_paths = []
-    for amr_object in amr_seq_title_list:
-        amr_name = amr_name_from_comment(amr_object[1])
-        id = amr_group_id[amr_name]
-        restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
-        if restricted_amr_name in paths_info_group_list[id]:
-            LOG.debug(amr_name + " was found!")
-            path_info = paths_info_group_list[id][restricted_amr_name]
+    for amr_object in target_seq_title_list:
+        target_name = target_name_from_comment(amr_object[1])
+        id = target_group_id[target_name]
+        restricted_target_name = restricted_target_name_from_modified_name(target_name)
+        if restricted_target_name in paths_info_group_list[id]:
+            LOG.debug(target_name + " was found!")
+            path_info = paths_info_group_list[id][restricted_target_name]
             overlap, amr_ids = amr_path_overlap(
                 unique_amr_paths, path_info, len(amr_object[0]) - 1
             )
@@ -212,8 +212,8 @@ def collect_unique_amrs(
                     LOG.error("an AMR has overlap with more than one group")
                 # add this AMR to the right group of AMRs all having overlaps
                 for id in amr_ids:
-                    if amr_name not in unique_amr_infos[id]["overlap_list"]:
-                        unique_amr_infos[id]["overlap_list"].append(amr_name)
+                    if target_name not in unique_amr_infos[id]["overlap_list"]:
+                        unique_amr_infos[id]["overlap_list"].append(target_name)
 
     return unique_amr_seqs, unique_amr_infos, unique_amr_paths
 
@@ -244,27 +244,27 @@ def find_all_target_in_graph(
     align_dir = Path(output_dir) / TARGET_DIR_NAME / TARGET_ALIGN_DIR
     align_dir.mkdir(parents=True, exist_ok=True)
 
-    # generate the groups and store the group of each amr
+    # generate the groups and store the group of each target
     group_num = 5
-    amr_group_id = collections.defaultdict(list)
-    amr_file_groups = [[] for i in range(group_num * core_num)]
-    amr_title = ""
-    amr_seq_title_list = []
-    # Read AMR sequences one by one
-    amr_counter = 0
+    target_group_id = collections.defaultdict(list)
+    target_file_groups = [[] for i in range(group_num * core_num)]
+    target_title = ""
+    target_seq_title_list = []
+    # Read target sequences one by one
+    target_counter = 0
     with open(target_sequences_file) as fp:
         for line in fp:
             if line.startswith(">"):
-                amr_title = line
+                target_title = line
                 continue
-            amr_name = amr_name_from_comment(amr_title[:-1])
-            amr_seq_title_list.append((line, amr_title))
-            id = amr_counter % (group_num * core_num)
-            amr_file_groups[id].append((line, amr_title))
-            amr_group_id[amr_name] = id
-            amr_counter += 1
+            target_name = target_name_from_comment(target_title[:-1])
+            target_seq_title_list.append((line, target_title))
+            id = target_counter % (group_num * core_num)
+            target_file_groups[id].append((line, target_title))
+            target_group_id[target_name] = id
+            target_counter += 1
 
-    amr_objects = [(i, e) for i, e in enumerate(amr_file_groups)]
+    amr_objects = [(i, e) for i, e in enumerate(target_file_groups)]
     # parallel run Bandage+BLAST
     p_find_target = partial(
         find_target_group_in_graph,
@@ -281,7 +281,7 @@ def find_all_target_in_graph(
         paths_info_group_list = p.map(p_find_amr, amr_objects)
 
     unique_amr_seqs, unique_amr_infos, unique_amr_paths = collect_unique_amrs(
-        amr_seq_title_list, amr_group_id, paths_info_group_list)
+        target_seq_title_list, target_group_id, paths_info_group_list)
 
     if debug:
         try_dump_to_disk(
@@ -325,16 +325,16 @@ def write_found_amrs_to_disk(
 
     with overlap_file_name.open('w') as f:
         for i, seq in enumerate(unique_amr_seqs):
-            amr_name = amr_name_from_comment(unique_amr_infos[i]["name"])
-            restricted_amr_name = restricted_amr_name_from_modified_name(amr_name)
+            target_name = target_name_from_comment(unique_amr_infos[i]["name"])
+            restricted_target_name = restricted_target_name_from_modified_name(target_name)
             amr_file = create_fasta_file(
                 seq,
                 str(amr_dir.absolute()),
                 f'>{unique_amr_infos[i]["name"]}',
-                restricted_amr_name
+                restricted_target_name
             )
             unique_amr_files.append(amr_file)
-            f.write(amr_name + ":")
+            f.write(target_name + ":")
             if unique_amr_infos[i]["overlap_list"]:
                 f.write(", ".join(e for e in unique_amr_infos[i]["overlap_list"]))
                 f.write("\n")
