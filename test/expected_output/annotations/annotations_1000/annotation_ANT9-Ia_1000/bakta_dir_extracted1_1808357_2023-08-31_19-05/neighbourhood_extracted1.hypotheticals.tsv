@@ -1,5 +1,0 @@
-#Annotated with Bakta v1.8.1, https://github.com/oschwengers/bakta
-#Database v5.0, https://doi.org/10.5281/zenodo.4247252
-#Sequence Id	Start	Stop	Strand	Locus Tag	Mol Weight [kDa]	Iso El. Point	Pfam hits	Dbxrefs
-contig_1	11	466	+	KIGIOP_00005	17.4	5.1		
-contig_1	473	850	+	KIGIOP_00010	14.8	10.1		
