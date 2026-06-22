@@ -107,7 +107,7 @@ def main() -> None:
         "--neighborhood_length",
         default=1000,
         type=validate_range(int, 0, 100000),
-        help="Maximum gene neighborhood length to extract surrounding each target gene hit in the assembly graph (bp).",
+        help="Maximum gene neighborhood length radius (i.e., the number of bases upstream and/or downstream) to extract surrounding each target gene hit in the assembly graph (bp).",
     )
     parser.add_argument(
         "-o",
