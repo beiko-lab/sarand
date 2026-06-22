@@ -15,6 +15,28 @@ from sarand.util.logger import LOG
 from sarand.config import SEQ_DIR_NAME, SEQ_NAME_PREFIX, NEIGHBORHOOD_SEQ_DIR
 from sarand.external.cdhit import Cdhit
 
+# Worker-process globals for neighborhood extraction. This lets us pass the same large assembly graph 
+# to all workers rather than re-pickling for each.
+_WORKER_DIRECTED_GRAPH = None
+_WORKER_REVERSE_GRAPH = None
+_WORKER_PARAMS = None
+
+
+def _init_extraction_worker(directed_graph, reverse_directed_graph, params):
+    """Pool initializer: store the graph in each worker process once."""
+    global _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS
+    _WORKER_DIRECTED_GRAPH = directed_graph
+    _WORKER_REVERSE_GRAPH = reverse_directed_graph
+    _WORKER_PARAMS = params
+
+
+def _extract_in_worker(target_info):
+    """Per-task worker: only the small per-target payload is pickled per call."""
+    return neighborhood_sequence_extraction(
+        _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, target_info
+    )
+
+
 
 def read_paths_file(file_path):
     """Read a paths file of alternating "> <path-tuple>" / sequence lines into a dict."""
@@ -851,29 +873,6 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
 
     return paths_info_list
 
-# Worker-process globals for neighborhood extraction. The assembly graph is
-# large, so rather than binding it into a per-task callable (which re-pickles the
-# whole graph for every target), it is handed to each worker once via the pool
-# initializer and read from these globals during extraction.
-_WORKER_DIRECTED_GRAPH = None
-_WORKER_REVERSE_GRAPH = None
-_WORKER_PARAMS = None
-
-
-def _init_extraction_worker(directed_graph, reverse_directed_graph, params):
-    """Pool initializer: store the graph in each worker process once."""
-    global _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS
-    _WORKER_DIRECTED_GRAPH = directed_graph
-    _WORKER_REVERSE_GRAPH = reverse_directed_graph
-    _WORKER_PARAMS = params
-
-
-def _extract_in_worker(target_info):
-    """Per-task worker: only the small per-target payload is pickled per call."""
-    return neighborhood_sequence_extraction(
-        _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, target_info
-    )
-
 
 def extract_target_neighborhoods(
         params,
@@ -904,7 +903,8 @@ def extract_target_neighborhoods(
     # Read GFA file
     gfa_graph = gfapy.Gfa.from_file(gfa_file)
     directed_graph = create_directed_graph_nx(gfa_graph)
-    del gfa_graph  # no longer needed; free the gfapy structure before extraction
+    # no longer needed; free up the memory from gfapy now in networkx
+    del gfa_graph  
 
     reverse_directed_graph = directed_graph.reverse()
     for edge in reverse_directed_graph.edges:
@@ -917,11 +917,11 @@ def extract_target_neighborhoods(
         for x in target_seq_align_info:
             lists.append(neighborhood_sequence_extraction(directed_graph, reverse_directed_graph, params, x))
     else:
-        # The workers only traverse (never mutate) the graph, so share a single
-        # physical copy via copy-on-write fork inheritance rather than giving each
-        # worker its own. Under "fork" the initargs are inherited, not pickled;
-        # gc.freeze() stops the cyclic collector from touching (and thus copying)
-        # the shared pages in the children. Fall back to the default context
+        # multiprocess more efficiently. The workers only traverse but don't mutate the graph, 
+        # so they can share a single copy of the graph using copy-on-write (COW) fork inheritance 
+        # Using "fork" the initargs are also inherited and not pickled which saves a bunch of memory;
+        # The weirdness is we need use gc.freeze() to stops the garbage collector from touching (and thus copying)
+        # the shared object in the children. Fall back to the default context
         # (which pickles one copy per worker) where fork is unavailable.
         try:
             ctx = multiprocessing.get_context("fork")
@@ -938,16 +938,15 @@ def extract_target_neighborhoods(
         finally:
             gc.unfreeze()
     seq_files, path_info_files = zip(*lists)
-    LOG.info("delete files")
-    for item_path in Path(params.output_dir).iterdir():
-        # Check if it is a file, and if so, delete it
-        if item_path.is_file():
-            if item_path.suffix not in ('.log', '.txt'):
-                item_path.unlink()
+    LOG.info("Delete intermediate path files")
+    if not params.keep_intermediate_files:
+        for item_path in Path(params.output_dir).iterdir():
+            # Check if it is a file, and if so, delete it
+            if item_path.is_file():
+                if item_path.suffix not in ('.log', '.txt'):
+                    item_path.unlink()
 
-
-
-    shutil.rmtree(f"{params.output_dir}/final_result")
-    shutil.rmtree(f"{params.output_dir}/final_down_up")
+        shutil.rmtree(f"{params.output_dir}/final_result")
+        shutil.rmtree(f"{params.output_dir}/final_down_up")
 
     return seq_files, path_info_files
