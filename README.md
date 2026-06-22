@@ -186,16 +186,15 @@ followed by a timestamp). `{TARGET}` below is the (filesystem-safe) target gene 
     * `target_hits/alignments/`: the Bandage alignment details (only with `--debug` or `--keep_intermediate_files`).
 
 * `raw_neighborhoods/`: the neighborhood sequences extracted from the assembly graph.
-    * `raw_neighborhoods/neighborhood_sequences/`: the extracted sequences for each target in a file like `ng_sequences_{TARGET}_{L}_{DATE}.txt`. For each sequence, the first line is the node path (the nodes representing the target gene are wrapped in `()`) and the second line is the sequence, with the target gene in lower case and the flanking neighborhood in upper case.
+    * `raw_neighborhoods/neighborhood_sequences/`: the extracted sequences for each target in a FASTA file like `ng_sequences_{TARGET}_{L}_{DATE}.fasta`. For each sequence, the first line is the node path (the nodes representing the target gene are wrapped in `()`) and the second line is the sequence, with the target gene in lower case and the flanking neighborhood in upper case.
     * `raw_neighborhoods/neighborhood_paths/`: the per-node path/coverage info backing each extracted sequence (node name, the start/end offset it covers, its coverage, and the whole-path coverage) in a file like `ng_sequences_{TARGET}_{L}_{DATE}.csv`.
 
-* `final_neighborhoods/`: the annotated, coverage-filtered neighborhoods. ORFs are called with pyrodigal, so the `gene`/`product` columns are left empty (pyrodigal does not assign functional labels).
+* `final_neighborhoods/`: the annotated, coverage-filtered neighborhoods. The neighborhoods are ORF-annotated with pyrodigal, which calls open reading frames but does not assign gene names or functional products; the called ORFs are therefore reported directly as the `orfs_{TARGET}.{ffn,faa,gff}` files below rather than as a named-gene table.
     * `final_neighborhoods.fasta`: a single combined FASTA of every final neighborhood sequence across all targets (header `>{TARGET}_{seq_name}`).
     * `final_neighborhoods.csv`: a single combined summary, one row per final neighborhood, with columns `target_name, seq_name, target_gene, gene_path, target_coverage, coverages` (where `target_gene` is the target ORF's `start-end` coordinates and `gene_path` lists every ORF's `start-end`).
     * `final_neighborhoods/annotation_{TARGET}_{L}/`: the per-target details:
-        * `annotation_detail_{TARGET}.csv`: every called ORF of every annotated neighborhood for the target.
-        * `coverage_annotation_{COVERAGE_DIFFERENCE}_{TARGET}.csv`: the annotations kept after coverage-consistency filtering (only when `--coverage_difference > 0`).
         * `orfs_{TARGET}.ffn` / `.faa` / `.gff`: the pyrodigal ORFs of the target's final neighborhoods as nucleotide FASTA, protein FASTA and GFF3.
+        * `coverage_annotation_{COVERAGE_DIFFERENCE}_{TARGET}.csv`: the per-ORF coverage table of the neighborhoods kept after coverage-consistency filtering (only when `--coverage_difference > 0`); near-identical neighborhoods are collapsed.
     * `not_found_annotation_targets_in_graph.txt`: targets/sequences for which no annotation could be produced.
 
 <!--
@@ -203,7 +202,7 @@ followed by a timestamp). `{TARGET}` below is the (filesystem-safe) target gene 
 
 Sarand no longer renders annotation comparison images as part of the main run.
 A standalone helper script is provided to generate them on demand from any of
-the annotation CSVs above (for example `annotation_detail_{AMR_NAME}.csv` or
+the annotation CSVs above (for example
 `coverage_annotation_{COVERAGE_DIFFERENCE}_{AMR_NAME}.csv`):
 
 ```shell

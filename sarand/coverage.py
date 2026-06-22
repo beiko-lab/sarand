@@ -237,7 +237,6 @@ def filter_by_coverage_consistency(
                 "seq_name",
                 "seq_value",
                 "seq_length",
-                "gene",
                 "coverage",
                 "length",
                 "start_pos",
@@ -245,7 +244,7 @@ def filter_by_coverage_consistency(
                 "target_amr",
             ]
         )
-        # write extracted sequences with consistent coverage
+        # write the ORFs of extracted sequences with consistent coverage
         for seq_info in remained_seqs:
             for gene_info in seq_info:
                 writer.writerow(
@@ -253,7 +252,6 @@ def filter_by_coverage_consistency(
                         gene_info["seq_name"],
                         gene_info["seq_value"],
                         len(gene_info["seq_value"]),
-                        gene_info["gene"],
                         gene_info["coverage"],
                         gene_info["length"],
                         gene_info["start_pos"],

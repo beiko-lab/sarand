@@ -7,12 +7,11 @@ are written to the annotation CSV.
 from __future__ import annotations
 
 import argparse
-import csv
 import shutil
 import sys
 from multiprocessing.pool import Pool
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 from sarand.config import ANNOTATION_DIR, SEQ_NAME_PREFIX
 
@@ -26,32 +25,6 @@ from sarand.util.file import try_dump_to_disk
 from sarand.util.logger import LOG
 from sarand.util.naming import extract_name_from_file_name
 from sarand.util.sequence import retrieve_target
-
-
-def write_annotation_row(annotation_writer: Any, gene_info: GeneInfo,
-                         len_seq: Optional[int] = None) -> None:
-    """
-    Write one annotation row to the detail file.
-    Parameters:
-        annotation_writer: annotation file containing all annotations
-        gene_info: annotation info
-    """
-    seq = gene_info["seq_value"]
-    seq_description = gene_info["seq_name"]
-    if len_seq is None:
-        len_seq = len(seq)
-    annotation_writer.writerow([
-        seq_description,
-        seq,
-        len_seq,
-        gene_info["gene"],
-        gene_info["product"],
-        gene_info["length"],
-        gene_info["start_pos"],
-        gene_info["end_pos"],
-        gene_info["coverage"],
-        gene_info["target_amr"],
-    ])
 
 
 def annotate_one_sequence(seq_pair: Tuple[int, str]) -> List[GeneInfo]:
@@ -71,17 +44,19 @@ def annotate_graph_sequences(
         path_info_file: str | Path | int,
         neighborhood_seq_file: str | Path,
         core_num: int,
-        annotation_writer: Any,
         error_file: str | Path,
 ) -> List[List[GeneInfo]]:
     """
     Annotate (in parallel) the neighborhood sequences extracted for one target.
+
+    Each sequence is run through ORF calling, the target gene is located among
+    the ORFs, and per-ORF coverage is attached. The called ORFs themselves are
+    written later (per final neighborhood) as ``orfs_<target>.{ffn,faa,gff}``.
     Parameters:
         target_name: the name of the target gene
         path_info_file: the information of nodes representing the extracted sequence
         neighborhood_seq_file: the file containing extracted sequences
         core_num: the number of cores for parallel processing
-        annotation_writer: the file to store annotation results
         error_file: the file to store errors
     Return:
         the list of annotated genes and their details
@@ -142,12 +117,11 @@ def annotate_graph_sequences(
         if path_info_list:
             coverage_list = find_gene_coverage(seq_info, path_info_list[counter - 1])
         all_seq_info_list.append(seq_info)
-        # write annotation info into the file
+        # attach the per-ORF coverage and sequence name to each called ORF
         for j, gene_info in enumerate(seq_info):
             coverage = coverage_list[j] if coverage_list else -1
             gene_info["coverage"] = coverage
             gene_info["seq_name"] = seq_description
-            write_annotation_row(annotation_writer, gene_info)
     if not all_seq_info_list:
         error_writer.write(target_name + " no annotation was found in the graph.\n")
     error_writer.close()
@@ -162,10 +136,14 @@ def annotate_neighborhood(
         output_dir: str | Path,
         output_name: str = "",
         core_num: int = 4,
-) -> Tuple[List[List[GeneInfo]], str]:
+) -> List[List[GeneInfo]]:
     """
-    Annotate the neighborhood sequences extracted from the assembly graph for one
-    target and summarise the results into the annotation CSV.
+    ORF-annotate the neighborhood sequences extracted from the assembly graph for
+    one target.
+
+    Creates the per-target output directory (later populated with the called ORF
+    files and the coverage-filtered annotation by the coverage stage) and returns
+    the per-neighborhood ORF annotations.
     Parameters:
         target_name: the name of the target gene
         neighborhood_seq_file: the file containing all extracted neighborhood sequences
@@ -175,7 +153,7 @@ def annotate_neighborhood(
         output_name: the suffix used to distinguish output files (usually the target name)
         core_num: the number of cores for parallel processing
     Return:
-        (all_seq_info_list, annotation_detail_name)
+        all_seq_info_list: the ORF annotations of each neighborhood
     """
     LOG.info("Annotating " + target_name)
     # initializing required files and directories
@@ -188,21 +166,6 @@ def annotate_neighborhood(
             LOG.error("Error: %s - %s." % (e.filename, e.strerror))
     annotate_dir.mkdir(parents=True)
     error_file = annotations_dir / "not_found_annotation_targets_in_graph.txt"
-    annotation_detail_name = annotate_dir / ("annotation_detail" + output_name + ".csv")
-    annotation_detail = open(annotation_detail_name, mode="w", newline="")
-    annotation_writer = csv.writer(annotation_detail)
-    header = {
-        "seq_value": "seq_value",
-        "gene": "gene",
-        "product": "product",
-        "length": "length",
-        "start_pos": "start_pos",
-        "end_pos": "end_pos",
-        "coverage": "coverage",
-        "seq_name": "seq_name",
-        "target_amr": "target_amr",
-    }
-    write_annotation_row(annotation_writer, header, "seq_length")
 
     # annotate the sequences extracted from the assembly graph
     all_seq_info_list = annotate_graph_sequences(
@@ -210,13 +173,10 @@ def annotate_neighborhood(
         path_info_file,
         neighborhood_seq_file,
         core_num,
-        annotation_writer,
         error_file,
     )
-    LOG.debug(f"The neighborhood annotations are available in {annotation_detail_name}")
-    annotation_detail.close()
 
-    return all_seq_info_list, str(annotation_detail_name)
+    return all_seq_info_list
 
 
 def find_seq_and_path_files(
@@ -246,7 +206,7 @@ def annotate_all_neighborhoods(
         path_info_files: List[str],
         target_files: List[str],
         debug: bool,
-) -> Tuple[List[List[List[GeneInfo]]], List[str]]:
+) -> List[List[List[GeneInfo]]]:
     """
     Annotate the neighborhood sequences of every target.
     Parameters:
@@ -256,7 +216,7 @@ def annotate_all_neighborhoods(
         target_files: the list of files containing target genes
         debug: True if additional files should be created, False otherwise.
     Return:
-        (all_seq_info_lists, annotation_files)
+        all_seq_info_lists: the ORF annotations of every target's neighborhoods
     """
     LOG.info("Neighborhood Annotation...")
     if seq_files:
@@ -272,7 +232,6 @@ def annotate_all_neighborhoods(
         sys.exit(1)
 
     all_seq_info_lists = []
-    annotation_files = []
     for target_file in target_files:
         restricted_target_name = extract_name_from_file_name(target_file)
         _, target_name = retrieve_target(target_file)
@@ -290,7 +249,7 @@ def annotate_all_neighborhoods(
                 + restricted_target_name
             )
             sys.exit(1)
-        all_seq_info_list, annotation_file = annotate_neighborhood(
+        all_seq_info_list = annotate_neighborhood(
             target_name,
             neighborhood_file,
             nodes_info_file,
@@ -300,14 +259,13 @@ def annotate_all_neighborhoods(
             params.num_cores,
         )
         all_seq_info_lists.append(all_seq_info_list)
-        annotation_files.append(annotation_file)
 
     if debug:
         annotations_dir = Path(params.output_dir) / ANNOTATION_DIR
         annotations_dir.mkdir(parents=True, exist_ok=True)
         try_dump_to_disk(
-            {'all_seq_info_lists': all_seq_info_lists, 'annotation_files': annotation_files},
+            {'all_seq_info_lists': all_seq_info_lists},
             annotations_dir / 'debug_neighborhood_annotations.json'
         )
 
-    return all_seq_info_lists, annotation_files
+    return all_seq_info_lists

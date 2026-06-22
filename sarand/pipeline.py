@@ -55,7 +55,7 @@ def run_graph_pipeline(params: argparse.Namespace) -> None:
     )
 
     # Stage 3: annotate the neighborhoods
-    all_seq_info_lists, _ = annotate_all_neighborhoods(
+    all_seq_info_lists = annotate_all_neighborhoods(
         params, seq_files, path_info_files, unique_target_files, params.debug
     )
 

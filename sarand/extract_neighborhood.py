@@ -162,9 +162,12 @@ def create_directed_graph_nx(gfa_graph):
         directed_graph.add_node(
             segment.name + "-", name=segment.name + "-", sequence=reverse_complement(segment.sequence), KC=segment.KC)
 
-    # create edges
+    # create edges. Skip virtual L lines: gfapy creates these placeholders for
+    # links that a P (path) line references but that are not actually declared in
+    # the GFA (e.g. metaSPAdes scaffold paths). They carry no real overlap (it is
+    # "*") and are not part of the assembly connectivity sarand traverses.
     edges = [line for line in gfa_graph.lines if isinstance(
-        line, gfapy.Line) and line.record_type == "L"]
+        line, gfapy.Line) and line.record_type == "L" and not line.virtual]
     for edge in edges:
         src = edge.from_segment.name
         dist = edge.to_segment.name
@@ -552,7 +555,7 @@ def neighborhood_sequence_extraction(
             + str(threshold)
             + "_"
             + datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
-            + ".txt"
+            + ".fasta"
         )
     )
     for target_hit in target_hits:
@@ -932,8 +935,11 @@ def extract_target_neighborhoods(
 
     # The intermediate sub-directories (stream_paths, merged_neighborhoods) are
     # created on demand by the workers that write into them.
-    # Read GFA file
-    gfa_graph = gfapy.Gfa.from_file(gfa_file)
+    # Read GFA file. vlevel=0 disables gfapy's validation: sarand only uses the
+    # segment (S) and link (L) lines to build its own graph, so it tolerates GFAs
+    # whose P (path) lines reference links that are not declared (common in
+    # metaSPAdes scaffold output), which would otherwise abort loading.
+    gfa_graph = gfapy.Gfa.from_file(gfa_file, vlevel=0)
     directed_graph = create_directed_graph_nx(gfa_graph)
     # no longer needed; free up the memory from gfapy now in networkx
     del gfa_graph  
