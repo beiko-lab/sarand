@@ -48,13 +48,12 @@ conda activate sarand-2.0.1
 python -m pip install sarand
 ```
 
-<!--
 ### 1b. Apptainer/Singularity
 
 This is the easiest way to run Sarand. As apptainer/singularity will automatically map paths, you simply need to run it in the format of:
 
 ```shell
-singularity run docker://somayeh8131/sarand:1.1.1 -i input.gfa -o output -a metaspades -k 55
+singularity run docker://finlaymaguire/sarand:2.0.1 -i input.gfa -o output -a metaspades -k 55
 ```
 
 ### 1c. Docker
@@ -64,9 +63,8 @@ Basically, just replace `/host/path` and `/container/path` in the command below 
 Note that this will also be the location that the output is written to.
 
 ```shell
-docker run -v /host/path:/container/path -it somayeh8131/sarand:1.1.1 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
+docker run -v /host/path:/container/path -it finlaymaguire/sarand:2.0.1 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
 ```
--->
 
 ## 2. Testing
 

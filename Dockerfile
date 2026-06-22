@@ -1,5 +1,5 @@
 # To build this image run the following commands:
-# docker build --no-cache -t sarand-dev .
+# docker build --no-cache -t sarand .
 
 # To run the image:
 # docker run -v /tmp/sarand:/tmp/sarand -v -it sarand-dev bash
@@ -28,7 +28,7 @@ COPY ./sarand /tmp/sarand/sarand
 COPY ./pyproject.toml /tmp/sarand/pyproject.toml
 COPY ./README.md /tmp/sarand/README.md
 COPY ./LICENSE.txt /tmp/sarand/LICENSE.txt
-RUN micromamba run -n sarand pip install /tmp/sarand && \
+RUN micromamba run -n sarand pip install --root-user-action=ignore /tmp/sarand && \
     micromamba clean --all --yes && \
     rm -rf /tmp/sarand
 
