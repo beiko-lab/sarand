@@ -121,8 +121,11 @@ def align_targets_to_graph(
         out_dir=aligner_path,
     )
     
+    # Write any debug output into this group's own alignment run directory
+    # (output_name) so it sits beside that group's bandage files and does not
+    # clobber the debug output of the other target groups.
     paths_info_list = read_path_info_from_align_file_with_multiple_targets(
-        output_name=output_dir,
+        output_name=output_name,
         ga=aligner.results,
         min_target_identity=min_target_identity,
         min_target_coverage=min_target_coverage,
@@ -182,7 +185,10 @@ def find_target_group_in_graph(
         debug=debug,
     )
     if debug:
-        try_dump_to_disk(p_find_target_align, Path(align_dir) / 'debug_p_find_target_align.json')
+        try_dump_to_disk(
+            p_find_target_align,
+            Path(align_dir) / f'debug_target_paths_group_{g_id}.json',
+        )
 
     # Remove temporary target file
     if cat_file.is_file():

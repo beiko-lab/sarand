@@ -138,7 +138,7 @@ def main() -> None:
         '--debug',
         default=False,
         action='store_true',
-        help='Creates additional files for debugging purposes.',
+        help='Enable debug-level logging and create additional files for debugging purposes.',
     )
     parser.add_argument(
         "--deduplication_identity",
@@ -153,7 +153,7 @@ def main() -> None:
 
     # --update just refreshes a reference database and exits; no graph needed.
     if args.update:
-        create_logger(verbose=args.verbose)
+        create_logger(verbose=args.verbose or args.debug)
         update_database(args.database)
         sys.exit(0)
 
@@ -173,7 +173,7 @@ def main() -> None:
     # Check if the output directory exists
     if Path(args.output_dir).exists():
         if not args.force:
-            log = create_logger(verbose=args.verbose)
+            log = create_logger(verbose=args.verbose or args.debug)
             log.error(
                 f"{args.output_dir} already exists, please use a different "
                 "--output_dir or use --force to overwrite this directory"
@@ -182,12 +182,12 @@ def main() -> None:
         else:
             shutil.rmtree(args.output_dir)
             Path(args.output_dir).mkdir(parents=True)
-            log = create_logger(output=logger_output_path, verbose=args.verbose)
+            log = create_logger(output=logger_output_path, verbose=args.verbose or args.debug)
             log.info(f"Overwriting previously created {args.output_dir}")
 
     else:
         Path(args.output_dir).mkdir(parents=True)
-        create_logger(output=logger_output_path, verbose=args.verbose)
+        create_logger(output=logger_output_path, verbose=args.verbose or args.debug)
 
     # initialise the logger
     log = get_logger()

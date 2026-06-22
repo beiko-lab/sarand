@@ -56,4 +56,4 @@ def test_debug_writes_json(tmp_path):
     read_path_info_from_align_file_with_multiple_targets(
         tmp_path, results, debug=True
     )
-    assert (tmp_path / "aligner_tool_coverage_identity.json").is_file()
+    assert (tmp_path / "debug_alignment_coverage_identity.json").is_file()

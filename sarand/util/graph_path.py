@@ -59,6 +59,6 @@ def read_path_info_from_align_file_with_multiple_targets(
     if debug:
         try_dump_to_disk(
             debug_to_write,
-            output_name / 'aligner_tool_coverage_identity.json'
+            output_name / 'debug_alignment_coverage_identity.json'
         )
     return paths_info_list

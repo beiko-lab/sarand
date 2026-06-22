@@ -12,7 +12,15 @@ import gfapy
 import networkx as nx
 
 from sarand.util.logger import LOG
-from sarand.config import SEQ_DIR_NAME, SEQ_NAME_PREFIX, NEIGHBORHOOD_SEQ_DIR
+from sarand.config import (
+    SEQ_DIR_NAME,
+    SEQ_NAME_PREFIX,
+    NEIGHBORHOOD_SEQ_DIR,
+    NEIGHBORHOOD_PATHS_DIR,
+    INTERMEDIATE_DIR_NAME,
+    STREAM_PATHS_DIR,
+    MERGED_NEIGHBORHOOD_DIR,
+)
 from sarand.external.cdhit import Cdhit
 
 # Worker-process globals for neighborhood extraction. This lets us pass the same large assembly graph 
@@ -35,6 +43,21 @@ def _extract_in_worker(target_info):
     return neighborhood_sequence_extraction(
         _WORKER_DIRECTED_GRAPH, _WORKER_REVERSE_GRAPH, _WORKER_PARAMS, target_info
     )
+
+
+def intermediate_dir(output_dir) -> Path:
+    """Root directory for the stage-2 (extraction) scratch/intermediate files."""
+    return Path(output_dir) / SEQ_DIR_NAME / INTERMEDIATE_DIR_NAME
+
+
+def stream_paths_dir(output_dir) -> Path:
+    """Directory holding the per-direction (up/downstream) path-clustering scratch files."""
+    return intermediate_dir(output_dir) / STREAM_PATHS_DIR
+
+
+def merged_neighborhood_dir(output_dir) -> Path:
+    """Directory holding the full-neighborhood cd-hit input scratch files."""
+    return intermediate_dir(output_dir) / MERGED_NEIGHBORHOOD_DIR
 
 
 
@@ -184,8 +207,9 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     length, cluster their sequences with cd-hit, and record the resulting file.
 
     The search is bounded by ``stop_flag`` (set by the caller on timeout). The
-    clustered paths are written to a fasta under ``final_down_up`` and the path of
-    that file is stored in ``file_name["file_name"]`` (empty string if no paths).
+    clustered paths are written to a ``.clustered.fasta`` under the stage-2
+    intermediate ``stream_paths`` directory and the path of that file is stored
+    in ``file_name["file_name"]`` (empty string if no paths).
     Parameters:
         directed_graph: the (forward or reversed) assembly graph to traverse
         target_gene_node: the node to start the traversal from
@@ -199,8 +223,12 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
     LOG.debug(f"{up_down}: stop flag set = {stop_flag.is_set()}")
     threshold = params.neighborhood_length
 
-    source = f"{params.output_dir}/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
-    destination = f"{params.output_dir}/final_down_up/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
+    stream_dir = stream_paths_dir(params.output_dir)
+    stream_dir.mkdir(parents=True, exist_ok=True)
+    base_name = f"{target_gene_node}_{len_target}_{up_down}"
+    # cd-hit working copy, renamed to the cached .clustered.fasta once complete
+    source = str(stream_dir / f"{base_name}.working.fasta")
+    destination = str(stream_dir / f"{base_name}.clustered.fasta")
 
     if Path(destination).exists():
         LOG.debug(f"{up_down} paths for {target_gene_node} already computed, reusing {destination}")
@@ -250,9 +278,10 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
                 selected_paths[p] = get_sequence_path(ego_nx_graph, p, threshold, len_target, up_down)
 
     if(len(selected_paths)):
-        check_similarity_down_up_streams(selected_paths, f"{params.output_dir}/{target_gene_node}.fasta", source, params.deduplication_identity)
+        cdhit_input = str(stream_dir / f"{base_name}.cdhit_input.fasta")
+        check_similarity_down_up_streams(selected_paths, cdhit_input, source, params.deduplication_identity)
 
-    ##### move to final paths
+    ##### move the completed working copy to its cached .clustered.fasta name
 
     shutil.move(source, destination)
 
@@ -349,7 +378,10 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
         mergepaths[new_path] = new_seq
 
-    check_for_similarity(mergepaths, f"{params.output_dir}/final_result/{target_name}.fasta", seq_file, params.deduplication_identity)
+    merged_dir = merged_neighborhood_dir(params.output_dir)
+    merged_dir.mkdir(parents=True, exist_ok=True)
+    cdhit_input = str(merged_dir / f"{target_name}.cdhit_input.fasta")
+    check_for_similarity(mergepaths, cdhit_input, seq_file, params.deduplication_identity)
 
 
 
@@ -366,11 +398,15 @@ def check_similarity_down_up_streams(paths, input_file, output_file, similarity)
     Return:
         the number of clusters currently in ``output_file``
     """
+    # cd-hit scratch file, kept beside ``output_file`` so it stays inside the
+    # run's intermediate directory and is unique to this (node, direction) call
+    # rather than a shared ``temp_file.fasta`` in the working directory.
+    tmp_file = str(Path(output_file).with_suffix(".cdhit_tmp.fasta"))
     if Path(input_file).exists():
         write_paths_file(input_file, paths)
-        Cdhit.cluster(input_file, "temp_file.fasta", similarity)
+        Cdhit.cluster(input_file, tmp_file, similarity)
 
-        with open('temp_file.fasta', 'r') as file:
+        with open(tmp_file, 'r') as file:
            content_to_append = file.read()
 
 
@@ -485,7 +521,7 @@ def neighborhood_sequence_extraction(
         Path(params.output_dir)
         / SEQ_DIR_NAME
     )
-    paths_info_dir = length_dir / "neighborhood_paths"
+    paths_info_dir = length_dir / NEIGHBORHOOD_PATHS_DIR
     paths_info_dir.mkdir(parents=True, exist_ok=True)
     # kept as str: the returned file path is substring-matched downstream
     paths_info_file = str(
@@ -894,8 +930,8 @@ def extract_target_neighborhoods(
     sequence_dir = output_dir / SEQ_DIR_NAME
     sequence_dir.mkdir(parents=True, exist_ok=True)
 
-    (output_dir / "final_result").mkdir(parents=True, exist_ok=True)
-    (output_dir / "final_down_up").mkdir(parents=True, exist_ok=True)
+    # The intermediate sub-directories (stream_paths, merged_neighborhoods) are
+    # created on demand by the workers that write into them.
     # Read GFA file
     gfa_graph = gfapy.Gfa.from_file(gfa_file)
     directed_graph = create_directed_graph_nx(gfa_graph)
@@ -934,15 +970,11 @@ def extract_target_neighborhoods(
         finally:
             gc.unfreeze()
     seq_files, path_info_files = zip(*lists)
-    LOG.info("Delete intermediate path files")
     if not params.keep_intermediate_files:
-        for item_path in Path(params.output_dir).iterdir():
-            # Check if it is a file, and if so, delete it
-            if item_path.is_file():
-                if item_path.suffix not in ('.log', '.txt'):
-                    item_path.unlink()
-
-        shutil.rmtree(f"{params.output_dir}/final_result")
-        shutil.rmtree(f"{params.output_dir}/final_down_up")
+        LOG.info("Removing intermediate neighborhood-extraction files")
+        shutil.rmtree(intermediate_dir(params.output_dir), ignore_errors=True)
+        # cd-hit drops a .clstr cluster file beside each kept neighborhood sequence
+        for clstr_file in (sequence_dir / NEIGHBORHOOD_SEQ_DIR).glob("*.clstr"):
+            clstr_file.unlink()
 
     return seq_files, path_info_files

@@ -303,9 +303,11 @@ def annotate_all_neighborhoods(
         annotation_files.append(annotation_file)
 
     if debug:
+        annotations_dir = Path(params.output_dir) / ANNOTATION_DIR
+        annotations_dir.mkdir(parents=True, exist_ok=True)
         try_dump_to_disk(
             {'all_seq_info_lists': all_seq_info_lists, 'annotation_files': annotation_files},
-            Path(params.output_dir) / 'debug_seq_annotation_main.json'
+            annotations_dir / 'debug_neighborhood_annotations.json'
         )
 
     return all_seq_info_lists, annotation_files
