@@ -14,10 +14,11 @@ It has primarily been developed for the analysis of Antimicrobial Resistance (AM
 
 ## 1. Installation
 
-Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires 3 key external dependencies:
+Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires these key external dependencies:
 
-- [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+- [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) (used by Bandage's graph alignment)
 - [Bandage](https://github.com/rrwick/Bandage)
+- [minimap2](https://github.com/lh3/minimap2) (collapsing near-identical neighborhoods)
 - [cd-hit](https://github.com/weizhongli/cdhit)
 
 
@@ -35,7 +36,7 @@ conda env create -f conda_env.yml
 Which can alternative be run explicitly without using the enviornment yaml like this:
 
 ```shell
-conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
+conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 minimap2=2.31 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
 ```
 
 **Install sarand:**

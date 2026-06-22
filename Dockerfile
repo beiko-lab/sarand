@@ -14,6 +14,7 @@ USER root
 RUN micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
         blast=2.17.0 \
         bandage=0.9.0 \
+        minimap2=2.31 \
         gfapy=1.2.3 \
         cd-hit=4.8.1 \
         networkx \

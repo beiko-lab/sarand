@@ -1,10 +1,11 @@
-"""FASTA I/O helpers and blastn-based sequence comparison."""
+"""FASTA I/O helpers and minimap2-based sequence comparison."""
 from __future__ import annotations
 
 import tempfile
 from pathlib import Path
+from typing import Dict, Set, Tuple
 
-from sarand.external.blastn import Blastn
+from sarand.external.minimap2 import Minimap2
 from sarand.util.naming import target_name_from_comment
 
 
@@ -54,51 +55,48 @@ def retrieve_target(file_path: str | Path) -> tuple[str, str]:
             return line, target_name
 
 
-def compare_two_sequences(
-        subject: str,
-        query: str,
-        output_dir: str | Path,
+def similar_sequence_pairs(
+        queries: Dict[str, str],
+        subjects: Dict[str, str],
         threshold: int = 90,
-        switch_allowed: bool = True,
-        return_file: bool = False,
-        subject_coverage: bool = True,
-        blast_ext: str = "",
-) -> bool:
+) -> Set[Tuple[str, str]]:
     """
-    To compare one sequence (shorter sequence) against the other one (longer
-    sequence) using blastn.
-    """
-    # make sure subject is the longer sequence
-    if switch_allowed and len(subject) < len(query):
-        subject, query = query, subject
+    Find which query sequences are near-identical to which subject sequences,
+    using a single batched minimap2 alignment of all queries against all
+    subjects (rather than one alignment per pair).
 
-    # Write to a temporary directory to prevent any race condition when this is
-    # called via the recursion of the neighborhood extraction.
+    A (query, subject) pair is considered similar when an alignment between them
+    covers at least ``threshold`` percent of the longer sequence at at least
+    ``threshold`` percent identity.
+    Parameters:
+        queries: mapping of query id -> nucleotide sequence
+        subjects: mapping of subject id -> nucleotide sequence
+        threshold: minimum percent identity and coverage to call a pair similar
+    Return:
+        the set of (query_id, subject_id) pairs that are similar
+    """
+    # drop empty sequences (nothing to align) and short-circuit empty inputs
+    queries = {k: v for k, v in queries.items() if v}
+    subjects = {k: v for k, v in subjects.items() if v}
+    if not queries or not subjects:
+        return set()
+
+    # Write to a temporary directory to avoid any race condition when this is
+    # called from the parallel per-target neighborhood processing.
     with tempfile.TemporaryDirectory() as tmp_dir:
-        query_file_name = Path(tmp_dir) / "query.fasta"
-        with open(query_file_name, "w") as query_file:
-            query_file.write("> query \n")
-            query_file.write(query)
-        subject_file_name = Path(tmp_dir) / "subject.fasta"
-        with open(subject_file_name, "w") as subject_file:
-            subject_file.write("> subject \n")
-            subject_file.write(subject)
+        query_file = Path(tmp_dir) / "queries.fasta"
+        with open(query_file, "w") as fh:
+            for qid, seq in queries.items():
+                fh.write(f">{qid}\n{seq}\n")
+        subject_file = Path(tmp_dir) / "subjects.fasta"
+        with open(subject_file, "w") as fh:
+            for sid, seq in subjects.items():
+                fh.write(f">{sid}\n{seq}\n")
 
-        blastn = Blastn.run_for_sarand_compare_two_sequences(
-            query=query_file_name,
-            subject=subject_file_name
-        )
+        results = Minimap2.run(query=query_file, target=subject_file)
 
-        if return_file:
-            raise NotImplementedError('Unable to return file.')
-
-        for row in blastn.results:
-            identity = int(row.pident)
-            coverage = int(row.length / len(subject) * 100)
-            q_coverage = row.qcovhsp
-
-            if subject_coverage and identity >= threshold and coverage >= threshold:
-                return True
-            if not subject_coverage and identity >= threshold and q_coverage >= threshold:
-                return True
-    return False
+    matched: Set[Tuple[str, str]] = set()
+    for row in results:
+        if row.identity_pct >= threshold and row.coverage_pct >= threshold:
+            matched.add((row.query, row.target))
+    return matched

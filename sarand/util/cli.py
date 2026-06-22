@@ -10,6 +10,7 @@ from sarand.config import PROGRAM_VERSION_NA
 from sarand.external.bandage import Bandage
 from sarand.external.blastn import Blastn
 from sarand.external.cdhit import Cdhit
+from sarand.external.minimap2 import Minimap2
 from sarand.util.logger import LOG
 
 
@@ -46,11 +47,13 @@ def validate_range(value_type: type, minimum: float, maximum: float) -> Callable
     return range_checker
 
 
-def assert_dependencies_exist(blastn: bool = True, bandage: bool = True, cdhit: bool = True) -> None:
+def assert_dependencies_exist(blastn: bool = True, bandage: bool = True, cdhit: bool = True,
+                              minimap2: bool = True) -> None:
     """Check the external tools sarand shells out to exist and report versions."""
     versions = list()
     missing = list()
     if blastn:
+        # blastn is required by Bandage's querypaths (BLAST-based graph alignment)
         blastn_v = Blastn.version()
         versions.append(f'Blastn v{blastn_v}')
         if blastn_v is PROGRAM_VERSION_NA:
@@ -60,6 +63,12 @@ def assert_dependencies_exist(blastn: bool = True, bandage: bool = True, cdhit: 
         versions.append(f'Bandage v{ba_v}')
         if ba_v is PROGRAM_VERSION_NA:
             missing.append('Bandage')
+
+    if minimap2:
+        mm_v = Minimap2.version()
+        versions.append(f'minimap2 v{mm_v}')
+        if mm_v is PROGRAM_VERSION_NA:
+            missing.append('minimap2')
 
     if cdhit:
         cdhit_v = Cdhit.version()

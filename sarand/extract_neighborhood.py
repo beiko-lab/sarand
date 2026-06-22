@@ -2,7 +2,6 @@ import sys
 import datetime
 import gc
 import threading
-import time
 import csv
 import shutil
 import multiprocessing
@@ -290,24 +289,26 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
 
     file_name["file_name"] =  destination
 
-def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_name, target_seq, len_before_target, len_after_target, params, seq_file):
+def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_file, target, target_seq, len_before_target, len_after_target, params):
     """
     Join the upstream paths, the target gene, and the downstream paths into full
-    neighborhood sequences and cluster them into the per-target result fasta.
+    neighborhood sequences.
 
     The target gene is written in lower case (with any portion already covered by
     the gene's own node trimmed via ``len_before_target``/``len_after_target``) so
-    it can be located again during annotation.
+    it can be located again during annotation. The clustering of the merged
+    neighborhoods is deferred to the caller so all of a target's hits can be
+    de-duplicated in a single cd-hit run.
     Parameters:
         upstream_paths_file: file of clustered upstream paths ("" if none)
         downstream_paths_file: file of clustered downstream paths ("" if none)
         target: the list of node names making up the target gene
-        target_name: the target gene name (used for the output file)
         target_seq: the target gene nucleotide sequence
         len_before_target: bases of the start node preceding the target gene
         len_after_target: bases of the end node following the target gene
         params: the parsed CLI parameters
-        seq_file: the cumulative per-target neighborhood sequence file
+    Return:
+        a {path: sequence} dict of the merged neighborhood sequences
     """
     threshold = params.neighborhood_length
 
@@ -381,56 +382,25 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
         mergepaths[new_path] = new_seq
 
-    merged_dir = merged_neighborhood_dir(params.output_dir)
-    merged_dir.mkdir(parents=True, exist_ok=True)
-    cdhit_input = str(merged_dir / f"{target_name}.cdhit_input.fasta")
-    check_for_similarity(mergepaths, cdhit_input, seq_file, params.deduplication_identity)
+    return mergepaths
 
 
 
 
 def check_similarity_down_up_streams(paths, input_file, output_file, similarity):
     """
-    Cluster the given up/downstream ``paths`` with cd-hit, accumulating the unique
-    sequences into ``output_file``, and return the number of clusters.
+    Cluster the given up/downstream ``paths`` with cd-hit into ``output_file``.
+
+    All candidate paths for one direction are passed in a single dict and
+    de-duplicated in one cd-hit run.
     Parameters:
         paths: a {path: sequence} dict of candidate paths
         input_file: scratch fasta written for cd-hit input
-        output_file: fasta accumulating the clustered (unique) sequences
+        output_file: fasta receiving the clustered (unique) sequences
         similarity: cd-hit identity threshold
-    Return:
-        the number of clusters currently in ``output_file``
     """
-    # cd-hit scratch file, kept beside ``output_file`` so it stays inside the
-    # run's intermediate directory and is unique to this (node, direction) call
-    # rather than a shared ``temp_file.fasta`` in the working directory.
-    tmp_file = str(Path(output_file).with_suffix(".cdhit_tmp.fasta"))
-    if Path(input_file).exists():
-        write_paths_file(input_file, paths)
-        Cdhit.cluster(input_file, tmp_file, similarity)
-
-        with open(tmp_file, 'r') as file:
-           content_to_append = file.read()
-
-
-        with open(output_file, 'a') as file:
-           file.write(content_to_append)
-
-        # Copy the file
-        shutil.copy(output_file, input_file)
-
-        Cdhit.cluster(input_file, output_file, similarity)
-
-    else:
-        write_paths_file(input_file, paths)
-        Cdhit.cluster(input_file, output_file, similarity)
-
-
-    number_cluster = 0
-    with open(output_file, 'r') as file:
-        number_cluster = sum(1 for line in file) / 2
-
-    return number_cluster
+    write_paths_file(input_file, paths)
+    Cdhit.cluster(input_file, output_file, similarity)
 
 
 def check_for_similarity(mergepaths, input_file, output_file, similarity):
@@ -558,6 +528,10 @@ def neighborhood_sequence_extraction(
             + ".fasta"
         )
     )
+    # merged neighborhood sequences for every hit of this target, de-duplicated
+    # together in a single cd-hit run after the loop (rather than re-clustering
+    # the growing set once per hit)
+    all_mergepaths = {}
     for target_hit in target_hits:
         find_downstream = True
         find_upstream = True
@@ -605,18 +579,13 @@ def neighborhood_sequence_extraction(
 
             loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(directed_graph, target_gene_node, len_after_target, "down", params, stop_flag_downstream, downstream_paths_file))
             loop_thread.start()
-            # Wait for the thread to finish or until the time limit expires
-            start_time = time.time()
+            # Block (without busy-polling) until the search finishes or the time
+            # limit expires; if it expires, signal the worker to stop and join.
             LOG.debug(f"per-direction time limit: {duration}s")
-            while time.time() - start_time < duration:
-                if not loop_thread.is_alive():  # If the thread has finished naturally, break
-                    break
-                time.sleep(0.001)  # Check periodically
-
-            # If time expires, set the stop flag to stop the thread
+            loop_thread.join(timeout=duration)
             if loop_thread.is_alive():
                 stop_flag_downstream.set()
-            loop_thread.join()
+                loop_thread.join()
 
             #    directed_graph, target_gene_node, len_after_target, "down", params, stop_flag)
             LOG.debug("finished downstream search")
@@ -628,27 +597,29 @@ def neighborhood_sequence_extraction(
             LOG.debug(f"upstream: stop flag set = {stop_flag_upstream.is_set()}")
             loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag_upstream, upstream_paths_file))
             loop_thread.start()
-            # Wait for the thread to finish or until the time limit expires
-            start_time = time.time()
-            while time.time() - start_time < duration:
-                if not loop_thread.is_alive():  # If the thread has finished naturally, break
-                    break
-                time.sleep(0.001)  # Check periodically
-
-            # If time expires, set the stop flag to stop the thread
+            # Block (without busy-polling) until the search finishes or the time
+            # limit expires; if it expires, signal the worker to stop and join.
+            loop_thread.join(timeout=duration)
             if loop_thread.is_alive():
                 stop_flag_upstream.set()
-            loop_thread.join()
+                loop_thread.join()
 
             #    reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag)
             LOG.debug("finished upstream search")
 
         LOG.debug(f"downstream paths file: {downstream_paths_file}")
         LOG.debug(f"upstream paths file: {upstream_paths_file}")
-       	merge_upstream_target_downstream_5(
-            		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
-            		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
+       	mergepaths = merge_upstream_target_downstream_5(
+            		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene,
+            		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params)
+        all_mergepaths.update(mergepaths)
 
+    # Cluster all of this target's merged neighborhoods in a single cd-hit run.
+    if all_mergepaths:
+        merged_dir = merged_neighborhood_dir(params.output_dir)
+        merged_dir.mkdir(parents=True, exist_ok=True)
+        cdhit_input = str(merged_dir / f"{target_name}.cdhit_input.fasta")
+        check_for_similarity(all_mergepaths, cdhit_input, seq_file, params.deduplication_identity)
 
     path_info_list = create_paths_info_list(seq_file, directed_graph, target_hits, params.neighborhood_length, params.max_kmer_size, params.assembler)
 

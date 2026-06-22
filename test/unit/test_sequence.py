@@ -1,9 +1,36 @@
 """Unit tests for the FASTA I/O helpers in sarand.util.sequence.
 
-The blastn-backed ``compare_two_sequences`` is exercised by the functional
-test rather than here, since it shells out to the blastn binary.
+``similar_sequence_pairs`` shells out to minimap2; the tests that exercise it are
+skipped when the binary is unavailable, and the path is also covered end-to-end
+by the functional test.
 """
-from sarand.util.sequence import create_fasta_file, retrieve_target
+import random
+import shutil
+
+import pytest
+
+from sarand.util.sequence import (
+    create_fasta_file,
+    retrieve_target,
+    similar_sequence_pairs,
+)
+
+requires_minimap2 = pytest.mark.skipif(
+    shutil.which("minimap2") is None, reason="minimap2 not installed"
+)
+
+
+def _random_seq(length, seed):
+    rng = random.Random(seed)
+    return "".join(rng.choice("ACGT") for _ in range(length))
+
+
+def _with_substitutions(seq, positions):
+    flip = {"A": "C", "C": "A", "G": "T", "T": "G"}
+    chars = list(seq)
+    for i in positions:
+        chars[i] = flip[chars[i]]
+    return "".join(chars)
 
 
 def test_create_fasta_file_writes_comment_and_seq(tmp_path):
@@ -30,3 +57,33 @@ def test_retrieve_target_parses_name_and_sequence(tmp_path):
     seq, name = retrieve_target(f)
     assert seq == "ACGTACGT\n"
     assert name == "aac(6;)-Ie"
+
+
+class TestSimilarSequencePairs:
+    def test_empty_inputs_return_empty(self):
+        # no aligner is invoked when either side is empty
+        assert similar_sequence_pairs({"q": "ACGT"}, {}) == set()
+        assert similar_sequence_pairs({}, {"s": "ACGT"}) == set()
+
+    @requires_minimap2
+    def test_batched_match_and_mismatch(self):
+        base = _random_seq(400, seed=7)
+        near = _with_substitutions(base, [50, 200, 350])  # ~99% identity
+        unrelated = _random_seq(400, seed=99)
+        queries = {"q_match": near, "q_diff": unrelated}
+        subjects = {"s_base": base}
+        matched = similar_sequence_pairs(queries, subjects, threshold=90)
+        assert ("q_match", "s_base") in matched
+        assert ("q_diff", "s_base") not in matched
+
+    @requires_minimap2
+    def test_one_call_resolves_many_pairs(self):
+        a = _random_seq(300, seed=1)
+        b = _random_seq(300, seed=2)
+        queries = {"qa": _with_substitutions(a, [10]), "qb": _with_substitutions(b, [20])}
+        subjects = {"sa": a, "sb": b}
+        matched = similar_sequence_pairs(queries, subjects, threshold=90)
+        assert ("qa", "sa") in matched
+        assert ("qb", "sb") in matched
+        assert ("qa", "sb") not in matched
+        assert ("qb", "sa") not in matched

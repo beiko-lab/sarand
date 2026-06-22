@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Tuple
 import pyrodigal
 
 from sarand.util.logger import LOG
-from sarand.util.sequence import compare_two_sequences
+from sarand.util.sequence import similar_sequence_pairs
 
 GeneInfo = Dict[str, Any]
 
@@ -123,51 +123,60 @@ def partition_genes_around_amr(
     return found, amr_info, up_info, down_info, seq_info
 
 
-def unnamed_genes_similar(gene_info1: GeneInfo, gene_info2: GeneInfo,
-                          output_dir: str | Path, threshold: int = 90) -> bool:
-    """Whether two unnamed (ORF-only) genes are significantly similar by blastn."""
-    if gene_info1["gene"] != "" or gene_info2["gene"] != "":
-        return False
-    start1, end1 = min(gene_info1["start_pos"], gene_info1["end_pos"]), max(
-        gene_info1["start_pos"], gene_info1["end_pos"]
-    )
-    seq1 = gene_info1["seq_value"][start1 - 1: end1 - 1]
-    start2, end2 = min(gene_info2["start_pos"], gene_info2["end_pos"]), max(
-        gene_info2["start_pos"], gene_info2["end_pos"]
-    )
-    seq2 = gene_info2["seq_value"][start2 - 1: end2 - 1]
-    return compare_two_sequences(seq1, seq2, output_dir, threshold)
-
-
-def annotations_identical(seq_info1: List[GeneInfo], seq_info2: List[GeneInfo],
-                          out_dir: str | Path, threshold: int = 90) -> bool:
-    """Whether two annotated sequences have identical gene content."""
-    if len(seq_info1) == len(seq_info2):
-        identical_rows = 0
-        for i, gene_info1 in enumerate(seq_info1):
-            gene_info2 = seq_info2[i]
-            if (
-                    gene_info1["gene"] == gene_info2["gene"] and gene_info1["gene"] != ""
-            ) or (
-                    gene_info1["gene"] == gene_info2["gene"]
-                    and unnamed_genes_similar(gene_info1, gene_info2, out_dir, threshold)
-            ):
-                identical_rows += 1
-        if identical_rows == len(seq_info1):
-            return True
-    return False
+def _orf_nt_seq(gene_info: GeneInfo) -> str:
+    """The nucleotide sub-sequence of a called ORF within its neighborhood."""
+    start = min(gene_info["start_pos"], gene_info["end_pos"])
+    end = max(gene_info["start_pos"], gene_info["end_pos"])
+    return gene_info["seq_value"][start - 1: end - 1]
 
 
 def similar_annotation_exists(seq_info_list: List[GeneInfo],
                               all_seq_info_lists: List[List[GeneInfo]],
                               out_dir: str | Path, threshold: int = 90) -> bool:
     """
-    Whether the annotation of a new sequence already exists in the list of
-    annotations extracted from other sequences (identical in 'gene', 'length',
-    'start_pos' and 'end_pos' for every item).
+    Whether a neighborhood's ORF annotation already exists among previously kept
+    neighborhoods (i.e. it is a near-duplicate to collapse).
+
+    Two neighborhoods are considered identical when they have the same number of
+    ORFs and, at every position, the ORFs either share a non-empty gene name or
+    (for unnamed ORFs) have near-identical nucleotide sequences. Every ORF
+    sequence comparison the check might need is performed in a single batched
+    minimap2 alignment rather than one alignment per pair.
     """
-    for seq_list in all_seq_info_lists:
-        if annotations_identical(seq_info_list, seq_list, out_dir, threshold):
+    # only neighborhoods with the same number of ORFs can be identical
+    candidates = [
+        (idx, kept) for idx, kept in enumerate(all_seq_info_lists)
+        if len(kept) == len(seq_info_list)
+    ]
+    if not candidates:
+        return False
+
+    # collect every unnamed-ORF comparison the check might need, keyed so each
+    # (query, subject) result maps back to a (position, candidate) pair, and run
+    # them all in one minimap2 alignment
+    queries = {
+        f"q{i}": _orf_nt_seq(g)
+        for i, g in enumerate(seq_info_list) if g["gene"] == ""
+    }
+    subjects = {
+        f"s{idx}_{i}": _orf_nt_seq(g)
+        for idx, kept in candidates
+        for i, g in enumerate(kept) if g["gene"] == ""
+    }
+    matched = similar_sequence_pairs(queries, subjects, threshold)
+
+    for idx, kept in candidates:
+        for i, gene_info in enumerate(seq_info_list):
+            other = kept[i]
+            if gene_info["gene"] != "" or other["gene"] != "":
+                # named ORF(s): identical only if they share a non-empty name
+                if not (gene_info["gene"] == other["gene"] and gene_info["gene"] != ""):
+                    break
+            elif (f"q{i}", f"s{idx}_{i}") not in matched:
+                # both unnamed: require near-identical nucleotide sequences
+                break
+        else:
+            # every position matched -> this neighborhood is a duplicate
             return True
     return False
 

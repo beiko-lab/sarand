@@ -9,6 +9,7 @@ dependencies:
   - bandage=0.9.0
   - blast=2.17.0
   - cd-hit=4.8.1
+  - minimap2=2.31
   - gfapy=1.2.3
   - networkx
   - biopython

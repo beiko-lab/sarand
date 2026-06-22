@@ -1,11 +1,10 @@
 """Unit tests for sarand.util.annotate ORF calling and de-duplication.
 
-``unnamed_genes_similar`` and the blastn-backed branches of
-``annotations_identical`` shell out to blastn and are covered by the functional
-test; here we exercise the named-gene and ORF-calling logic directly.
+The unnamed-ORF branch of ``similar_annotation_exists`` runs minimap2; that path
+is covered by the functional test. Here we exercise the named-gene de-dup logic
+(which needs no aligner) and the ORF-calling logic directly.
 """
 from sarand.util.annotate import (
-    annotations_identical,
     call_orfs,
     partition_genes_around_amr,
     similar_annotation_exists,
@@ -74,25 +73,28 @@ class TestPartitionGenesAroundAmr:
 
 
 class TestAnnotationDeduplication:
+    """Named-gene de-dup paths (no aligner needed: equal positions short-circuit
+    on the gene name before any sequence comparison)."""
+
     def test_identical_named_annotations(self):
-        a = [{"gene": "x", "start_pos": 1, "end_pos": 2},
-             {"gene": "y", "start_pos": 3, "end_pos": 4}]
-        b = [{"gene": "x", "start_pos": 1, "end_pos": 2},
-             {"gene": "y", "start_pos": 3, "end_pos": 4}]
-        assert annotations_identical(a, b, "/tmp") is True
+        new = [{"gene": "x", "start_pos": 1, "end_pos": 2},
+               {"gene": "y", "start_pos": 3, "end_pos": 4}]
+        existing = [[{"gene": "x", "start_pos": 1, "end_pos": 2},
+                     {"gene": "y", "start_pos": 3, "end_pos": 4}]]
+        assert similar_annotation_exists(new, existing, "/tmp") is True
 
     def test_different_gene_names_not_identical(self):
-        a = [{"gene": "x", "start_pos": 1, "end_pos": 2}]
-        b = [{"gene": "z", "start_pos": 1, "end_pos": 2}]
-        assert annotations_identical(a, b, "/tmp") is False
+        new = [{"gene": "x", "start_pos": 1, "end_pos": 2}]
+        existing = [[{"gene": "z", "start_pos": 1, "end_pos": 2}]]
+        assert similar_annotation_exists(new, existing, "/tmp") is False
 
     def test_different_lengths_not_identical(self):
-        a = [{"gene": "x", "start_pos": 1, "end_pos": 2}]
-        b = [{"gene": "x", "start_pos": 1, "end_pos": 2},
-             {"gene": "y", "start_pos": 3, "end_pos": 4}]
-        assert annotations_identical(a, b, "/tmp") is False
+        new = [{"gene": "x", "start_pos": 1, "end_pos": 2}]
+        existing = [[{"gene": "x", "start_pos": 1, "end_pos": 2},
+                     {"gene": "y", "start_pos": 3, "end_pos": 4}]]
+        assert similar_annotation_exists(new, existing, "/tmp") is False
 
-    def test_similar_annotation_exists(self):
+    def test_similar_annotation_exists_among_several(self):
         new = [{"gene": "x", "start_pos": 1, "end_pos": 2}]
         existing = [
             [{"gene": "q", "start_pos": 1, "end_pos": 2}],
