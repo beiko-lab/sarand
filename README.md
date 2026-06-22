@@ -147,9 +147,9 @@ By default Sarand searches for the CARD antimicrobial-resistance genes that are
 bundled with the package. Two reference databases of nucleotide target genes are
 supported and can be kept up to date without supplying your own `--target_genes`:
 
-* `card` (default) — the [CARD](https://card.mcmaster.ca) protein-homolog model
+* `card` (default) : the [CARD](https://card.mcmaster.ca) protein-homolog model
   nucleotide sequences.
-* `ncbi` — the [NCBI AMRFinderPlus](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/)
+* `ncbi` : the [NCBI AMRFinderPlus](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/)
   reference gene CDS (`AMR_CDS.fa`).
 
 `--update` downloads the latest release of the selected database (only if newer
