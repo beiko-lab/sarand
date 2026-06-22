@@ -196,14 +196,14 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
         file_name: dict whose "file_name" key receives the output path
     """
     stop_flag.clear()
-    print("flag: ", stop_flag.is_set())
+    LOG.debug(f"{up_down}: stop flag set = {stop_flag.is_set()}")
     threshold = params.neighborhood_length
 
     source = f"{params.output_dir}/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
     destination = f"{params.output_dir}/final_down_up/clustered_{target_gene_node}_{len_target}_{up_down}.fasta"
 
     if Path(destination).exists():
-        print(f"yes {target_gene_node} in {up_down} found ")
+        LOG.debug(f"{up_down} paths for {target_gene_node} already computed, reusing {destination}")
         file_name["file_name"] = destination
         return
 
@@ -224,13 +224,13 @@ def get_paths_from_big_nx_graph_4(directed_graph, target_gene_node, len_target, 
         file_name["file_name"] = ""
         return
 
-    print("yes len of ego_nx_graph : ", len(ego_nx_graph.nodes))
+    LOG.debug(f"ego graph size: {len(ego_nx_graph.nodes)} nodes")
     paths = {tuple([target_gene_node]):len_target}
 
-    print("flag: ", stop_flag.is_set())
+    LOG.debug(f"{up_down}: stop flag set = {stop_flag.is_set()}")
     while not stop_flag.is_set() and len(paths)>0:
             p, w = paths.popitem()
-            print("paths : ", len(paths))
+            LOG.debug(f"remaining paths to expand: {len(paths)}")
 
             neighbor = set(ego_nx_graph.successors(p[-1]))
             if(neighbor):
@@ -292,7 +292,7 @@ def merge_upstream_target_downstream_5(upstream_paths_file, downstream_paths_fil
 
             if(len_after_target > threshold):
                 new_seq = new_seq[0:-(len_after_target-threshold)]
-            print("new path :", type(new_path), new_path)
+            LOG.debug(f"merged upstream-only path: {new_path}")
             mergepaths[new_path] = new_seq
 
     elif (upstream_paths_file == "" and downstream_paths_file != ""):
@@ -525,7 +525,7 @@ def neighborhood_sequence_extraction(
         # target_gene
         target_gene = [pair[0]+pair[1]
                     for pair in zip(target_hit['nodes'], target_hit['orientations'])]
-        print("target gene : ", target_gene)
+        LOG.debug(f"target gene nodes: {target_gene}")
 
         if(target_hit['end_pos'] == 0):
             len_after_target = 0
@@ -539,8 +539,7 @@ def neighborhood_sequence_extraction(
             len_before_target = target_hit['start_pos'] - 1
 
 
-        print("len after: ", len_after_target)
-        print("len before: ", len_before_target)
+        LOG.debug(f"target offsets: {len_before_target} before, {len_after_target} after")
 
 
         if len_after_target >= params.neighborhood_length:
@@ -562,14 +561,14 @@ def neighborhood_sequence_extraction(
         # downstream
 
         if find_downstream:
-            print("into down")
+            LOG.debug("searching downstream neighborhood")
             target_gene_node = target_gene[-1]
 
             loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(directed_graph, target_gene_node, len_after_target, "down", params, stop_flag_downstream, downstream_paths_file))
             loop_thread.start()
             # Wait for the thread to finish or until the time limit expires
             start_time = time.time()
-            print(f"duration : {duration}")
+            LOG.debug(f"per-direction time limit: {duration}s")
             while time.time() - start_time < duration:
                 if not loop_thread.is_alive():  # If the thread has finished naturally, break
                     break
@@ -581,13 +580,13 @@ def neighborhood_sequence_extraction(
             loop_thread.join()
 
             #    directed_graph, target_gene_node, len_after_target, "down", params, stop_flag)
-            print("done downstream")
+            LOG.debug("finished downstream search")
 
         # upstream
         if find_upstream:
-            print("into up")
+            LOG.debug("searching upstream neighborhood")
             target_gene_node = target_gene[0]
-            print("flag: ", stop_flag_upstream.is_set())
+            LOG.debug(f"upstream: stop flag set = {stop_flag_upstream.is_set()}")
             loop_thread = threading.Thread(target=get_paths_from_big_nx_graph_4, args=(reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag_upstream, upstream_paths_file))
             loop_thread.start()
             # Wait for the thread to finish or until the time limit expires
@@ -603,10 +602,10 @@ def neighborhood_sequence_extraction(
             loop_thread.join()
 
             #    reverse_directed_graph, target_gene_node, len_before_target, "up", params, stop_flag)
-            print("done upstream")
+            LOG.debug("finished upstream search")
 
-        print(f"downstream file :{downstream_paths_file}")
-        print(f"upstream file : {upstream_paths_file}")
+        LOG.debug(f"downstream paths file: {downstream_paths_file}")
+        LOG.debug(f"upstream paths file: {upstream_paths_file}")
        	merge_upstream_target_downstream_5(
             		upstream_paths_file=upstream_paths_file["file_name"], downstream_paths_file=downstream_paths_file["file_name"], target=target_gene, target_name=target_name,
             		target_seq=target_seq, len_before_target=len_before_target, len_after_target=len_after_target, params=params, seq_file=seq_file)
@@ -664,9 +663,7 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
                             len_before_target = target_hit['start_pos'] - 1
                 break
 
-        print(f"len_befor : {len_before_target}")
-        print(f"len after : {len_after_target}")
-        print(f"target : {target_gene}")
+        LOG.debug(f"path info for target {target_gene}: {len_before_target} before, {len_after_target} after")
 
         is_upstreams = (index_target_in_path > 0)
         is_downstreams = (len(path)-1) > index_target_in_path
@@ -691,8 +688,7 @@ def create_paths_info_list(seq_file, ego_graph, target_hits, threshold, max_kmer
 
         ##### target
         if(len(path[index_target_in_path]) == 1):
-            print(f"len_befor : {len_before_target}")
-            print(f"len after : {len_after_target}")
+            LOG.debug(f"single-node target offsets: {len_before_target} before, {len_after_target} after")
             node = path[index_target_in_path]
             coverage = calculate_coverage(ego_graph.nodes[path[index_target_in_path][0]], max_kmer_size, path[index_target_in_path][0], assembler)
             ####upstream
