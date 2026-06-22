@@ -4,7 +4,7 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
-from sarand.config import PROGRAM_VERSION_NA, CONDA_BLAST_NAME, CONDA_EXE_NAME
+from sarand.config import PROGRAM_VERSION_NA
 from sarand.util.logger import LOG
 
 _RE_VERSION = re.compile(r'blastn: ([\d.]+)')
@@ -33,6 +33,7 @@ class BlastnParams:
             evalue: Optional[float] = None,
             perc_identity: Optional[float] = None,
     ):
+        """Store the blastn parameters (query/subject paths, task, output format, filters)."""
         self.query: Path = query
         self.subject: Path = subject
         self.task: str = task
@@ -75,6 +76,7 @@ class BlastnResult:
             length: int,
             qcovhsp: int,
     ):
+        """Store one blastn hit's percent identity, alignment length and query coverage."""
         self.pident: float = pident
         self.length: int = length
         self.qcovhsp: int = qcovhsp
@@ -100,6 +102,7 @@ class Blastn:
     __slots__ = ('params', 'results')
 
     def __init__(self, params: BlastnParams, results: List[BlastnResult]):
+        """Wrap a completed blastn run (its params and parsed results)."""
         self.params: BlastnParams = params
         self.results: List[BlastnResult] = results
 
@@ -111,13 +114,6 @@ class Blastn:
         cmd = params.as_cmd()
 
         # Run blastn
-        if CONDA_BLAST_NAME:
-            cmd = [
-                      CONDA_EXE_NAME,
-                      'run',
-                      '-n',
-                      CONDA_BLAST_NAME,
-                  ] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,
@@ -160,13 +156,6 @@ class Blastn:
     def version() -> str:
         """Returns the version of blastn on the path."""
         cmd = ['blastn', '-version']
-        if CONDA_BLAST_NAME:
-            cmd = [
-                      CONDA_EXE_NAME,
-                      'run',
-                      '-n',
-                      CONDA_BLAST_NAME,
-                  ] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd, encoding='utf-8', stdout=subprocess.PIPE, stderr=subprocess.PIPE

@@ -1,28 +1,22 @@
 import argparse
 import datetime
-import os
 import shutil
 import sys
 from pathlib import Path
 
 from sarand.__init__ import __version__
-from sarand.full_pipeline import full_pipeline_main
+from sarand.pipeline import run_graph_pipeline
 from sarand.util.logger import create_logger, get_logger
-from sarand.util.pkg import get_pkg_card_fasta_path
-from sarand.utils import assert_dependencies_exist, check_file, validate_range
-from sarand.test_metacherchant import test_metacherchant_main
-from sarand.amr_neighborhood_in_contigs import find_contig_amrs_main
+from sarand.util.cli import assert_dependencies_exist, check_file, validate_range
+from sarand.databases import DATABASES, get_target_fasta, update_database
 
-def main():
-    """
-    Main CLI entrypoint for sarand
-    """
+def main() -> None:
+    """Main CLI entrypoint for sarand: parse arguments and dispatch a pipeline."""
     run_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M")
     parser = argparse.ArgumentParser(
-        description="Identify and extract the "
-                    "local neighbourhood of target genes "
-                    " (such as AMR) from a GFA formatted "
-                    " assembly graph",
+        description="Identify, extract, deduplicate, and coverage-filter the local "
+                    "neighborhoods of target genes (e.g., AMR genes) "
+                    "from a GFA-formatted assembly graph",
         prog="sarand",
     )
     parser.add_argument(
@@ -32,72 +26,88 @@ def main():
     parser.add_argument(
         "-i",
         "--input_gfa",
-        #required=True,
-        help="Path to assembly graph (in GFA format) " "that you wish to analyse",
+        help="Path to assembly graph (in GFA format) that you wish to search",
         type=check_file,
     )
     parser.add_argument(
         "-a",
         "--assembler",
-        choices=["metaspades", "bcalm", "megahit", "metacherchant", "contig"],
-        required=True,
-        help="Assembler used to generate input GFA (required to correctly parse "
-             "coverage information)",
+        choices=["metaspades", "bcalm", "megahit"],
+        default=None,
+        help="Assembler used to generate input GFA "
+             "(required to correctly parse coverage information).",
     )
     parser.add_argument(
         "-k",
         "--max_kmer_size",
-        #required=True,
         type=int,
-        help="Maximum k-mer sized used by assembler to generate input GFA",
+        help="Maximum k-mer sized used by assembler to generate input GFA "
+             "(required to correctly calculate coverage).",
     )
     parser.add_argument(
         "--extraction_timeout",
         default=10000,
         type=int,
-        help="Maximum time to extract neighbourhood per AMR gene in minutes",
+        help="Maximum number of minutes to spend traversing each target gene neighborhood "
+             " (high complexity subgraphs can be computationally demanding to traverse fully).",
     )
     parser.add_argument(
         "-j",
         "--num_cores",
         default=1,
         type=validate_range(int, 1, 100),
-        help="Number of cores to use",
+        help="Number of cores to use when running Sarand",
     )
     parser.add_argument(
         "-c",
         "--coverage_difference",
         default=30,
         type=validate_range(int, -1, 500),
-        help="Maximum coverage difference to include "
-             "when filtering graph neighbourhood. Use "
-             "-1 to indicate no coverage threshold "
-             "(although this will likely lead to false "
-             "positive neighbourhoods).",
+        help="Maximum coverage difference within a path to retain when filtering graph neighborhoods. "
+             "Use -1 to indicate no coverage threshold (this will likely lead to chimeric false neighborhoods)."
     )
     parser.add_argument(
         "-t",
         "--target_genes",
-        default=get_pkg_card_fasta_path(),
+        default=None,
         type=check_file,
-        help="Target genes to "
-             "search for in the assembly graph (fasta formatted). "
-             " Default is the pre-installed CARD database",
+        help="Fasta-formatted nucleotide target gene sequences to search for in the assembly graph "
+             "(Overrides --database or default CARD homolog sequences).",
+    )
+    parser.add_argument(
+        "-d",
+        "--database",
+        choices=list(DATABASES),
+        default="card",
+        help="Reference target-gene database to search with when not supplying custom --target_genes."
+    )
+    parser.add_argument(
+        "--update",
+        action="store_true",
+        default=False,
+        help="Download/refresh the pre-installed CARD and NCBI AMR gene databases to their latest releases and exit."
     )
     parser.add_argument(
         "-x",
         "--min_target_identity",
         default=95,
         type=validate_range(float, 0.1, 100),
-        help="Minimum identity/coverage to identify presence "
-             "of target gene in assembly graph",
+        help="Minimum identity for target gene hits in assembly graph",
+    )
+
+    parser.add_argument(
+        "-z",
+        "--min_target_coverage",
+        default=95,
+        type=validate_range(float, 0.1, 100),
+        help="Minimum coverage for target gene hits in assembly graph",
     )
     parser.add_argument(
         "-l",
-        "--neighbourhood_length",
+        "--neighborhood_length",
         default=1000,
         type=validate_range(int, 0, 100000),
-        help="Size of gene neighbourhood to extract from the assembly graph",
+        help="Maximum gene neighborhood length radius (i.e., the number of bases upstream and/or downstream) to extract surrounding each target gene hit in the assembly graph (bp).",
     )
     parser.add_argument(
         "-o",
@@ -118,35 +128,6 @@ def main():
         action='store_true',
         help='Provide verbose debugging output when logging, and keep intermediate files',
     )
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument(
-        "--no_rgi",
-        default=False,
-        action="store_false",
-        help="Disable RGI based annotation of graph neighbourhoods",
-    )
-    group.add_argument(
-        "--rgi_include_loose",
-        default=False,
-        action="store_true",
-        help="Include loose criteria hits if using RGI to annotate"
-             " graph neighbourhoods",
-    )
-    parser.add_argument(
-        '--use_ga',
-        default = False,
-        action='store_true',
-        help="Enable GraphAligner (instead of Bandage) for sequence alignment in the graph",
-    )
-    # GraphAligner options
-    parser.add_argument(
-        '--ga',
-        default=None,
-        action='append',
-        nargs='*',
-        help='Additional arguments to supply to graph aligner in the form of --ga key value,'
-        'e.g. --ga E-cutoff 0.1; it should be used only if use_ga is set to True'
-    )
     parser.add_argument(
         "--keep_intermediate_files",
         default=False,
@@ -157,58 +138,42 @@ def main():
         '--debug',
         default=False,
         action='store_true',
-        help='Creates additional files for debugging purposes.',
+        help='Enable debug-level logging and create additional files for debugging purposes.',
     )
     parser.add_argument(
-        "-n",
-        "--max_down_up_paths",
-        default=-1,
-        type=validate_range(int, 0, 100000),
-        help="Max Number of downstream or upstream paths",
-    )
-
-    parser.add_argument(
-        "-seq",
-        "--max_number_seq_for_cdhit",
-        default=100000,
-        type=validate_range(int, 0, 100000),
-        help="Max Number of sequence for cd-hit",
-    )
-
-    parser.add_argument(
-        "-sim",
-        "--similarity",
+        "--deduplication_identity",
         default=0.9,
         type=validate_range(float, 0, 1),
-        help="similarity threshold for cdhit (a number between 0 and 1)",
+        help="CD-HIT identity threshold for deduplicating extracted neighborhoods",
     )
-    parser.add_argument(
-        '--meta_main_dir',
-        default = None,
-        help = 'The main directory for metacherchant containing AMR_seqs_full.fasta,'
-            ' all AMR sequences and the extracted local graphs by metacherchant'
-    )
+
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Enforce conditional requirement for input_gfa and max_kmer_size
-    if args.assembler != "metacherchant" and args.input_gfa is None:
-        parser.error("The --input_gfa (-i) argument is required.")
-    if args.assembler != "metacherchant" and args.assembler != "contig" and args.max_kmer_size is None:
+    # --update just refreshes a reference database and exits; no graph needed.
+    if args.update:
+        create_logger(verbose=args.verbose or args.debug)
+        update_database(args.database)
+        sys.exit(0)
+
+    # Otherwise an assembler (and a graph / k-mer size) is required.
+    if args.assembler is None:
+        parser.error("one of the arguments -a/--assembler or --update is required")
+    if args.max_kmer_size is None:
         parser.error("The --max_kmer_size (-k) argument is required.")
-        
+
     # Override the keep intermediate files option if debug is set
     if args.debug:
         args.keep_intermediate_files = True
 
     # Setup the output logger path
-    logger_output_path = os.path.join(args.output_dir, f"run_{run_time}.log")
+    logger_output_path = Path(args.output_dir) / f"run_{run_time}.log"
 
     # Check if the output directory exists
-    if os.path.exists(args.output_dir):
+    if Path(args.output_dir).exists():
         if not args.force:
-            log = create_logger(verbose=args.verbose)
+            log = create_logger(verbose=args.verbose or args.debug)
             log.error(
                 f"{args.output_dir} already exists, please use a different "
                 "--output_dir or use --force to overwrite this directory"
@@ -216,36 +181,38 @@ def main():
             sys.exit(1)
         else:
             shutil.rmtree(args.output_dir)
-            os.makedirs(args.output_dir)
-            log = create_logger(output=logger_output_path, verbose=args.verbose)
+            Path(args.output_dir).mkdir(parents=True)
+            log = create_logger(output=logger_output_path, verbose=args.verbose or args.debug)
             log.info(f"Overwriting previously created {args.output_dir}")
 
     else:
-        os.makedirs(args.output_dir)
-        create_logger(output=logger_output_path, verbose=args.verbose)
+        Path(args.output_dir).mkdir(parents=True)
+        create_logger(output=logger_output_path, verbose=args.verbose or args.debug)
 
-    # Get the logger
+    # initialise the logger
     log = get_logger()
 
     # check dependencies work
-    assert_dependencies_exist(graph_aligner = args.use_ga,
-            bandage = not args.use_ga, rgi=not args.no_rgi)
+    assert_dependencies_exist()
 
-    # convert argparse to config dictionary
+    # resolve the target genes: an explicit -t wins, otherwise use the selected
+    # reference database (by default bundled CARD homolog nucleotide sequences).
+    if args.target_genes is None:
+        try:
+            args.target_genes = get_target_fasta(args.database)
+        except FileNotFoundError as e:
+            log.error(str(e))
+            sys.exit(1)
+    log.info(f"Using target genes: {args.target_genes}")
+
+    # insert run_time into config dictionary
     args.run_time = run_time
 
     # logging file
-    log.info(f"Sarand initialized: output={args.output_dir}")
+    log.info(f"Output directory: output={args.output_dir}")
 
-    # execute main workflow
-    #full_pipeline_main(args)
-    if args.assembler == "metacherchant":
-        test_metacherchant_main(args)
-    elif args.assembler == "contig":
-        find_contig_amrs_main(args)
-    else:
-        # execute main workflow
-        full_pipeline_main(args)
+    # execute the workflow for the chosen assembler
+    run_graph_pipeline(args)
 
 
 if __name__ == "__main__":

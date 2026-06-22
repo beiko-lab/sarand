@@ -2,9 +2,9 @@ import re
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Optional, List, Union, Dict
+from typing import Optional, List
 
-from sarand.config import PROGRAM_VERSION_NA, CONDA_BANDAGE_NAME, CONDA_EXE_NAME
+from sarand.config import PROGRAM_VERSION_NA
 from sarand.util.logger import LOG
 
 ##???????
@@ -80,7 +80,6 @@ class BandageParams:
         self.minpatcov = minpatcov
         self.minmeanid = minmeanid
         self.minhitcov = minhitcov
-        #self.threads = threads
         self.verbose = verbose
         self.maxevprod = maxevprod
         self.minpatlen = minpatlen
@@ -106,8 +105,6 @@ class BandageParams:
             cmd += ['--minmeanid', str(self.minmeanid)]
         if self.minhitcov:
             cmd += ['--minhitcov', str(self.minhitcov)]
-        #if self.threads:
-        #    cmd += ['--threads', str(self.threads)]
         if self.verbose:
             cmd += ['--verbose']
         if self.maxevprod:
@@ -164,8 +161,6 @@ class BandageParams:
             self.minmeanid = float(d['minmeanid'])
         if 'minhitcov' in d:
             self.minhitcov = float(d['minhitcov'])
-        #if 'threads' in d:
-        #    self.threads = int(d['threads'])
         if 'verbose' in d:
             self.verbose = True
         if 'maxevprod' in d:
@@ -211,6 +206,7 @@ class BandageResult:
             e_value_product: float,
             sequence: str
     ):
+        """Store the columns of a single Bandage querypaths tsv row."""
         self.query: str = query
         self.path_with_start_end: str = path_with_start_end
         self.length: int = length
@@ -229,18 +225,21 @@ class BandageResult:
         self.sequence: str = sequence
 
     def __repr__(self):
+        """Represent the result by its query string."""
         return self.query
 
     @property
     def identity(self) -> str:
+        """The raw query string (which carries the target gene identifier)."""
         return self.query
-        #return self.name.split(' ')[0]
     @property
     def path(self) -> str:
-        return (re.sub("\((.*?)\)", "", self.path_with_start_end)).strip()
+        """The node path with the leading/trailing position annotations stripped."""
+        return (re.sub(r"\((.*?)\)", "", self.path_with_start_end)).strip()
 
     @property
     def path_start(self) -> int:
+        """The start offset within the first node (0 if not annotated)."""
         if self.path_with_start_end.startswith("("):
             index = self.path_with_start_end.find(")")
             return int(self.path_with_start_end[1 : index])
@@ -248,6 +247,7 @@ class BandageResult:
 
     @property
     def path_end(self) -> int:
+        """The end offset within the last node (0 if not annotated)."""
         if self.path_with_start_end.endswith(")"):
             index = self.path_with_start_end.rfind("(")
             return int(self.path_with_start_end[index + 1 : -1])
@@ -262,8 +262,6 @@ class BandageResult:
             nodes:	list of node numbers -> e.g., [69, 2193]
             orientation: list of orientation of nodes -> e.g., [-, +]
         """
-        # Remove text between ()
-        #purePath = (re.sub("\((.*?)\)", "", self.path_with_start_end)).strip()
         if len(self.path) == 0:
             raise Exception('??')
         nodes = list()
@@ -289,20 +287,21 @@ class BandageResult:
         return float(re.sub("[%]", "", self.mean_hit_identity))
 
     @property
-    def amr_name(self) -> str:
-        amr_str = self.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
-        return BandageResult.restricted_amr_name_from_modified_name(amr_str)
+    def target_name(self) -> str:
+        """The filesystem-safe target gene name parsed from the query string."""
+        target_str = self.identity.split("|")[-1].strip().replace(" ", "_").replace("'", ";")
+        return BandageResult.restricted_target_name_from_modified_name(target_str)
 
     @staticmethod
-    def restricted_amr_name_from_modified_name(amr_name):
+    def restricted_target_name_from_modified_name(target_name):
         """Lifted from utils to avoid circular imports
         TODO: Refactor utils to avoid calls to Bandage?
         """
-        amr_name1 = amr_name.replace(";", "SS")
-        amr_name1 = "".join(
-            e for e in amr_name1 if e.isalpha() or e.isnumeric() or e == "_" or e == "-"
+        target_name1 = target_name.replace(";", "SS")
+        target_name1 = "".join(
+            e for e in target_name1 if e.isalpha() or e.isnumeric() or e == "_" or e == "-"
         )
-        return amr_name1
+        return target_name1
 
 
 class Bandage:
@@ -318,6 +317,7 @@ class Bandage:
             stdout: Optional[str] = None,
             stderr: Optional[str] = None,
     ):
+        """Wrap a completed Bandage run (its params, parsed results and output)."""
         self.params: BandageParams = params
         self.results: List[BandageResult] = results
         self.stdout: Optional[str] = stdout
@@ -329,10 +329,6 @@ class Bandage:
 
         # Display the command to be run
         cmd = params.as_cmd()
-
-        # If this is being run in the Docker container, then activate the env first
-        if CONDA_BANDAGE_NAME:
-            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME] + cmd
         LOG.info(' '.join(map(str, cmd)))
 
         # Run the command
@@ -351,10 +347,10 @@ class Bandage:
             cls,
             gfa: Path,
             reads: Path,
-            threshold: float,
-            ga_extra_args: BandageParams,
+            min_target_identity: float,
+            min_target_coverage: float,
+            extra_params: Optional[BandageParams] = None,
             out_dir: Optional[Path] = None,
-            #threads: Optional[int] = 1,
     ) -> 'Bandage':
 
         """Default method to run Bandage for the sarand pipeline."""
@@ -362,17 +358,18 @@ class Bandage:
             reads = Path(reads)
 
         if out_dir is not None:
+            # Bandage exits 0 but silently fails to write its .tsv if the
+            # output directory does not exist, so ensure it is present first.
+            out_dir.mkdir(parents=True, exist_ok=True)
             params = BandageParams(
                 graph=gfa,
                 reads=reads,
                 outputfile=out_dir / 'bandage',
-                minpatcov = ((threshold - 1) / 100.0),
-                minmeanid = ((threshold - 1) / 100.0),
-                minhitcov = ((threshold - 1) / 100.0),
-                #threads=threads,
+                minmeanid = (min_target_identity / 100.0),
+                minhitcov = (min_target_coverage / 100.0),
             )
-            if ga_extra_args:
-                params.update_from_object(ga_extra_args)
+            if extra_params:
+                params.update_from_object(extra_params)
             out = Bandage.run(params)
             if out.stdout:
                 path_stdout = out_dir / 'bandage_stdout.txt'
@@ -392,18 +389,16 @@ class Bandage:
                     graph=gfa,
                     reads=reads,
                     outputfile=tmp_dir / 'bandage',
-                    minpatcov = ((threshold - 1) / 100.0),
-                    minmeanid = ((threshold - 1) / 100.0),
-                    minhitcov = ((threshold - 1) / 100.0),
-                    #threads=threads,
+                    minmeanid = (min_target_identity / 100.0),
+                    minhitcov = (min_target_coverage / 100.0),
                 )
-                if ga_extra_args:
-                    params.update_from_object(ga_extra_args)
+                if extra_params:
+                    params.update_from_object(extra_params)
                 return Bandage.run(params)
 
     @staticmethod
     def read_file(path: Path) -> List[BandageResult]:
-
+        """Parse a Bandage querypaths tsv file into a list of BandageResult."""
         out = list()
         with path.open() as f:
             for line in f.readlines()[1:]:
@@ -434,8 +429,6 @@ class Bandage:
     def version() -> str:
         """Returns the version of Bandage on the path."""
         cmd = ['Bandage', '--version']
-        if CONDA_BANDAGE_NAME:
-            cmd = [CONDA_EXE_NAME, 'run', '-n', CONDA_BANDAGE_NAME] + cmd
         LOG.debug(' '.join(map(str, cmd)))
         proc = subprocess.Popen(
             cmd,

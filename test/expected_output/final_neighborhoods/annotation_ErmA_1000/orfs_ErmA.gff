@@ -1,0 +1,4 @@
+##gff-version 3
+extracted1	pyrodigal	CDS	3	467	.	-	0	ID=extracted1_orf1;partial=10;target=no
+extracted1	pyrodigal	CDS	1001	1732	.	+	0	ID=extracted1_orf2;partial=00;target=yes
+extracted1	pyrodigal	CDS	1858	2640	.	-	0	ID=extracted1_orf3;partial=00;target=no

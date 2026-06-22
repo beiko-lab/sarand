@@ -12,8 +12,13 @@ def get_logger() -> logging.Logger:
     return logging.getLogger(SARAND_LOGGER_NAME)
 
 
-def create_logger(output: Optional[str] = None, verbose: bool = False):
-    """Initialize the logger."""
+def create_logger(output: Optional[str] = None, verbose: bool = False) -> logging.Logger:
+    """Initialise (once) and return the shared sarand logger.
+
+    Parameters:
+        output: optional path to also write a log file to.
+        verbose: if True, log at DEBUG level instead of INFO.
+    """
 
     level = logging.DEBUG if verbose else logging.INFO
 
