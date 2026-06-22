@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Test driver for sarand. Runs in two stages:
+# Integrated Test driver for sarand. Runs in two stages:
 #   1. Unit tests (pytest test/unit) covering the pure functions of each module.
 #   2. A whole-pipeline regression test: run sarand on a bundled GFA and compare
 #      the key outputs of each stage against test/expected_output/ (a frozen run
@@ -18,14 +18,15 @@
 #   find test/expected_output -name '*.log'   -delete   # drop per-run logs
 #   rm -rf test/expected_output/target_hits/alignments  # drop bandage intermediate
 #
-# Note: pipefail is intentionally NOT set so that a missing baseline file group
-# hashes as empty and is reported as a failed comparison rather than aborting.
+# Note: not using pipefail as a missing baseline file group will cause an abortion
+# this way it will just hash empty
 set -eu
 
 GFA=test/spade_output/assembly_graph_with_scaffolds.gfa
 OUT=test/actual_output
 EXP=test/expected_output
-NL=1000   # default --neighborhood_length
+# default --neighborhood_length
+NL=1000   
 
 # The cd-hit dedup step writes a temp_file.fasta into the working directory;
 # make sure these strays are removed however the script exits.

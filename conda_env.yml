@@ -13,7 +13,7 @@ dependencies:
   - networkx
   - biopython
   - pyrodigal
-  - python>=3.14.0
+  - python
   - zlib
   - zlib-ng
   - zstd

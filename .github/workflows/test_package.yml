@@ -14,7 +14,7 @@ jobs:
       - name: "Install Conda environment with Micromamba"
         uses: mamba-org/provision-with-micromamba@main
         with:
-          environment-file: conda_env.yaml
+          environment-file: conda_env.yml
           environment-name: sarand
           cache-env: true
       - name: "Install sarand"
