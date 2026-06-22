@@ -42,6 +42,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Bio-Informatics",
 ]
 
+[project.optional-dependencies]
+test = ["pytest"]
+
 [project.urls]
 Homepage = "https://github.com/beiko-lab/sarand"
 Repository = "https://github.com/beiko-lab/sarand"
@@ -57,3 +60,6 @@ version = { attr = "sarand.__version__" }
 
 [tool.setuptools.package-data]
 sarand = ["data/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["test/unit"]

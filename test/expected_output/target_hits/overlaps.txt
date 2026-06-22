@@ -1,0 +1,8 @@
+qacA:qacB
+mepA:
+mepR:
+ErmA:
+ANT(9)-Ia:
+tet(38):
+norC:
+AAC6_Ie_APH2_Ia:

@@ -1,14 +1,22 @@
 #!/bin/bash
 #
-# Whole-pipeline regression test: run sarand on a bundled GFA and compare the
-# key outputs of each stage against test/expected_output/ (a frozen run of the
-# current code). Comparisons hash the sorted concatenation of each file group,
-# so they are insensitive to file ordering and to the timestamps embedded in
-# output filenames, but sensitive to any change in content.
+# Test driver for sarand. Runs in two stages:
+#   1. Unit tests (pytest test/unit) covering the pure functions of each module.
+#   2. A whole-pipeline regression test: run sarand on a bundled GFA and compare
+#      the key outputs of each stage against test/expected_output/ (a frozen run
+#      of the current code). Comparisons hash the sorted concatenation of each
+#      file group, so they are insensitive to file ordering and to the
+#      timestamps embedded in output filenames, but sensitive to any change in
+#      content.
+#
+# The unit tests need pytest (pip install -e '.[test]'); the functional test
+# additionally needs the sarand binary and its external tools on the PATH.
 #
 # Regenerate the baseline deliberately (after an intended output change) with:
 #   rm -rf test/expected_output && cp -r <a clean run> test/expected_output
 #   find test/expected_output -name '*.clstr' -delete   # drop cd-hit intermediates
+#   find test/expected_output -name '*.log'   -delete   # drop per-run logs
+#   rm -rf test/expected_output/target_hits/alignments  # drop bandage intermediate
 #
 # Note: pipefail is intentionally NOT set so that a missing baseline file group
 # hashes as empty and is reported as a failed comparison rather than aborting.
@@ -17,12 +25,18 @@ set -eu
 GFA=test/spade_output/assembly_graph_with_scaffolds.gfa
 OUT=test/actual_output
 EXP=test/expected_output
-NL=1000   # default --neighbourhood_length
+NL=1000   # default --neighborhood_length
 
 # The cd-hit dedup step writes a temp_file.fasta into the working directory;
 # make sure these strays are removed however the script exits.
 trap 'rm -f temp_file.fasta temp_file.fasta.clstr' EXIT
 
+echo ""
+echo "Running unit tests ..."
+python -m pytest test/unit -q
+
+echo ""
+echo "Running functional/integration test ..."
 rm -rf "$OUT"
 sarand -i "$GFA" -o "$OUT" -a metaspades -k 55
 
@@ -42,13 +56,14 @@ compare() {
 
 echo ""
 echo "Comparing outputs against $EXP ..."
-compare "identified AMR genes"          "AMR_info/sequences/*.fasta"
-compare "AMR overlap groups"            "AMR_info/overlaps.txt"
-compare "extracted neighbourhoods"      "sequences_info/sequences_info_${NL}/sequences/ng_sequences_*.txt"
-compare "neighbourhood path/coverage"   "sequences_info/sequences_info_${NL}/paths_info/ng_sequences_*.csv"
-compare "ORF annotations"               "annotations/annotations_${NL}/*/annotation_detail_*.csv"
-compare "unique ORF annotations"        "annotations/annotations_${NL}/*/trimmed_annotation_info_*.csv"
-compare "coverage-filtered annotations" "annotations/annotations_${NL}/*/coverage_annotation_30_*.csv"
+compare "identified target genes"       "target_hits/sequences/*.fasta"
+compare "target overlap groups"         "target_hits/overlaps.txt"
+compare "extracted neighborhoods"       "raw_neighborhoods/neighborhood_sequences/ng_sequences_*.txt"
+compare "neighborhood path/coverage"    "raw_neighborhoods/neighborhood_paths/ng_sequences_*.csv"
+compare "ORF annotations"               "final_neighborhoods/annotation_*_${NL}/annotation_detail_*.csv"
+compare "called ORFs (gff)"             "final_neighborhoods/annotation_*_${NL}/orfs_*.gff"
+compare "coverage-filtered annotations" "final_neighborhoods/annotation_*_${NL}/coverage_annotation_30_*.csv"
+compare "combined final neighborhoods"  "final_neighborhoods/final_neighborhoods.csv"
 
 echo ""
 if [[ "$fail" -ne 0 ]]; then

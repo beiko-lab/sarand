@@ -19,7 +19,7 @@ jobs:
           cache-env: true
       - name: "Install sarand"
         shell: bash -l {0}
-        run: pip install .
+        run: pip install '.[test]'
       - name: "Run test"
         shell: bash -l {0}
         run: bash test/test.sh
