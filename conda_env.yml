@@ -1,0 +1,20 @@
+name: sarand-2.0.1
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - bzip2
+  - gzip
+  - bandage=0.9.0
+  - blast=2.17.0
+  - cd-hit=4.8.1
+  - gfapy=1.2.3
+  - networkx
+  - biopython
+  - pyrodigal
+  - python>=3.14.0
+  - zlib
+  - zlib-ng
+  - zstd
+  - pip 

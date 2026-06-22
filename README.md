@@ -26,13 +26,19 @@ Sarand can be run using a conda environment or in a container (Docker or Singula
 All of sarand's dependencies are installed into a single conda environment;
 Bandage and BLAST+ are simply expected on the `PATH`.
 
-**Creating the environment:**
+**Install dependencies:**
+
+```shell
+conda env create -f conda_env.yml
+```
+
+Which can alternative be run explicitly without using the enviornment yaml like this:
 
 ```shell
 conda create -n sarand-2.0.1 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
 ```
 
-**Installing sarand:**
+**Install sarand:**
 
 ```shell
 git clone https://github.com/beiko-lab/sarand.git
@@ -40,6 +46,8 @@ cd sarand
 conda activate sarand-2.0.1
 python -m pip install sarand
 ```
+
+<!--
 ### 1b. Apptainer/Singularity
 
 This is the easiest way to run Sarand. As apptainer/singularity will automatically map paths, you simply need to run it in the format of:
@@ -57,6 +65,7 @@ Note that this will also be the location that the output is written to.
 ```shell
 docker run -v /host/path:/container/path -it somayeh8131/sarand:1.1.1 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
 ```
+-->
 
 ## 2. Testing
 
@@ -189,6 +198,7 @@ followed by a timestamp). `{TARGET}` below is the (filesystem-safe) target gene 
         * `orfs_{TARGET}.ffn` / `.faa` / `.gff`: the pyrodigal ORFs of the target's final neighborhoods as nucleotide FASTA, protein FASTA and GFF3.
     * `not_found_annotation_targets_in_graph.txt`: targets/sequences for which no annotation could be produced.
 
+<!--
 ### 3b. Visualising annotations
 
 Sarand no longer renders annotation comparison images as part of the main run.
@@ -203,3 +213,4 @@ python scripts/visualize_annotation.py --csvfile <annotation.csv> --output gene_
 The script is not installed with the `sarand` package; run it directly from a
 checkout. It only needs `dna_features_viewer`, `matplotlib`, `numpy` and
 `pillow`, which are already dependencies of sarand.
+-->
