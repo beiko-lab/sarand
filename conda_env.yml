@@ -1,4 +1,4 @@
-name: sarand
+name: sarand2
 channels:
   - conda-forge
   - bioconda
@@ -19,5 +19,6 @@ dependencies:
   - zlib-ng
   - zstd
   - pip 
+  - pytest
 variables:
   QT_QPA_PLATFORM: offscreen
