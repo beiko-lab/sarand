@@ -151,11 +151,17 @@ def main() -> None:
     # Parse arguments
     args = parser.parse_args()
 
-    # --update just refreshes a reference database and exits; no graph needed.
+    # --update refreshes every reference database and exits; no graph needed.
     if args.update:
-        create_logger(verbose=args.verbose or args.debug)
-        update_database(args.database)
-        sys.exit(0)
+        log = create_logger(verbose=args.verbose or args.debug)
+        failures = []
+        for database in DATABASES:
+            try:
+                update_database(database)
+            except Exception as e:  # noqa: BLE001 - report and continue to the next db
+                log.error(f"Failed to update '{database}' database: {e}")
+                failures.append(database)
+        sys.exit(1 if failures else 0)
 
     # Otherwise an assembler (and a graph / k-mer size) is required.
     if args.assembler is None:

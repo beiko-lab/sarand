@@ -10,10 +10,21 @@ def extract_name_from_file_name(file_name: str | Path) -> str:
 
 
 def target_name_from_comment(target_comment: str) -> str:
-    """Derive a normalised sequence name from a FASTA comment/header line."""
+    """Derive a normalised sequence name from a FASTA comment/header line.
+
+    Only the portion of the header up to the first whitespace is considered,
+    mirroring the way BLAST (and therefore Bandage) truncates query names at the
+    first whitespace. This keeps the name derived here consistent with the target
+    name parsed back out of the Bandage alignment output. Without it, databases
+    whose headers carry a trailing token after the gene name -- e.g. the NCBI
+    ``AMR_CDS.fa`` headers ``...|geneName accession:coords`` -- would have the
+    trailing ``accession:coords`` folded into the name here but stripped by
+    Bandage, so the two names never match and every hit is silently discarded.
+    """
+    header = target_comment.split()
+    prefix = header[0] if header else ""
     return (
-        target_comment.split("[")[0]
-        .split("|")[-1]
+        prefix.split("|")[-1]
         .strip()
         .replace(" ", "_")
         .replace("'", ";")
