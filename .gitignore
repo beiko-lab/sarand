@@ -60,6 +60,10 @@ coverage.xml
 !AAC6SS-Ie-APH2SSSS-Ia.fasta
 !ErmA.fasta
 
+# Bundled reference databases (CARD + NCBI AMRFinderPlus)
+!sarand/data/CARD_AMR_seq.fasta
+!sarand/data/NCBI_AMR_seq.fasta
+
 testing/
 tmp/
 db-light.tar.gz

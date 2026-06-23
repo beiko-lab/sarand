@@ -3,11 +3,13 @@
 Two reference databases of nucleotide target genes are supported:
 
 - ``card``  : the CARD "protein homolog model" nucleotide sequences
-              (https://card.mcmaster.ca). This is the default and a copy is
-              bundled with the package.
+              (https://card.mcmaster.ca). This is the default.
 - ``ncbi``  : the NCBI AMRFinderPlus reference gene CDS (``AMR_CDS.fa``)
-              (https://ftp.ncbi.nlm.nih.gov/pathogen/...). Must be downloaded
-              with ``sarand --update --database ncbi`` before first use.
+              (https://ftp.ncbi.nlm.nih.gov/pathogen/...).
+
+A copy of both databases is bundled with the package, so neither requires a
+download before first use. ``sarand --update`` refreshes the cached copies to
+the latest upstream releases.
 
 Downloaded databases are cached in a user-writable directory (see
 ``get_db_dir``) and an updated copy is preferred over the bundled one. The
@@ -30,7 +32,7 @@ from typing import Optional, TextIO
 from Bio import SeqIO
 
 from sarand.util.logger import LOG
-from sarand.util.pkg import get_pkg_card_fasta_path
+from sarand.util.pkg import get_pkg_fasta_path
 
 DATABASES = ("card", "ncbi")
 
@@ -94,17 +96,17 @@ def _save_meta(database: str, meta: dict) -> None:
 def get_target_fasta(database: str = "card") -> Path:
     """Resolve the target-gene FASTA for ``database``.
 
-    A downloaded/updated copy is preferred. For ``card`` we fall back to the
-    bundled FASTA; for ``ncbi`` (which is not bundled) a missing copy is an
-    error directing the user to ``--update``.
+    A downloaded/updated copy is preferred; otherwise we fall back to the copy
+    bundled with the package (both ``card`` and ``ncbi`` are bundled).
     """
     if database not in DATABASES:
         raise ValueError(f"Unknown database {database!r}; choose from {DATABASES}")
     fasta = _fasta_path(database)
     if fasta.is_file():
         return fasta
-    if database == "card":
-        return get_pkg_card_fasta_path()
+    bundled = get_pkg_fasta_path(database)
+    if bundled.is_file():
+        return bundled
     raise FileNotFoundError(
         f"No local '{database}' database found. "
         f"Download it first with: sarand --update --database {database}"
