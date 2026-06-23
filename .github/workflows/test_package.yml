@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: "ubuntu-latest"
+    env:
+      # Bandage is a Qt application; on the headless CI runner there is no
+      # display, so run it with the offscreen platform plugin to avoid
+      # "Bandage binary not found" (a non-zero exit from a failed Qt init).
+      QT_QPA_PLATFORM: offscreen
     steps:
       - uses: actions/checkout@v4
       - name: "Install Conda environment with Micromamba"

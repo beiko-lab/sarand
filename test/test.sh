@@ -22,7 +22,7 @@
 # this way it will just hash empty
 set -eu
 
-GFA=test/spade_output/assembly_graph_with_scaffolds.gfa
+GFA=test/minimal_graph.gfa
 OUT=test/actual_output
 EXP=test/expected_output
 # default --neighborhood_length

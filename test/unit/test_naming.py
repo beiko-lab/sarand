@@ -27,10 +27,15 @@ def test_extract_name_from_file_name(file_name, expected):
 @pytest.mark.parametrize(
     "comment,expected",
     [
-        # the gene id is the last pipe-delimited field, before any "["
+        # the gene id is the last pipe-delimited field of the first
+        # whitespace-delimited token (the "[Staphylococcus]" part is dropped)
         ("gb|X|ARO|aac(6')-Ie [Staphylococcus]", "aac(6;)-Ie"),
-        # the last pipe-delimited field is taken, then spaces become underscores
-        ("gb|X|ARO|some gene name", "some_gene_name"),
+        # only the header up to the first whitespace is used (matching how
+        # BLAST/Bandage truncate query names), so a trailing token is dropped
+        ("gb|X|ARO|some gene name", "some"),
+        # NCBI AMR_CDS.fa headers carry a trailing "accession:coords" token
+        # after the gene name; it must be dropped so the name matches Bandage
+        ("AAA16360.1|L11078.1|1|1|stxA2b|stxA2b|stxA2b L11078.1:177-1136", "stxA2b"),
         # forward slash becomes ']'
         ("foo/bar", "foo]bar"),
         # apostrophe becomes ';'
