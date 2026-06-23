@@ -45,7 +45,7 @@ conda create -n sarand -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 
 git clone https://github.com/beiko-lab/sarand.git
 cd sarand
 conda activate sarand
-python -m pip install sarand
+python -m pip install .
 ```
 
 ### 1b. Apptainer/Singularity
