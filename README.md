@@ -84,68 +84,46 @@ such as [metaSPAdes](https://github.com/ablab/spades) or [megahit](https://githu
 If your chosen assembly tool generates a `fastg` formatted graph utilities such as `fastg2gfa` can be used to convert them.
 
 ```
-usage: sarand [-h] [-v] -i INPUT_GFA -a ASSEMBLER
-              -k MAX_KMER_SIZE [-j NUM_CORES] [-c COVERAGE_DIFFERENCE]
-              [-t TARGET_GENES] [-x MIN_TARGET_IDENTITY]
-              [-l NEIGHBORHOOD_LENGTH] [-o OUTPUT_DIR] [-f]
-              [--verbose] [--keep_intermediate_files] [--debug]
+usage: sarand [-h] [-v] [-i INPUT_GFA] [-a {metaspades,bcalm,megahit}] [-k MAX_KMER_SIZE] [--extraction_timeout EXTRACTION_TIMEOUT] [-j NUM_CORES] [-c COVERAGE_DIFFERENCE] [-t TARGET_GENES] [-d {card,ncbi}] [--update]
+              [-x MIN_TARGET_IDENTITY] [-z MIN_TARGET_COVERAGE] [-l NEIGHBORHOOD_LENGTH] [-o OUTPUT_DIR] [-f] [--verbose] [--keep_intermediate_files] [--debug] [--deduplication_identity DEDUPLICATION_IDENTITY]
 
-Identify and extract the local neighborhood of target genes (such as AMR)
-from a GFA formatted assembly graph
+Identify, extract, deduplicate, and coverage-filter the local neighborhoods of target genes (e.g., AMR genes) from a GFA-formatted assembly graph
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --version         show program's version number and exit
-  -i INPUT_GFA, --input_gfa INPUT_GFA
-                      Path to assembly graph (in GFA format) that you wish
-                      to analyse
-  -a {metaspades,bcalm,megahit},
-  --assembler {metaspades,bcalm,megahit}
-                      Assembler used to generate input GFA (required to
-                      correctly parse coverage information)
-  -k MAX_KMER_SIZE, --max_kmer_size MAX_KMER_SIZE
-                      Maximum k-mer sized used by assembler to generate
-                      input GFA
+  -i, --input_gfa INPUT_GFA
+                        Path to assembly graph (in GFA format) that you wish to search
+  -a, --assembler {metaspades,bcalm,megahit}
+                        Assembler used to generate input GFA (required to correctly parse coverage information).
+  -k, --max_kmer_size MAX_KMER_SIZE
+                        Maximum k-mer sized used by assembler to generate input GFA (required to correctly calculate coverage).
   --extraction_timeout EXTRACTION_TIMEOUT
-                      Maximum time to extract neighborhood per gene in
-                      minutes, -1 indicates no limit
-  -j NUM_CORES, --num_cores NUM_CORES
-                      Number of cores to use
-  -c COVERAGE_DIFFERENCE, --coverage_difference COVERAGE_DIFFERENCE
-                      Maximum coverage difference to include when filtering
-                      graph neighborhood. Use -1 to indicate no coverage
-                      threshold (although this will likely lead to false
-                      positive neighborhoods).
-  -t TARGET_GENES, --target_genes TARGET_GENES
-                      Target genes to search for in the assembly graph
-                      (fasta formatted). Overrides --database; defaults to
-                      the selected --database.
-  -d {card,ncbi}, --database {card,ncbi}
-                      Reference target-gene database to use when
-                      --target_genes is not given. 'card' (bundled,
-                      updatable) or 'ncbi' (NCBI AMRFinderPlus; download
-                      first with --update --database ncbi). Default: card
-  --update            Download/refresh the selected --database to its
-                      latest release and exit (no assembly graph required)
-  -x MIN_TARGET_IDENTITY, --min_target_identity MIN_TARGET_IDENTITY
-                      Minimum identity/coverage to identify presence of
-                      target gene in assembly graph
-  -l NEIGHBORHOOD_LENGTH, --neighborhood_length NEIGHBORHOOD_LENGTH
-                      Size of gene neighborhood to extract from the
-                      assembly graph
-  -o OUTPUT_DIR, --output_dir OUTPUT_DIR
-                      Output folder for current run of sarand
-  -f, --force         Force overwrite any previous files/output     
-                      directories
-  --verbose           Provide verbose debugging output when logging,
-                      and keep intermediate files
+                        Maximum number of minutes to spend traversing each target gene neighborhood (high complexity subgraphs can be computationally demanding to traverse fully).
+  -j, --num_cores NUM_CORES
+                        Number of cores to use when running Sarand
+  -c, --coverage_difference COVERAGE_DIFFERENCE
+                        Maximum coverage difference within a path to retain when filtering graph neighborhoods. Use -1 to indicate no coverage threshold (this will likely lead to chimeric false neighborhoods).
+  -t, --target_genes TARGET_GENES
+                        Fasta-formatted nucleotide target gene sequences to search for in the assembly graph (Overrides --database or default CARD homolog sequences).
+  -d, --database {card,ncbi}
+                        Reference target-gene database to search with when not supplying custom --target_genes.
+  --update              Download/refresh the pre-installed CARD and NCBI AMR gene databases to their latest releases and exit.
+  -x, --min_target_identity MIN_TARGET_IDENTITY
+                        Minimum identity for target gene hits in assembly graph
+  -z, --min_target_coverage MIN_TARGET_COVERAGE
+                        Minimum coverage for target gene hits in assembly graph
+  -l, --neighborhood_length NEIGHBORHOOD_LENGTH
+                        Maximum gene neighborhood length radius (i.e., the number of bases upstream and/or downstream) to extract surrounding each target gene hit in the assembly graph (bp).
+  -o, --output_dir OUTPUT_DIR
+                        Output folder for current run of sarand
+  -f, --force           Force overwrite any previous files/output directories
+  --verbose             Provide verbose debugging output when logging, and keep intermediate files
   --keep_intermediate_files
-                      Do not delete intermediate files.
-  --debug               Creates additional files for debugging purposes.
-  -seq SEQ_NUMBER, --max_number_seq_for_cdhit SEQ_NUMBER    
-  		      Max Number of sequence for cd-hit
-  -sim [0 1],  -similarity [0 1]
-                     similarity threshold for cdhit (a number between 0 and 1)
+                        Do not delete intermediate files.
+  --debug               Enable debug-level logging and create additional files for debugging purposes.
+  --deduplication_identity DEDUPLICATION_IDENTITY
+                        CD-HIT identity threshold for deduplicating extracted neighborhoods
 ```
 
 **Reference databases (`--database` / `--update`):**
