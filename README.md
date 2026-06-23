@@ -16,9 +16,9 @@ It has primarily been developed for the analysis of Antimicrobial Resistance (AM
 
 Sarand can be run using a conda environment or in a container (Docker or Singularity) and requires these key external dependencies:
 
-- [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) (used by Bandage's graph alignment)
+- [BLAST+](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PAGE_TYPE=BlastDocs&DOC_TYPE=Download) (not called directly but used by Bandage's graph alignment)
 - [Bandage](https://github.com/rrwick/Bandage)
-- [minimap2](https://github.com/lh3/minimap2) (collapsing near-identical neighborhoods)
+- [minimap2](https://github.com/lh3/minimap2) 
 - [cd-hit](https://github.com/weizhongli/cdhit)
 
 
@@ -36,7 +36,7 @@ conda env create -f conda_env.yml
 Which can alternative be run explicitly without using the enviornment yaml like this:
 
 ```shell
-conda create -n sarand-2.0.2 -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 minimap2=2.31 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
+conda create -n sarand -c conda-forge -c bioconda -y blast=2.17.0 bandage=0.9.0 minimap2=2.31 gfapy=1.2.3 cd-hit=4.8.1 networkx biopython pyrodigal
 ```
 
 **Install sarand:**
@@ -44,7 +44,7 @@ conda create -n sarand-2.0.2 -c conda-forge -c bioconda -y blast=2.17.0 bandage=
 ```shell
 git clone https://github.com/beiko-lab/sarand.git
 cd sarand
-conda activate sarand-2.0.2
+conda activate sarand
 python -m pip install sarand
 ```
 
@@ -53,7 +53,7 @@ python -m pip install sarand
 This is the easiest way to run Sarand. As apptainer/singularity will automatically map paths, you simply need to run it in the format of:
 
 ```shell
-singularity run docker://finlaymaguire/sarand:2.0.2 -i input.gfa -o output -a metaspades -k 55
+singularity run docker://ghcr.io/beiko-lab/sarand:latest -i input.gfa -o output -a metaspades -k 55
 ```
 
 ### 1c. Docker
@@ -63,7 +63,7 @@ Basically, just replace `/host/path` and `/container/path` in the command below 
 Note that this will also be the location that the output is written to.
 
 ```shell
-docker run -v /host/path:/container/path -it finlaymaguire/sarand:2.0.2 -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
+docker run -v /host/path:/container/path -it ghcr.io/beiko-lab/sarand:latest -i /container/path/input.gfa -o /container/path/output -a metaspades -k 55
 ```
 
 ## 2. Testing
@@ -71,7 +71,7 @@ docker run -v /host/path:/container/path -it finlaymaguire/sarand:2.0.2 -i /cont
 You can test your install has worked by running the test script via `bash test/test.sh`
 This will execute sarand on a test dataset (using the following command) and check all the expected outputs are created correctly.
 
-    `sarand -i test/spade_output/assembly_graph_with_scaffolds.gfa -o test/test_output -a metaspades -k 55`
+    sarand -i test/spade_output/assembly_graph_with_scaffolds.gfa -o test/test_output -a metaspades -k 55
 
 
 
@@ -151,26 +151,22 @@ optional arguments:
 
 **Reference databases (`--database` / `--update`):**
 
-By default Sarand searches for the CARD antimicrobial-resistance genes that are
-bundled with the package. Two reference databases of nucleotide target genes are
-supported and can be kept up to date without supplying your own `--target_genes`:
+By default Sarand searches for the CARD antimicrobial-resistance genes ("protein homolog models").  Two reference databases of nucleotide target genes are
+supported and can be kept up to date (other datasets can be used by supplying a fasta with `--target_genes`):
 
 * `card` (default) : the [CARD](https://card.mcmaster.ca) protein-homolog model
   nucleotide sequences.
 * `ncbi` : the [NCBI AMRFinderPlus](https://ftp.ncbi.nlm.nih.gov/pathogen/Antimicrobial_resistance/AMRFinderPlus/database/latest/)
   reference gene CDS (`AMR_CDS.fa`).
 
-`--update` downloads the latest release of the selected database (only if newer
-than the local copy) and exits; the database is cached in a user-writable
+`--update` downloads the latest release of the bundled databases (only if newer
+than the local copy) and exits; the databases are cached in a user-writable
 directory (`$SARAND_DB_DIR`, else `$XDG_DATA_HOME/sarand`, else
 `~/.local/share/sarand`) and used automatically on subsequent runs.
 
 ```shell
 # refresh the bundled CARD database to the latest release
 sarand --update
-
-# download / refresh the NCBI AMRFinderPlus database, then search with it
-sarand --update --database ncbi
 sarand -i input.gfa -o output -a metaspades -k 55 --database ncbi
 ```
 

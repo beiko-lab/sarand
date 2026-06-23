@@ -1,4 +1,4 @@
-name: sarand-2.0.1
+name: sarand
 channels:
   - conda-forge
   - bioconda

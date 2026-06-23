@@ -10,6 +10,11 @@ ARG VER
 
 USER root
 
+# Bandage is a Qt application; the container is headless (no display), so without
+# this Qt fails to initialise and Bandage exits non-zero, which sarand reports as
+# "Bandage binary not found". The offscreen platform plugin avoids needing a display.
+ENV QT_QPA_PLATFORM=offscreen
+
 # Create a single conda environment containing all of sarand's dependencies
 RUN micromamba create -n sarand -c conda-forge -c bioconda -c defaults -y \
         blast=2.17.0 \
