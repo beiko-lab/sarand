@@ -32,7 +32,7 @@ from typing import Optional, TextIO
 from Bio import SeqIO
 
 from sarand.util.logger import LOG
-from sarand.util.pkg import get_pkg_fasta_path
+from sarand.util.pkg import get_pkg_fasta_path, get_pkg_version
 
 DATABASES = ("card", "ncbi")
 
@@ -97,15 +97,20 @@ def get_target_fasta(database: str = "card") -> Path:
     """Resolve the target-gene FASTA for ``database``.
 
     A downloaded/updated copy is preferred; otherwise we fall back to the copy
-    bundled with the package (both ``card`` and ``ncbi`` are bundled).
+    bundled with the package (both ``card`` and ``ncbi`` are bundled). The
+    resolved database, version and source are logged.
     """
     if database not in DATABASES:
         raise ValueError(f"Unknown database {database!r}; choose from {DATABASES}")
     fasta = _fasta_path(database)
     if fasta.is_file():
+        version = _load_meta(database).get("version", "unknown")
+        LOG.info(f"Using {database.upper()} database version {version} (updated copy: {fasta})")
         return fasta
     bundled = get_pkg_fasta_path(database)
     if bundled.is_file():
+        version = get_pkg_version(database)
+        LOG.info(f"Using {database.upper()} database version {version} (bundled)")
         return bundled
     raise FileNotFoundError(
         f"No local '{database}' database found. "
