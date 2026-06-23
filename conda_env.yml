@@ -19,3 +19,5 @@ dependencies:
   - zlib-ng
   - zstd
   - pip 
+variables:
+  QT_QPA_PLATFORM: offscreen
