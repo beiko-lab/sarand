@@ -44,6 +44,8 @@ class CdhitParams:
             str(self.word_length),
             '-T',
             str(self.threads),
+            '-M', # unlimited memory for cd-hit instead of built in default limit
+            '0'
         ]
         return out
 
