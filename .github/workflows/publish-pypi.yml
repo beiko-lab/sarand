@@ -41,6 +41,43 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ steps.release.outputs.ref }}
+      - name: Verify version matches release tag
+        shell: bash
+        env:
+          RELEASE_REF: ${{ steps.release.outputs.ref }}
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          from pathlib import Path
+
+          tag = os.environ["RELEASE_REF"]
+          expected = tag.removeprefix("v")
+
+          init_file = Path("sarand/__init__.py")
+          text = init_file.read_text(encoding="utf-8")
+
+          match = re.search(
+              r'^__version__\s*=\s*["\']([^"\']+)["\']',
+              text,
+              re.MULTILINE,
+          )
+
+          if not match:
+              raise SystemExit(
+                  f"Could not find __version__ in {init_file}"
+              )
+
+          actual = match.group(1)
+
+          if actual != expected:
+              raise SystemExit(
+                  f"Version mismatch: release tag is {tag}, "
+                  f"but sarand.__version__ is {actual}"
+              )
+
+          print(f"Version verified: tag {tag} matches sarand {actual}")
+          PY
 
       - name: Set up Python
         uses: actions/setup-python@v5
